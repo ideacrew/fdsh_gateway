@@ -10,7 +10,7 @@ gem 'dry-struct',           '~> 1.3'
 gem 'dry-transaction',      '~> 0.13'
 gem 'dry-types',            '~> 1.4'
 gem 'dry-validation',       '~> 1.6'
-gem 'event_source',  git:  'https://github.com/ideacrew/event_source.git', branch: 'release_0.5.0'
+gem 'event_source',  git:  'https://github.com/ideacrew/event_source.git', branch: 'release_0.5.1'
 gem 'mongoid',             '~> 7.2.1'
 
 # Use Puma as the app server
