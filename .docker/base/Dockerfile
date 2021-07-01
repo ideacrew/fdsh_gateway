@@ -2,9 +2,27 @@
 ### app/rails config ###
 ########################
 
-FROM public.ecr.aws/ideacrew/fdsh_gateway:base AS app
+FROM ruby:2.7.2 AS app
 
 LABEL author="IdeaCrew"
+
+ARG NODE_MAJOR
+
+# NodeJS download/config
+RUN curl -sL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
+
+# Yarn download/config
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo 'deb http://dl.yarnpkg.com/debian/ stable main' > /etc/apt/sources.list.d/yarn.list
+
+ARG YARN_VERSION
+# Install required packages/libraries
+RUN apt-get update && \
+    apt-get -yq dist-upgrade && \
+    apt-get install -y default-jre git gcc openssl libyaml-dev libyaml-cpp-dev libyaml-cpp0.6 libffi-dev libffi6 libreadline-dev \
+    zlibc libgdbm-dev libncurses-dev autoconf fontconfig unzip zip sshpass bzip2 libxrender1 libxext6 \
+    build-essential nodejs yarn=$YARN_VERSION-1 && \
+    apt-get autoremove -y
 
 # Configure bundler and PATH, install bundler version
 ENV LANG=C.UTF-8 \
@@ -28,17 +46,8 @@ COPY . $HOME
 
 RUN yarn install
 
-# Setting env up
-#ARG MEDICAID_GATEWAY_DB_HOST
-#ARG MEDICAID_GATEWAY_DB_PORT
-#ARG MEDICAID_GATEWAY_DB_NAME
-#ARG RABBITMQ_URL
 ENV RAILS_ENV='production'
 ENV NODE_ENV='production'
-#ENV MEDICAID_GATEWAY_DB_HOST=$MEDICAID_GATEWAY_DB_HOST
-#ENV MEDICAID_GATEWAY_DB_PORT=$MEDICAID_GATEWAY_DB_PORT
-#ENV MEDICAID_GATEWAY_DB_NAME=$MEDICAID_GATEWAY_DB_NAME
-#ENV RABBITMQ_URL=$RABBITMQ_URL
 
 # Adding gems
 COPY Gemfile Gemfile
