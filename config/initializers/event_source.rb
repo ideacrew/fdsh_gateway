@@ -19,7 +19,7 @@ EventSource.configure do |config|
     end
 
     server.http do |http|
-      http.ref = "http://ridp-service/initial"
+      http.ref = "http://ridp-service/endpoint"
       http.url = ENV["RIDP_INITIAL_SERVICE_URL"] || "http://ridp-service/initial"
       http.client_certificate do |client_cert|
         client_cert.client_certificate = ENV["RIDP_CLIENT_CERT_PATH"] || 
