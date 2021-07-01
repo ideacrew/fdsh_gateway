@@ -43,6 +43,7 @@ coverage
 
 # byebug history
 /.byebug_history
+*.swp
 
 # Make sure no PII is accidently commited
 # add w/ git add --force if actually docs
