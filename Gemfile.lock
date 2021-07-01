@@ -1,24 +1,25 @@
 GIT
   remote: https://github.com/ideacrew/aca_entities.git
-  revision: 4c7e52bb755705130f471fcac385ed5375edc382
-  branch: fdsh
+  revision: eab2a6faa87d2b359cc98dbc0938a449cb756274
+  branch: release_0.3.0
   specs:
-    aca_entities (0.2.2)
+    aca_entities (0.3.0)
       deep_merge
       dry-monads (~> 1.2)
       dry-struct (~> 1.0)
       dry-transformer (~> 0.1.1)
       dry-types (~> 1.0)
       dry-validation (~> 1.2)
+      nokogiri-happymapper
       oj (~> 3.11)
 
 GIT
   remote: https://github.com/ideacrew/event_source.git
-  revision: b69ca07bb255894fc7b492d1d37925ad2f032d50
-  branch: release_0.5.0
+  revision: 50b32a1ddb58e8b583bec964deeadf015ca10038
+  branch: release_0.5.3
   specs:
-    event_source (0.5.0)
-      bunny (~> 2.17.0)
+    event_source (0.5.3)
+      bunny (>= 1.7.1)
       deep_merge (~> 1.2.0)
       dry-events (~> 0.3)
       dry-inflector (~> 0.2)
@@ -32,7 +33,7 @@ GIT
       faraday_middleware (~> 1.0)
       logging (~> 2.3.0)
       mime-types
-      nokogiri (~> 1.11.5)
+      nokogiri (>= 1.10.8)
       oj (~> 3.11)
       ox (~> 2.14)
       resque-bus (~> 0.7.0)
@@ -103,8 +104,9 @@ GEM
     amq-protocol (2.3.2)
     bson (4.12.1)
     builder (3.2.4)
-    bunny (2.17.0)
+    bunny (2.19.0)
       amq-protocol (~> 2.3, >= 2.3.1)
+      sorted_set (~> 1, >= 1.0.2)
     byebug (11.1.3)
     coderay (1.1.3)
     concurrent-ruby (1.1.9)
@@ -174,7 +176,7 @@ GEM
     factory_bot_rails (6.2.0)
       factory_bot (~> 6.2.0)
       railties (>= 5.0.0)
-    faraday (1.4.2)
+    faraday (1.4.3)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
       faraday-excon (~> 1.1)
@@ -232,7 +234,9 @@ GEM
     nokogiri (1.11.7)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
-    oj (3.11.5)
+    nokogiri-happymapper (0.8.1)
+      nokogiri (~> 1.5)
+    oj (3.11.7)
     ox (2.14.5)
     pry (0.13.1)
       coderay (~> 1.1)
@@ -242,7 +246,7 @@ GEM
       pry (~> 0.13.0)
     puma (5.3.2)
       nio4r (~> 2.0)
-    queue-bus (0.10.0)
+    queue-bus (0.11.0)
       multi_json
       redis
     raabro (1.4.0)
@@ -282,7 +286,8 @@ GEM
     rb-fsevent (0.11.0)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
-    redis (4.2.5)
+    rbtree (0.4.4)
+    redis (4.3.1)
     redis-namespace (1.8.1)
       redis (>= 3.0.4)
     resque (1.27.4)
@@ -334,6 +339,7 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
+    set (1.0.1)
     shoulda-matchers (3.1.3)
       activesupport (>= 4.0.0)
     sinatra (2.1.0)
@@ -341,6 +347,9 @@ GEM
       rack (~> 2.2)
       rack-protection (= 2.1.0)
       tilt (~> 2.0)
+    sorted_set (1.0.3)
+      rbtree
+      set (~> 1.0)
     sprockets (4.0.2)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
