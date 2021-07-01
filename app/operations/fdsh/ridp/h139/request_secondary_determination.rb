@@ -24,7 +24,6 @@ module Fdsh
           Success(request)
         end
 
-        private
       end
     end
   end

@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.7.2'
+# ruby '2.7.2'
 
 gem 'aca_entities',  git:  'https://github.com/ideacrew/aca_entities.git', branch: 'release_0.3.0'
 gem 'dry-matcher',          '~> 0.8'
@@ -29,6 +31,7 @@ group :development, :test do
   gem 'rspec-rails',            '~> 5.0'
   gem 'shoulda-matchers',       '~> 3'
   gem 'yard'
+  gem 'rubocop', '1.10.0'
 end
 
 group :development do

@@ -9,37 +9,30 @@ EventSource.configure do |config|
 
   config.servers do |server|
     server.amqp do |rabbitmq|
-      rabbitmq.host = ENV['RABBITMQ_HOST'] || 'amqp://localhost'
-      STDERR.puts rabbitmq.host
-      rabbitmq.vhost = ENV['RABBITMQ_VHOST'] || '/event_source'
-      STDERR.puts rabbitmq.vhost
-      rabbitmq.port = ENV['RABBITMQ_PORT'] || '5672'
-      STDERR.puts rabbitmq.port
-      rabbitmq.url = ENV['RABBITMQ_URL'] || ''
-      STDERR.puts rabbitmq.url
+      rabbitmq.url = ENV['RABBITMQ_URL'] || 'amqp://localhost:5672/'
+      warn rabbitmq.url
       rabbitmq.user_name = ENV['RABBITMQ_USERNAME'] || 'guest'
-      STDERR.puts rabbitmq.user_name
+      warn rabbitmq.user_name
       rabbitmq.password = ENV['RABBITMQ_PASSWORD'] || 'guest'
-      STDERR.puts rabbitmq.password
+      warn rabbitmq.password
       # rabbitmq.url = "" # ENV['RABBITMQ_URL']
     end
   end
 
   app_schemas =
     Gem
-      .loaded_specs
-      .values
-      .inject([]) do |ps, s|
-        ps.concat(s.matches_for_glob('aca_entities/async_api/fdsh_gateway.yml'))
-      end
+    .loaded_specs
+    .values
+    .inject([]) do |ps, s|
+      ps.concat(s.matches_for_glob('aca_entities/async_api/fdsh_gateway.yml'))
+    end
 
   config.async_api_schemas =
     app_schemas.map do |schema|
       EventSource::AsyncApi::Operations::AsyncApiConf::LoadPath
         .new
         .call(path: schema)
-        .success
-        .to_h
+        .value!
     end
 
   # config.asyncapi_resources = [AcaEntities::AsyncApi::MedicaidGataway]
