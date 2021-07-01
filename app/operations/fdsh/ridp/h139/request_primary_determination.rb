@@ -26,16 +26,16 @@ module Fdsh
         # @option params [AcaEntities::Families::Family] family family entity
         # @return [Dry::Monad] result
         def call(params)
-          values = yield validate(params)
-          fdsh_payload = yield transform(values)
-          soap_message = yield build_fdsh_soap_request(fdsh_payload)
+          #          values = yield validate(params)
+          #          fdsh_payload = yield transform(values)
+          #          soap_message = yield build_fdsh_soap_request(fdsh_payload)
 
           # Pattern this after MITC request
-          request = yield request_service(soap_message)
-          persist_request = yield persist(request)
-          event = yield build_event(request)
+          #          request = yield request_service(soap_message)
+          #          persist_request = yield persist(request)
+          #          event = yield build_event(request)
 
-          Success(request)
+          #          Success(request)
         end
 
       end
