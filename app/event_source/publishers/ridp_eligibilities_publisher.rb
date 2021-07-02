@@ -7,7 +7,7 @@ module Publishers
         module Publishers
           # Publish events for FDSH RIDP requests
           class RidpEligibilitiesPublisher
-            include ::EventSource::Publisher[amqp: 'fdsh.ridp.eligibilities']
+            include ::EventSource::Publisher[http: 'fdsh/RIDPService']
 
             register_event 'primary_request_determined'
             register_event 'secondary_request_determined'
