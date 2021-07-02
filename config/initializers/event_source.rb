@@ -22,10 +22,10 @@ EventSource.configure do |config|
       http.ref = "http://ridp-service/endpoint"
       http.url = ENV["RIDP_INITIAL_SERVICE_URL"] || "http://ridp-service/initial"
       http.client_certificate do |client_cert|
-        client_cert.client_certificate = ENV["RIDP_CLIENT_CERT_PATH"] || 
-          File.join(File.dirname(__FILE__), "..", "ridp_test_cert.pem")
-        client_cert.client_key = ENV["RIDP_CLIENT_KEY_PATH"] || 
-          File.join(File.dirname(__FILE__), "..", "ridp_test_key.key")
+        client_cert.client_certificate = ENV["RIDP_CLIENT_CERT_PATH"] ||
+                                         File.join(File.dirname(__FILE__), "..", "ridp_test_cert.pem")
+        client_cert.client_key = ENV["RIDP_CLIENT_KEY_PATH"] ||
+                                 File.join(File.dirname(__FILE__), "..", "ridp_test_key.key")
       end
       http.soap do |soap|
         soap.user_name = ENV["RIDP_SERVICE_USERNAME"]
