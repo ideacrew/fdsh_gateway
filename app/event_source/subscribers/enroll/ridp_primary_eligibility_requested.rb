@@ -3,7 +3,7 @@
 module Subscribers
   # Publish events for FDSH RIDP requests
   class RidpElibilityRequestedSubscriber
-    include ::EventSource::Publisher[amqp: 'fdsh.ridp.requests']
+    include ::EventSource::Publisher[http: 'fdsh/RIDPService']
 
     subscribe(:on_primary_request) do |_delivery_info, _metadata, payload|
       # Sequence of steps that are executed as single operation

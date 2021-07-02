@@ -6,7 +6,8 @@ module Subscribers
       module H139
         # Publish events for FDSH RIDP requests
         class PrimaryElibilityRepsonseSubscriber
-          include ::EventSource::Publisher[http: '/<fdsh ridp endpoint>']
+          include ::EventSource::Publisher[http: 'fdsh/RIDPService']
+          # include ::EventSource::Publisher[http: '/<fdsh ridp endpoint>']
 
           subscribe(
             :'on/<ridp primary endpont>'
