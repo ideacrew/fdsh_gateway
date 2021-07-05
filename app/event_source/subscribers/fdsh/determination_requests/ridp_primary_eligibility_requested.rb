@@ -3,7 +3,7 @@
 module Subscribers
   # Publish events for FDSH RIDP requests
   class RidpElibilityRequestedSubscriber
-    include ::EventSource::Subscriber[http: 'fdsh.determination_requests.ridp']
+    include ::EventSource::Subscriber[amqp: 'fdsh.determination_requests.ridp']
 
     subscribe(
       :on_fdsh_determination_requests_ridp_primary_determination_requested

@@ -3,9 +3,9 @@
 module Subscribers::Fdsh
   # Receive response from FDSH requests
   class RidpServiceSubscriber
-    include ::EventSource::Publisher[http: '/RIDPService']
+    include ::EventSource::Subscriber[http: '/RIDPService']
 
-    subscribe(:'on/RIDPService') do |body, status, headers|
+    subscribe(:'on_RIDPService') do |body, status, headers|
       # Sequence of steps that are executed as single operation
       # puts "triggered --> on_primary_request block -- #{body} --  #{status} -- #{headers}"
 
@@ -32,10 +32,10 @@ module Subscribers::Fdsh
           # call operation that sends error to Enroll
         end
       else
-        logger.error 'Subscribers::Fdsh::ResponseSubscriber: on/RIDPService error'
+        logger.error 'Subscribers::Fdsh::ResponseSubscriber: on_RIDPService error'
       end
     rescue StandardError => e
-      logger.error "Subscribers::Fdsh::ResponseSubscriber: on/RIDPService error backtrace: #{e.backtrace}"
+      logger.error "Subscribers::Fdsh::ResponseSubscriber: on_RIDPService error backtrace: #{e.backtrace}"
     end
   end
 end
