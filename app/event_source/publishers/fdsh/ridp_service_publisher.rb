@@ -3,8 +3,8 @@
 module Publishers::Fdsh
   # Publish requests to test instance of CMS HTTP FDSH RIDP Services
   class RidpServicePublisher
-    include ::EventSource::Publisher[http: '/impl/RIDPService']
+    include ::EventSource::Publisher[http: '/RIDPService']
 
-    register_event '/impl/RIDPService'
+    register_event '/RIDPService'
   end
 end
