@@ -5,7 +5,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # ruby '2.7.2'
 
-gem 'aca_entities',  git:  'https://github.com/ideacrew/aca_entities.git', branch: 'ridp'
+gem 'aca_entities',  git:  'https://github.com/ideacrew/aca_entities.git', branch: 'release_0.3.0'
 gem 'dry-matcher',          '~> 0.8'
 gem 'dry-monads',           '~> 1.3'
 gem 'dry-struct',           '~> 1.3'
