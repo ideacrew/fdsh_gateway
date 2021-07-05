@@ -3,9 +3,9 @@
 module Subscribers::Fdsh
   # Receive response from FDSH requests
   class RidpServiceSubscriber
-    include ::EventSource::Publisher[http: '/impl/RIDPService']
+    include ::EventSource::Publisher[http: '/RIDPService']
 
-    subscribe(:'on/impl/RIDPService') do |body, status, headers|
+    subscribe(:'on/RIDPService') do |body, status, headers|
       # Sequence of steps that are executed as single operation
       # puts "triggered --> on_primary_request block -- #{body} --  #{status} -- #{headers}"
 
