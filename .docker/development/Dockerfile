@@ -28,6 +28,7 @@ RUN apt-get update && \
     apt-get autoremove -y && \
     gem install bundler:$BUNDLER_VERSION_OVERRIDE && \
     npm install --global yarn
+    # npm --force install --global yarn
 
 COPY . $HOME
 
