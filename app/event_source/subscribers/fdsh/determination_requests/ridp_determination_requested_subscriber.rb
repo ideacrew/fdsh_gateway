@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module Subscribers
+module Subscribers::Fdsh::DeterminationRequests
   # Publish events for FDSH RIDP requests
-  class RidpElibilityRequestedSubscriber
+  class RidpDeterminationRequestedSubscriber
     include ::EventSource::Subscriber[amqp: 'fdsh.determination_requests.ridp']
 
     subscribe(
