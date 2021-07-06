@@ -12,7 +12,7 @@ module Fdsh
         # @return [Dry::Monads::Result]
         def call(params)
           json_hash = yield parse_json(params)
-          family_hash = yield validate_family(json_hash)
+          family_hash = yield validate_family_json_hash(json_hash)
           family = yield build_family(family_hash)
           determination_request = yield TransformFamilyToPrimaryDetermination.new.call(family)
           determination_request_xml = yield encode_request_xml(determination_request)
@@ -44,7 +44,7 @@ module Fdsh
         end
 
         def validate_family_json_hash(json_hash)
-          validation_result = AcaEntities::Contract::Families::Family.new.call(json_hash)
+          validation_result = AcaEntities::Contracts::Families::FamilyContract.new.call(json_hash)
 
           validation_result.success? ? Success(validation_result.values) : Failure(validation_result.errors)
         end
