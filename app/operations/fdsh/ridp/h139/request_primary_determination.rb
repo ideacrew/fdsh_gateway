@@ -14,7 +14,7 @@ module Fdsh
           json_hash = yield parse_json(params)
           family_hash = yield validate_family(json_hash)
           family = yield build_family(family_hash)
-          determination_request = yield TransformFamilyToPrimaryDetermination.new.call(params)
+          determination_request = yield TransformFamilyToPrimaryDetermination.new.call(family)
           determination_request_xml = yield encode_request_xml(determination_request)
 
           publish_event(determination_request_xml)
@@ -23,19 +23,22 @@ module Fdsh
         protected
 
         def parse_json(json_string)
-          Try do
+          parsing_result = Try do
             JSON.parse(json_string)
-          end.or do
+          end
+          parsing_result.or do
             Failure(:invalid_json)
           end
         end
 
         def encode_request_xml(determination_request)
-          Try do
+          encoding_result = Try do
             AcaEntities::Serializers::Xml::Fdsh::Ridp::PrimaryRequest.domain_to_mapper(
               determination_request
             ).to_xml
-          end.or do |e|
+          end
+
+          encoding_result.or do |e|
             Failure(e)
           end
         end
@@ -47,13 +50,15 @@ module Fdsh
         end
 
         def build_family(family_hash)
-          Try do
+          creation_result = Try do
             AcaEntities::Families::Family.new(family_hash)
-          end.or do |e|
+          end
+
+          creation_result.or do |e|
             Failure(e)
           end
         end
-=begin
+
         def publish_event(_request_json)
           event =
             event 'organizations.general_organization_created',
@@ -61,7 +66,7 @@ module Fdsh
           event.publish
           logger.info "Published event: #{event}"
         end
-=end
+
       end
     end
   end
