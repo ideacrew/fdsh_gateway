@@ -10,7 +10,8 @@ module Fdsh
 
         def call(response_xml)
           body_xml = yield strip_soap(response_xml)
-          ProcessPrimaryResponse.new.call(body_xml)
+          attestation = yield ProcessPrimaryResponse.new.call(body_xml)
+          Success(attestation.to_json)
         end
 
         protected
