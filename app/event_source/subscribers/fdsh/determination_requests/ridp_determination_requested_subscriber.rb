@@ -9,12 +9,20 @@ module Subscribers
 
         subscribe(
           :on_fdsh_determination_requests_ridp_primary_determination_requested
-        ) do |_delivery_info, _metadata, payload|
+        ) do |delivery_info, _metadata, payload|
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
+          determination_result = Fdsh::Ridp::H139::RequestPrimaryDetermination.new.call(payload)
 
-          if Fdsh::Ridp::H139.BuildPrimaryRequest.call(payload).success?
-            # acknowledge RabbitMQ - will delete message from queue
+          if determination_result.success?
+            _response = determination_result.value!
+            # TODO: Transform and send back to Enroll
+            ack(delivery_info.delivery_tag)
+          else
+            logger.error(
+              "Error: :on_fdsh_determination_requests_ridp_primary_determination_requested; nacked due to:#{determination_result.inspect}"
+            )
+            nack(delivery_info.delivery_tag)
           end
         end
 
