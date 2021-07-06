@@ -26,7 +26,7 @@ EventSource.configure do |config|
     server.http do |http|
       http.ref = 'https://impl.hub.cms.gov/Imp1'
       http.url =
-        ENV['RIDP_INITIAL_SERVICE_URL'] || 'http://ridp-service/initial'
+        ENV['RIDP_INITIAL_SERVICE_URL'] || 'https://impl.hub.cms.gov/Imp1'
       http.client_certificate do |client_cert|
         client_cert.client_certificate =
           ENV['RIDP_CLIENT_CERT_PATH'] ||
@@ -36,8 +36,8 @@ EventSource.configure do |config|
           File.join(File.dirname(__FILE__), '..', 'ridp_test_key.key')
       end
       http.soap do |soap|
-        soap.user_name = ENV['RIDP_SERVICE_USERNAME']
-        soap.password = ENV['RIDP_SERVICE_PASSWORD']
+        soap.user_name = ENV['RIDP_SERVICE_USERNAME'] || "guest"
+        soap.password = ENV['RIDP_SERVICE_PASSWORD'] || "guest"
         soap.password_encoding = :digest
         soap.use_timestamp = true
         soap.timestamp_ttl = 60.seconds
