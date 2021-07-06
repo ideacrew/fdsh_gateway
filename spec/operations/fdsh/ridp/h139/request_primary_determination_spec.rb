@@ -185,7 +185,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestPrimaryDetermination, "given:
           'Expect' => '',
           'User-Agent' => 'Faraday v1.4.3'
         }
-      ) do |request|
+      ) do |_request|
         true
       end.to_return(status: 200, body: "", headers: {})
   end
