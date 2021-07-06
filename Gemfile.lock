@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ideacrew/aca_entities.git
-  revision: 646e68737c1e673fa86a74c9431a38d480eea468
+  revision: ef10606106d536e0f7d76dc8696d9e09f620b82a
   branch: release_0.3.0
   specs:
     aca_entities (0.3.0)
@@ -237,7 +237,7 @@ GEM
       racc (~> 1.4)
     nokogiri-happymapper (0.8.1)
       nokogiri (~> 1.5)
-    oj (3.11.8)
+    oj (3.12.0)
     ox (2.14.5)
     parallel (1.20.1)
     parser (3.0.1.1)
