@@ -7,7 +7,6 @@ EventSource.configure do |config|
   config.app_name = :fdsh_gateway
 
   config.servers do |server|
-
     server.amqp do |rabbitmq|
       rabbitmq.host = ENV['RABBITMQ_HOST'] || 'amqp://localhost'
       warn rabbitmq.host
@@ -23,7 +22,24 @@ EventSource.configure do |config|
       warn rabbitmq.password
     end
 
+    server.amqp do |rabbitmq|
+      rabbitmq.ref = 'amqp://rabbitmq:5672/event_source'
+      rabbitmq.host = ENV['RABBITMQ_HOST'] || 'amqp://localhost'
+      warn rabbitmq.host
+      rabbitmq.vhost = ENV['RABBITMQ_VHOST'] || '/'
+      warn rabbitmq.vhost
+      rabbitmq.port = ENV['RABBITMQ_PORT'] || '5672'
+      warn rabbitmq.port
+      rabbitmq.url = ENV['RABBITMQ_URL'] || 'amqp://localhost:5672/'
+      warn rabbitmq.url
+      rabbitmq.user_name = ENV['RABBITMQ_USERNAME'] || 'guest'
+      warn rabbitmq.user_name
+      rabbitmq.password = ENV['RABBITMQ_PASSWORD'] || 'guest'
+      warn rabbitmq.password
+    end
+
     server.http do |http|
+      http.ref = "http://mitc:3001"
       http.host = ENV['MITC_HOST'] || 'http://localhost'
       http.port = ENV['MITC_PORT'] || '3000'
       http.url = ENV['MITC_URL'] || 'http://localhost:3000'
