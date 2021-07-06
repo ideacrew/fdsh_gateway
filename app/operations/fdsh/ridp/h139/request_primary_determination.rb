@@ -1,92 +1,67 @@
 # frozen_string_literal: true
 
-require 'dry/monads'
-require 'dry/monads/do'
-
 module Fdsh
-  module Operations
-    module Ridp
-      module H139
-        # This class takes AcaEntities::Families::Famlily as input and returns the ridp primary request hash.
-        class RequestPrimaryDetermination
-          include Dry::Monads[:result, :do, :try]
-          include EventSource::Command
+  module Ridp
+    module H139
+      # This class takes a json representing a family as input and invokes RIDP.
+      class RequestPrimaryDetermination
+        include Dry::Monads[:result, :do, :try]
+        include EventSource::Command
 
-          # @param params [Hash] The params to execute an FDSH RIDP Primary Determination Request
-          # @option params [AcaEntities::Families::Family] :family
-          # @return [Dry::Monads::Result]
-          def call(params)
-            family = yield validate_family(params)
-            person = yield fetch_primary_person(family)
-            request = yield build_request(person)
-            validated_request = yield validate_request(request)
-            request_json = yield request_entity_json(validated_request)
-            publish_event(request_json)
+        # @param params [String] the json payload of the family
+        # @return [Dry::Monads::Result]
+        def call(params)
+          json_hash = yield parse_json(params)
+          family_hash = yield validate_family(json_hash)
+          family = yield build_family(family_hash)
+          determination_request = yield TransformFamilyToPrimaryDetermination.new.call(params)
+          determination_request_xml = yield encode_request_xml(determination_request)
 
-            Success(primary_request_json)
-          end
+          publish_event(determination_request_xml)
+        end
 
-          private
+        protected
 
-          def publish_event(_request_json)
-            event =
-              event 'organizations.general_organization_created',
-                    attributes: organization.to_h
-            event.publish
-            logger.info "Published event: #{event}"
-          end
-
-          # Validate input object
-          def validate_family(family)
-            if family.is_a?(::AcaEntities::Families::Family)
-              Success(family)
-            else
-              Failure(
-                "Invalid Family, given value is not a ::AcaEntities::Families::Family, input_value:#{family}"
-              )
-            end
-          end
-
-          def fetch_primary_person(family)
-            primary_family_member =
-              family.family_members.detect(&:is_primary_applicant)
-            if primary_family_member
-              Success(primary_family_member.person)
-            else
-              Failure('No Primary Applicant in family members')
-            end
-          end
-
-          # Transform Person params To PrimaryRequest Contract params
-          def build_request(person)
-            input_hash =
-              person.to_h.merge(
-                {
-                  home_address: person.home_address.to_h,
-                  home_phone: person.home_phone.to_h
-                }
-              )
-            ::AcaEntities::Fdsh::Transformers::Ridp::PersonToPrimaryRequest.call(
-              input_hash.to_json
-            ) { |record| @transform_result = record }
-            Success(@transform_result)
-          end
-
-          # Validate PrimaryRequest params against PrimaryRequest Contract
-          def validate_primary_request(params)
-            params.merge!({ LevelOfProofingCode: 'LevelThree' })
-            result =
-              ::AcaEntities::Fdsh::Ridp::H139::PrimaryRequestContract.new.call(params)
-
-            result.success? ? Success(result.to_h) : Failure(result)
-          end
-
-          def primary_request_entity_json(values)
-            result = ::AcaEntities::Fdsh::Ridp::H139::PrimaryRequest.new(values.to_h)
-
-            Success(result)
+        def parse_json(json_string)
+          Try do
+            JSON.parse(json_string)
+          end.or do
+            Failure(:invalid_json)
           end
         end
+
+        def encode_request_xml(determination_request)
+          Try do
+            AcaEntities::Serializers::Xml::Fdsh::Ridp::PrimaryRequest.domain_to_mapper(
+              determination_request
+            ).to_xml
+          end.or do |e|
+            Failure(e)
+          end
+        end
+
+        def validate_family_json_hash(json_hash)
+          validation_result = AcaEntities::Contract::Families::Family.new.call(json_hash)
+
+          validation_result.success? ? Success(validation_result.values) : Failure(validation_result.errors)
+        end
+
+        def build_family(family_hash)
+          Try do
+            AcaEntities::Families::Family.new(family_hash)
+          end.or do |e|
+            Failure(e)
+          end
+        end
+=begin
+        def publish_event(_request_json)
+          event =
+            event 'organizations.general_organization_created',
+                  attributes: organization.to_h
+          event.publish
+          logger.info "Published event: #{event}"
+        end
+=end
       end
     end
   end
