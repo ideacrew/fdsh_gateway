@@ -179,15 +179,15 @@ RSpec.describe Fdsh::Ridp::H139::RequestPrimaryDetermination, "given:
 
     stub_request(:post, "https://impl.hub.cms.gov/RIDPService")
       .with(
-        body: "<xml></xml>",
         headers: {
           'Accept' => 'application/soap+xml',
           'Content-Type' => 'application/soap+xml',
           'Expect' => '',
           'User-Agent' => 'Faraday v1.4.3'
         }
-      )
-      .to_return(status: 200, body: "", headers: {})
+      ) do |request|
+        true
+      end.to_return(status: 200, body: "", headers: {})
   end
 
   it "succeeds" do
