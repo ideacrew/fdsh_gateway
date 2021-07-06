@@ -24,13 +24,6 @@ EventSource.configure do |config|
     end
 
     server.http do |http|
-      http.ref = "http://mitc:3001"
-      http.host = ENV['MITC_HOST'] || 'http://localhost'
-      http.port = ENV['MITC_PORT'] || '3000'
-      http.url = ENV['MITC_URL'] || 'http://localhost:3000'
-    end
-
-    server.http do |http|
       http.ref = 'https://impl.hub.cms.gov/Imp1'
       http.url =
         ENV['RIDP_INITIAL_SERVICE_URL'] || 'http://ridp-service/initial'
@@ -52,13 +45,8 @@ EventSource.configure do |config|
     end
   end
 
-  async_api_resources = ::AcaEntities.async_api_config_find_by_service_name(nil).success
-
-  # {
-  #   amqp: [nil],
-  #   http: ['fdsh_gateway']
-  # }
-  # end
+  async_api_resources = ::AcaEntities.async_api_config_find_by_service_name({protocol: :amqp, service_name: nil}).success
+  async_api_resources += ::AcaEntities.async_api_config_find_by_service_name({protocol: :http, service_name: :fdsh_gateway}).success
 
   config.async_api_schemas =
     async_api_resources.collect do |resource|
