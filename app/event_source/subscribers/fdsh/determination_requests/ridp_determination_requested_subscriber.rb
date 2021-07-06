@@ -17,7 +17,16 @@ module Subscribers
           if determination_result.success?
             _response = determination_result.value!
             # TODO: Transform and send back to Enroll
-            ack(delivery_info.delivery_tag)
+            primary_response_result = nil
+            if primary_response_result.success?
+
+              ack(delivery_info.delivery_tag)
+            else
+              logger.error(
+                "Error: :on_fdsh_determination_requests_ridp_primary_determination_requested; nacked due to:#{primary_response_result.inspect}"
+              )
+              nack(delivery_info.delivery_tag)
+            end
           else
             logger.error(
               "Error: :on_fdsh_determination_requests_ridp_primary_determination_requested; nacked due to:#{determination_result.inspect}"
