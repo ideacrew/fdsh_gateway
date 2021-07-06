@@ -3,7 +3,7 @@
 module Publishers
   module Fdsh
     module Eligibilities
-      class RipdPublisher
+      class RidpPublisher
         include ::EventSource::Publisher[amqp: 'fdsh.eligibilities.ridp']
 
         # Sends AcaEntities::Attestations::Attestation payload
