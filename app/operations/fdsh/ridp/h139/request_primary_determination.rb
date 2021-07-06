@@ -64,7 +64,7 @@ module Fdsh
         end
 
         # Re-enable once soap is fixed.
-        def publish_event(determination_request_xml)
+        def publish_event(_determination_request_xml)
           # event = PublishEventStruct.new(PUBLISH_EVENT, determination_request_xml)
 
           # Success(Publishers::Fdsh::RidpServicePublisher.publish(event))

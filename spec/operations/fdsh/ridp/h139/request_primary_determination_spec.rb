@@ -93,12 +93,12 @@ RSpec.describe Fdsh::Ridp::H139::RequestPrimaryDetermination, "given:
       .and_return(family_contract_mock)
     allow(family_contract_mock).to receive(:call).with({})
                                                  .and_return(family_contract_validation_result)
-    allow(AcaEntities::Families::Family).to receive(:new).with({}).
-      and_return(family_mock)
-    allow(Fdsh::Ridp::H139::TransformFamilyToPrimaryDetermination).to receive(:new).
-      and_return(transform_operation_mock)
-    allow(transform_operation_mock).to receive(:call).with(family_mock).
-      and_return(Dry::Monads::Result::Failure.(nil))
+    allow(AcaEntities::Families::Family).to receive(:new).with({})
+                                                         .and_return(family_mock)
+    allow(Fdsh::Ridp::H139::TransformFamilyToPrimaryDetermination).to receive(:new)
+      .and_return(transform_operation_mock)
+    allow(transform_operation_mock).to receive(:call).with(family_mock)
+                                                     .and_return(Dry::Monads::Result::Failure.call(nil))
   end
 
   it "fails" do
@@ -167,26 +167,27 @@ RSpec.describe Fdsh::Ridp::H139::RequestPrimaryDetermination, "given:
       .and_return(family_contract_mock)
     allow(family_contract_mock).to receive(:call).with({})
                                                  .and_return(family_contract_validation_result)
-    allow(AcaEntities::Families::Family).to receive(:new).with({}).
-      and_return(family_mock)
-    allow(Fdsh::Ridp::H139::TransformFamilyToPrimaryDetermination).to receive(:new).
-      and_return(transform_operation_mock)
-    allow(transform_operation_mock).to receive(:call).with(family_mock).
-      and_return(Dry::Monads::Result::Success.(validation_request_mock))
+    allow(AcaEntities::Families::Family).to receive(:new).with({})
+                                                         .and_return(family_mock)
+    allow(Fdsh::Ridp::H139::TransformFamilyToPrimaryDetermination).to receive(:new)
+      .and_return(transform_operation_mock)
+    allow(transform_operation_mock).to receive(:call).with(family_mock)
+                                                     .and_return(Dry::Monads::Result::Success.call(validation_request_mock))
     allow(AcaEntities::Serializers::Xml::Fdsh::Ridp::PrimaryRequest).to receive(
       :domain_to_mapper
     ).with(validation_request_mock).and_return(encoding_request_mock)
 
-    stub_request(:post, "https://impl.hub.cms.gov/RIDPService").
-    with(
-      body: "<xml></xml>",
-      headers: {
-      'Accept'=>'application/soap+xml',
-      'Content-Type'=>'application/soap+xml',
-      'Expect'=>'',
-      'User-Agent'=>'Faraday v1.4.3'
-      }).
-    to_return(status: 200, body: "", headers: {})
+    stub_request(:post, "https://impl.hub.cms.gov/RIDPService")
+      .with(
+        body: "<xml></xml>",
+        headers: {
+          'Accept' => 'application/soap+xml',
+          'Content-Type' => 'application/soap+xml',
+          'Expect' => '',
+          'User-Agent' => 'Faraday v1.4.3'
+        }
+      )
+      .to_return(status: 200, body: "", headers: {})
   end
 
   it "succeeds" do
