@@ -8,6 +8,10 @@ module Fdsh
         include Dry::Monads[:result, :do, :try]
         include EventSource::Command
 
+        PublishEventStruct = Struct.new(:name, :payload)
+
+        PUBLISH_EVENT = "fdsh_primary_determination_requested"
+
         # @param params [String] the json payload of the family
         # @return [Dry::Monads::Result]
         def call(params)
@@ -59,12 +63,12 @@ module Fdsh
           end
         end
 
-        def publish_event(_request_json)
-          event =
-            event 'organizations.general_organization_created',
-                  attributes: organization.to_h
-          event.publish
-          logger.info "Published event: #{event}"
+        # Re-enable once soap is fixed.
+        def publish_event(determination_request_xml)
+          # event = PublishEventStruct.new(PUBLISH_EVENT, determination_request_xml)
+
+          # Success(Publishers::Fdsh::RidpServicePublisher.publish(event))
+          Success(:ok)
         end
 
       end
