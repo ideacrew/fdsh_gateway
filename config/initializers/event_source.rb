@@ -52,10 +52,10 @@ EventSource.configure do |config|
       http.client_certificate do |client_cert|
         client_cert.client_certificate =
           ENV['RIDP_CLIENT_CERT_PATH'] ||
-            File.join(File.dirname(__FILE__), '..', 'ridp_test_cert.pem')
+          File.join(File.dirname(__FILE__), '..', 'ridp_test_cert.pem')
         client_cert.client_key =
           ENV['RIDP_CLIENT_KEY_PATH'] ||
-            File.join(File.dirname(__FILE__), '..', 'ridp_test_key.key')
+          File.join(File.dirname(__FILE__), '..', 'ridp_test_key.key')
       end
       http.soap do |soap|
         soap.user_name = ENV['RIDP_SERVICE_USERNAME']
@@ -69,11 +69,11 @@ EventSource.configure do |config|
 
   async_api_resources = ::AcaEntities.async_api_config_find_by_service_name(nil).success
 
-      # {
-      #   amqp: [nil],
-      #   http: ['fdsh_gateway']
-      # }
-    # end
+  # {
+  #   amqp: [nil],
+  #   http: ['fdsh_gateway']
+  # }
+  # end
 
   config.async_api_schemas =
     async_api_resources.collect do |resource|
