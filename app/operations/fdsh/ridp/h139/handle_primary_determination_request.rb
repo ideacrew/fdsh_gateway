@@ -24,7 +24,7 @@ module Fdsh
           payload = primary_determination_result.to_json
           event = PublishEventStruct.new(PUBLISH_EVENT, payload)
 
-          Success(Publishers::Fdsh::Eligibilities::RidpPublisher.publish(event, {correlation_id: correlation_id}))
+          Success(Publishers::Fdsh::Eligibilities::RidpPublisher.publish(event, { correlation_id: correlation_id }))
         end
 
       end

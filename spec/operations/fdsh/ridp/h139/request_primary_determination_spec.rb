@@ -181,7 +181,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestPrimaryDetermination, "given:
       .with(
         headers: {
           'Accept' => 'application/soap+xml',
-          'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+          'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
           'Content-Type' => 'application/soap+xml',
           'User-Agent' => 'Faraday v1.4.3'
         }
