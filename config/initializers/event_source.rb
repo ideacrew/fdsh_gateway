@@ -7,6 +7,7 @@ EventSource.configure do |config|
   config.app_name = :fdsh_gateway
 
   config.servers do |server|
+
     server.amqp do |rabbitmq|
       rabbitmq.ref = 'amqp://rabbitmq:5672/event_source'
       rabbitmq.host = ENV['RABBITMQ_HOST'] || 'amqp://localhost'
@@ -21,6 +22,7 @@ EventSource.configure do |config|
       warn rabbitmq.user_name
       rabbitmq.password = ENV['RABBITMQ_PASSWORD'] || 'guest'
       warn rabbitmq.password
+      rabbitmq.default_content_type = ENV['RABBITMQ_CONTENT_TYPE'] || 'application/json'
     end
 
     server.http do |http|
@@ -35,6 +37,7 @@ EventSource.configure do |config|
           ENV['RIDP_CLIENT_KEY_PATH'] ||
           File.join(File.dirname(__FILE__), '..', 'ridp_test_key.key')
       end
+      http.default_content_type = 'application/soap+xml'
       http.soap do |soap|
         soap.user_name = ENV['RIDP_SERVICE_USERNAME'] || "guest"
         soap.password = ENV['RIDP_SERVICE_PASSWORD'] || "guest"
