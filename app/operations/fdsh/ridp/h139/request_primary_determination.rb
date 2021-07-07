@@ -8,7 +8,7 @@ module Fdsh
         include Dry::Monads[:result, :do, :try]
         include EventSource::Command
 
-        PublishEventStruct = Struct.new(:name, :payload)
+        PublishEventStruct = Struct.new(:name, :payload, :headers)
 
         PUBLISH_EVENT = "fdsh_primary_determination_requested"
 

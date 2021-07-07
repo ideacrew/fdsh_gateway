@@ -7,7 +7,7 @@ module Fdsh
       class HandlePrimaryDeterminationRequest
         include Dry::Monads[:result, :do, :try]
 
-        PublishEventStruct = Struct.new(:name, :payload)
+        PublishEventStruct = Struct.new(:name, :payload, :headers)
 
         PUBLISH_EVENT = "primary_determination_complete"
 
