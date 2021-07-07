@@ -43,7 +43,7 @@ ENV HOME /fdsh_gateway
 RUN mkdir -p $HOME
 WORKDIR $HOME
 COPY . $HOME
-RUN cp .docker/config/sectigo.crt /usr/local/share/ca-certificate/sectigo.crt && update-ca-certificates
+RUN cp .docker/config/sectigo.crt /usr/local/share/ca-certificates/ && update-ca-certificates
 
 RUN yarn install
 
