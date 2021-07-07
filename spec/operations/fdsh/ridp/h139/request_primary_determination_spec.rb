@@ -177,12 +177,12 @@ RSpec.describe Fdsh::Ridp::H139::RequestPrimaryDetermination, "given:
       :domain_to_mapper
     ).with(validation_request_mock).and_return(encoding_request_mock)
 
-    stub_request(:post, "https://impl.hub.cms.gov/RIDPService")
+    stub_request(:post, "https://impl.hub.cms.gov/Imp1/RIDPService")
       .with(
         headers: {
           'Accept' => 'application/soap+xml',
+          'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
           'Content-Type' => 'application/soap+xml',
-          'Expect' => '',
           'User-Agent' => 'Faraday v1.4.3'
         }
       ) do |_request|
