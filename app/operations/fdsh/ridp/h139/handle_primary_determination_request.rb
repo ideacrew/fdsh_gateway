@@ -20,11 +20,11 @@ module Fdsh
 
         protected
 
-        def publish_response(_correlation_id, primary_determination_result)
+        def publish_response(correlation_id, primary_determination_result)
           payload = primary_determination_result.to_json
           event = PublishEventStruct.new(PUBLISH_EVENT, payload)
 
-          Success(Publishers::Fdsh::Eligibilities::RidpPublisher.publish(event))
+          Success(Publishers::Fdsh::Eligibilities::RidpPublisher.publish(event, {correlation_id: correlation_id}))
         end
 
       end
