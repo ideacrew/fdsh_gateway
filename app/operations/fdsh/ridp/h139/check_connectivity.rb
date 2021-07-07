@@ -21,10 +21,14 @@ module Fdsh
           publish
         end
 
+        CONNECTIVITY_TEST_PAYLOAD = <<-XMLCODE
+          <hubc:HubConnectivityRequest xmlns:hubc="http://hubc.ee.sim.dsh.cms.hhs.gov" xmlns:soap="http://www.w3.org/2003/05/soap-envelope">ME</hubc:HubConnectivityRequest>
+        XMLCODE
+
         private
 
         def publish
-          event = PublishEventStruct.new(PUBLISH_EVENT, "")
+          event = PublishEventStruct.new(PUBLISH_EVENT, CONNECTIVITY_TEST_PAYLOAD)
           Success(::Publishers::Fdsh::RidpConnectivityPublisher.publish(event))
         end
       end
