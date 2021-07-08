@@ -13,7 +13,7 @@ module Fdsh
 
         # @param [Hash] opts The options to process
         # @return [Dry::Monads::Result]
-        def call(_response)
+        def call(primary_response)
           params    = yield construct_attestation_params(primary_response)
           values    = yield validate(params)
           entity    = yield create(values)
@@ -24,23 +24,25 @@ module Fdsh
         private
 
         def construct_attestation_params(response)
-          {
-            is_satisfied?: primary_response.FinalDecisionCode == 'ACC',
-            is_self_attested?: true,
+          params = {
+            is_satisfied: response.Response.VerificationResponse.FinalDecisionCode == 'ACC',
+            is_self_attested: true,
             satisfied_at: DateTime.now,
             evidences: create_evidence(response),
             status: 'in_progress'
           }
+          Success(params)
         end
 
         def create_evidence(response)
-          input_hash = case response
-                       when is_a?(AcaEntities::Fdsh::Ridp::H139::Primaryesponse)
-                         { primary_request: response }
-                       when is_a?(AcaEntities::Fdsh::Ridp::H139::SecondaryResponse)
-                         { secondary_response: response }
+          input_hash = case response.class.to_s
+                       when "AcaEntities::Fdsh::Ridp::H139::PrimaryResponse"
+                         { primary_response: response.to_h }
+                       when "AcaEntities::Fdsh::Ridp::H139::SecondaryResponse"
+                         { secondary_response: response.to_h }
                        end
-          [AcaEntities::Evidences::RidpEvidence.new(input_hash)]
+
+          [AcaEntities::Evidences::RidpEvidence.new(input_hash).to_h]
         end
 
         def validate(params)

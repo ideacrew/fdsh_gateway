@@ -16,7 +16,7 @@ module Fdsh
         def call(xml_response)
           parsed_xml         = yield process_xml(xml_response)
           params             = yield construct_params(parsed_xml)
-          valid_response     = yield validate_primary_response(params)
+          valid_response     = yield validate_secondary_response(params)
           secondary_response = yield create_secondary_response(valid_response)
           ridp_attestation   = yield create_ridp_attestation(secondary_response)
           attestation        = yield create_attestation(ridp_attestation)
@@ -67,11 +67,11 @@ module Fdsh
         end
 
         def create_ridp_attestation(secondary_response)
-          Success(::AcaEntities::Fdsh::Operations::Ridp::CreateRidpAttestation.call(secondary_response))
+          Fdsh::Ridp::H139::CreateRidpAttestation.new.call(secondary_response)
         end
 
-        def create_attestation(_ridp_attestation)
-          Success(::AcaEntities::Attestations::Attestation.new({ ridp_attestation: 'ridp_attestation' }))
+        def create_attestation(ridp_attestation)
+          Success(::AcaEntities::Attestations::Attestation.new({ attestations: ridp_attestation.to_h }))
         end
       end
     end
