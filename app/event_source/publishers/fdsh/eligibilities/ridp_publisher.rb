@@ -7,11 +7,7 @@ module Publishers
         include ::EventSource::Publisher[amqp: 'fdsh.eligibilities.ridp']
 
         register_event 'primary_determination_complete'
-
-        register_event 'determined_primary_eligible'
-        register_event 'determined_primary_ineligible'
-        register_event 'determined_secondary_eligible'
-        register_event 'determined_secondary_ineligible'
+        register_event 'secondary_determination_complete'
       end
     end
   end
