@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'pry'
 
 RSpec.describe Fdsh::Ridp::H139::HandlePrimaryDeterminationRequest, "given:
   - a correlation id
@@ -10,7 +11,7 @@ RSpec.describe Fdsh::Ridp::H139::HandlePrimaryDeterminationRequest, "given:
   - the response can be processed" do
 
   let(:correlation_id) { "SOME GENERATED CORRELATION ID" }
-  let(:payload) { "A REQUEST PAYLOAD" }
+  let(:payload) { {message: "A REQUEST PAYLOAD"} }
 
   let(:mock_request_operation) do
     instance_double(
@@ -41,7 +42,7 @@ RSpec.describe Fdsh::Ridp::H139::HandlePrimaryDeterminationRequest, "given:
 
   let(:response_operation_result) do
     Dry::Monads::Result::Success.call(
-      "THE PROCESSED RESPONSE OBJECT"
+      {message: "THE PROCESSED RESPONSE OBJECT"}
     )
   end
 

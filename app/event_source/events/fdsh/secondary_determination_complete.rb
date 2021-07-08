@@ -3,7 +3,7 @@
 module Events
   module Fdsh
     # This class will register event
-    class DeterminedPrimaryIneligible < EventSource::Event
+    class SecondaryDeterminationComplete < EventSource::Event
       publisher_path 'publishers.fdsh.eligibilities.ridp_publisher'
 
     end

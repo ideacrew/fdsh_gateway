@@ -13,7 +13,7 @@ module Fdsh
 
         # @param [Hash] opts The options to process
         # @return [Dry::Monads::Result]
-        def call(_response)
+        def call(primary_response)
           params    = yield construct_attestation_params(primary_response)
           values    = yield validate(params)
           entity    = yield create(values)

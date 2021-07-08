@@ -6,29 +6,33 @@ module Fdsh
       # Invoke a secondary determination service, and, if appropriate, broadcast the response.
       class HandleSecondaryDeterminationRequest
         include Dry::Monads[:result, :do, :try]
-
-        PublishEventStruct = Struct.new(:name, :payload, :headers)
-
-        PUBLISH_EVENT = "secondary_determination_complete"
+        include EventSource::Command
 
         # @return [Dry::Monads::Result]
         def call(params)
-          primary_determination_result_soap = yield RequestSecondaryDetermination.new.call(params[:payload])
-          primary_determination_result = yield ::Soap::RemoveSoapEnvelope.new.call(primary_determination_result_soap.body)
-          primary_determination_outcome = yield ProcessSecondaryResponse.new.call(primary_determination_result)
+          secondary_determination_result_soap = yield RequestSecondaryDetermination.new.call(params[:payload])
+          secondary_determination_result = yield ::Soap::RemoveSoapEnvelope.new.call(secondary_determination_result_soap.body)
+          secondary_determination_outcome = yield ProcessSecondaryResponse.new.call(secondary_determination_result)
 
-          publish_response(params[:correlation_id], primary_determination_outcome)
+          event  = yield build_event(params[:correlation_id], secondary_determination_outcome)
+          result = yield publish(event)
+
+          Success(result)
         end
 
         protected
 
-        def publish_response(correlation_id, primary_determination_outcome)
-          payload = primary_determination_outcome.to_json
-          event = PublishEventStruct.new(PUBLISH_EVENT, payload, { correlation_id: correlation_id })
+        def build_event(correlation_id, secondary_determination_outcome)
+          payload = secondary_determination_outcome.to_h
 
-          Success(Publishers::Fdsh::Eligibilities::RidpPublisher.publish(event))
+          event('events.fdsh.secondary_determination_complete', attributes: payload, headers: { correlation_id: correlation_id })
         end
 
+        def publish(event)
+          event.publish
+
+          Success('Primary determination response published successfully')
+        end
       end
     end
   end
