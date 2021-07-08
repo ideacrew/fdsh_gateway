@@ -8,7 +8,7 @@ module Subscribers
         include ::EventSource::Subscriber[amqp: 'fdsh.determination_requests.ridp']
 
         subscribe(
-          :on_fdsh_determination_requests_ridp_primary_determination_requested
+          :on_primary_determination_requested
         ) do |delivery_info, properties, payload|
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
@@ -33,7 +33,7 @@ module Subscribers
         end
 
         subscribe(
-          :on_fdsh_determination_requests_ridp_secondary_determination_requested
+          :on_secondary_determination_requested
         ) do |_delivery_info, _metadata, payload|
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_secondary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
