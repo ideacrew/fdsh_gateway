@@ -13,18 +13,20 @@ module Fdsh
 
         # @return [Dry::Monads::Result]
         def call(params)
-          primary_determination_request = yield RequestPrimaryDetermination.new.call(params[:payload])
-          primary_determination_result = yield TransformFamilyToPrimaryDetermination.new.call(primary_determination_request.body)
-          publish_response(params[:correlation_id], primary_determination_result)
+          primary_determination_result_soap = yield RequestPrimaryDetermination.new.call(params[:payload])
+          primary_determination_result = yield ::Soap::RemoveSoapEnvelope.new.call(primary_determination_result_soap.body)
+          primary_determination_outcome = yield ProcessPrimaryResponse.new.call(primary_determination_result)
+
+          publish_response(params[:correlation_id], primary_determination_outcome)
         end
 
         protected
 
-        def publish_response(correlation_id, primary_determination_result)
-          payload = primary_determination_result.to_json
-          event = PublishEventStruct.new(PUBLISH_EVENT, payload)
+        def publish_response(correlation_id, primary_determination_outcome)
+          payload = primary_determination_outcome.to_json
+          event = PublishEventStruct.new(PUBLISH_EVENT, payload, { correlation_id: correlation_id })
 
-          Success(Publishers::Fdsh::Eligibilities::RidpPublisher.publish(event, { correlation_id: correlation_id }))
+          Success(Publishers::Fdsh::Eligibilities::RidpPublisher.publish(event))
         end
 
       end
