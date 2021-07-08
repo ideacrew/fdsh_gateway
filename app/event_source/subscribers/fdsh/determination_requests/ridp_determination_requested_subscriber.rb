@@ -37,9 +37,25 @@ module Subscribers
         ) do |_delivery_info, _metadata, payload|
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_secondary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
+          # Sequence of steps that are executed as single operation
+          # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
+          correlation_id = properties.correlation_id
 
-          if Fdsh::Ridp::H139.RequestSecondaryEligibility(payload).success?
-            # acknowledge RabbitMQ - will delete message from queue
+          determination_result = Fdsh::Ridp::H139::HandleSecondaryDeterminationRequest.new.call({
+                                                                                                  payload: payload,
+                                                                                                  correlation_id: correlation_id
+                                                                                                })
+
+          if determination_result.success?
+            logger.info(
+              "OK: :on_fdsh_determination_requests_ridp_secondary_determination_requested successful and acked"
+            )
+            ack(delivery_info.delivery_tag)
+          else
+            logger.error(
+              "Error: :on_fdsh_determination_requests_ridp_secondary_determination_requested; nacked due to:#{determination_result.inspect}"
+            )
+            nack(delivery_info.delivery_tag)
           end
         end
       end
