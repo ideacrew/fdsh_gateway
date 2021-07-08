@@ -6,7 +6,9 @@ module Subscribers
       # Publish events for FDSH RIDP requests
       class RidpDeterminationRequestedSubscriber
         include ::EventSource::Subscriber[amqp: 'fdsh.determination_requests.ridp']
-
+        # rubocop:disable Lint/RescueException
+        # rubocop:disable Style/LineEndConcatenation
+        # rubocop:disable Style/StringConcatenation
         subscribe(
           :on_fdsh_determination_requests_ridp_primary_determination_requested
         ) do |delivery_info, properties, payload|
@@ -30,6 +32,13 @@ module Subscribers
             )
             nack(delivery_info.delivery_tag)
           end
+
+        rescue Exception => e
+          logger.error(
+            "Exception: :on_fdsh_determination_requests_ridp_primary_determination_requested\n Exception: #{e.inspect}" +
+            "\n Backtrace:\n" + e.backtrace.join("\n")
+          )
+          nack(delivery_info.delivery_tag)
         end
 
         subscribe(
@@ -57,7 +66,16 @@ module Subscribers
             )
             nack(delivery_info.delivery_tag)
           end
+        rescue Exception => e
+          logger.error(
+            "Exception: :on_fdsh_determination_requests_ridp_secondary_determination_requested\n Exception: #{e.inspect}" +
+            "\n Backtrace:\n" + e.backtrace.join("\n")
+          )
+          nack(delivery_info.delivery_tag)
         end
+        # rubocop:enable Lint/RescueException
+        # rubocop:enable Style/LineEndConcatenation
+        # rubocop:enable Style/StringConcatenation
       end
     end
   end
