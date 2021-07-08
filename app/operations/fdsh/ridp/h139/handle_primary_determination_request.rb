@@ -16,7 +16,7 @@ module Fdsh
 
           event  = yield build_event(params[:correlation_id], primary_determination_outcome)
           result = yield publish(event)
-          
+
           Success(result)
         end
 
