@@ -70,8 +70,8 @@ module Fdsh
           Success(::AcaEntities::Fdsh::Operations::Ridp::CreateRidpAttestation.call(secondary_response))
         end
 
-        def create_attestation(_ridp_attestation)
-          Success(::AcaEntities::Attestations::Attestation.new({ ridp_attestation: 'ridp_attestation' }))
+        def create_attestation(ridp_attestation)
+          Success(::AcaEntities::Attestations::Attestation.new({ ridp_attestation: ridp_attestation }))
         end
       end
     end

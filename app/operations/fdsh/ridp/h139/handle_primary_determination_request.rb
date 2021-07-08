@@ -6,10 +6,7 @@ module Fdsh
       # Invoke a primary determination service, and, if appropriate, broadcast the response.
       class HandlePrimaryDeterminationRequest
         include Dry::Monads[:result, :do, :try]
-
-        PublishEventStruct = Struct.new(:name, :payload, :headers)
-
-        PUBLISH_EVENT = "primary_determination_complete"
+        include EventSource::Command
 
         # @return [Dry::Monads::Result]
         def call(params)
@@ -17,18 +14,25 @@ module Fdsh
           primary_determination_result = yield ::Soap::RemoveSoapEnvelope.new.call(primary_determination_result_soap.body)
           primary_determination_outcome = yield ProcessPrimaryResponse.new.call(primary_determination_result)
 
-          publish_response(params[:correlation_id], primary_determination_outcome)
+          event  = yield build_event(params[:correlation_id], primary_determination_outcome)
+          result = yield publish(event)
+          
+          Success(result)
         end
 
         protected
 
-        def publish_response(correlation_id, primary_determination_outcome)
-          payload = primary_determination_outcome.to_json
-          event = PublishEventStruct.new(PUBLISH_EVENT, payload, { correlation_id: correlation_id })
+        def build_event(correlation_id, primary_determination_outcome)
+          payload = primary_determination_outcome.to_h
 
-          Success(Publishers::Fdsh::Eligibilities::RidpPublisher.publish(event))
+          event('events.fdsh.primary_determination_complete', attributes: payload, headers: { correlation_id: correlation_id })
         end
 
+        def publish(event)
+          event.publish
+
+          Success('Primary determination response published successfully')
+        end
       end
     end
   end
