@@ -20,6 +20,9 @@ module Subscribers
                                                                                               })
 
           if determination_result.success?
+            logger.info(
+              "OK: :on_fdsh_determination_requests_ridp_primary_determination_requested successful and acked"
+            )
             ack(delivery_info.delivery_tag)
           else
             logger.error(
