@@ -5,6 +5,8 @@ module Soap
   class RemoveSoapEnvelope
     include Dry::Monads[:result, :do, :try]
 
+    XMLNS = { soap: "http://www.w3.org/2003/05/soap-envelope" }.freeze
+
     def call(xml_string)
       xml_doc = yield parse_xml_response(xml_string)
       Success(remove_soap_envelope(xml_doc))
