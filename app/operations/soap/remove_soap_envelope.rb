@@ -9,7 +9,7 @@ module Soap
 
     def call(xml_string)
       xml_doc = yield parse_xml_response(xml_string)
-      Success(remove_soap_envelope(xml_doc))
+      remove_soap_envelope(xml_doc)
     end
 
     def parse_xml_response(xml_string)
