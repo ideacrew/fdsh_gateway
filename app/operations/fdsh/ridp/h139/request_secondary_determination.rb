@@ -29,7 +29,7 @@ module Fdsh
 
         def parse_json(json_string)
           parsing_result = Try do
-            JSON.parse(json_string)
+            JSON.parse(json_string, :symbolize_names => true)
           end
           parsing_result.or do
             Failure(:invalid_json)
