@@ -20,7 +20,8 @@ module Fdsh
           family_hash = yield validate_family_json_hash(json_hash)
           family = yield build_family(family_hash)
           determination_request = yield GenerateSecondaryRequestPayload.new.call(family)
-          determination_request_xml = yield encode_request_xml(determination_request)
+          xml_string = yield encode_xml_and_schema_validate(determination_request)
+          determination_request_xml = yield encode_request_xml(xml_string)
 
           publish_event(determination_request_xml)
         end
@@ -36,9 +37,14 @@ module Fdsh
           end
         end
 
-        def encode_request_xml(determination_request)
+        def encode_xml_and_schema_validate(determination_request)
+          AcaEntities::Serializers::Xml::Fdsh::Ridp::Operations::SecondaryRequestToXml.new.call(
+            determination_request
+          )
+        end
+
+        def encode_request_xml(xml_string)
           encoding_result = Try do
-            xml_string = AcaEntities::Serializers::Xml::Fdsh::Ridp::Request.domain_to_mapper(determination_request, 'secondary_request').to_xml
             xml_doc = Nokogiri::XML(xml_string)
             xml_doc.to_xml(:indent => 2, :encoding => 'UTF-8', :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION)
           end
