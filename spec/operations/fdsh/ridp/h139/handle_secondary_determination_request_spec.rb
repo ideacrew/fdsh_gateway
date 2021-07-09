@@ -41,7 +41,7 @@ RSpec.describe Fdsh::Ridp::H139::HandleSecondaryDeterminationRequest, "given:
 
   let(:response_operation_result) do
     Dry::Monads::Result::Success.call(
-      {message: "THE PROCESSED RESPONSE OBJECT"}
+      { message: "THE PROCESSED RESPONSE OBJECT" }
     )
   end
 

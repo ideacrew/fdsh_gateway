@@ -38,7 +38,9 @@ module Fdsh
 
         def encode_request_xml(determination_request)
           encoding_result = Try do
-            AcaEntities::Serializers::Xml::Fdsh::Ridp::Request.domain_to_mapper(determination_request, 'secondary_request').to_xml
+            xml_string = AcaEntities::Serializers::Xml::Fdsh::Ridp::Request.domain_to_mapper(determination_request, 'secondary_request').to_xml
+            xml_doc = Nokogiri::XML(xml_string)
+            xml_doc.to_xml(:indent => 2, :encoding => 'UTF-8', :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION)
           end
 
           encoding_result.or do |e|

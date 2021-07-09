@@ -160,7 +160,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestPrimaryDetermination, "given:
     described_class.new
   end
 
-  let(:expected_xml) { "<xml></xml>" }
+  let(:expected_xml) { "<xml xmlns=\"uri:whatever\"></xml>" }
 
   before :each do
     allow(::AcaEntities::Contracts::Families::FamilyContract).to receive(:new)
@@ -173,9 +173,9 @@ RSpec.describe Fdsh::Ridp::H139::RequestPrimaryDetermination, "given:
       .and_return(transform_operation_mock)
     allow(transform_operation_mock).to receive(:call).with(family_mock)
                                                      .and_return(Dry::Monads::Result::Success.call(validation_request_mock))
-    allow(AcaEntities::Serializers::Xml::Fdsh::Ridp::PrimaryRequest).to receive(
+    allow(AcaEntities::Serializers::Xml::Fdsh::Ridp::Request).to receive(
       :domain_to_mapper
-    ).with(validation_request_mock).and_return(encoding_request_mock)
+    ).with(validation_request_mock, "primary_request").and_return(encoding_request_mock)
 
     stub_request(:post, "https://impl.hub.cms.gov/Imp1/RIDPService")
       .with(
