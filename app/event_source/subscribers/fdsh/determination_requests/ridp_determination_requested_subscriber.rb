@@ -16,10 +16,10 @@ module Subscribers
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
           correlation_id = properties.correlation_id
 
-          determination_result = Fdsh::Ridp::H139::HandlePrimaryDeterminationRequest.new.call({
-                                                                                                payload: payload,
-                                                                                                correlation_id: correlation_id
-                                                                                              })
+          determination_result = ::Fdsh::Ridp::H139::HandlePrimaryDeterminationRequest.new.call({
+                                                                                                  payload: payload,
+                                                                                                  correlation_id: correlation_id
+                                                                                                })
 
           if determination_result.success?
             logger.info(
@@ -50,10 +50,10 @@ module Subscribers
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
           correlation_id = properties.correlation_id
 
-          determination_result = Fdsh::Ridp::H139::HandleSecondaryDeterminationRequest.new.call({
-                                                                                                  payload: payload,
-                                                                                                  correlation_id: correlation_id
-                                                                                                })
+          determination_result = ::Fdsh::Ridp::H139::HandleSecondaryDeterminationRequest.new.call({
+                                                                                                    payload: payload,
+                                                                                                    correlation_id: correlation_id
+                                                                                                  })
 
           if determination_result.success?
             logger.info(

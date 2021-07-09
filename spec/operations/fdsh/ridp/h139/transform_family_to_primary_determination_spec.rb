@@ -62,7 +62,7 @@ RSpec.describe Fdsh::Ridp::H139::TransformFamilyToPrimaryDetermination, dbclean:
     {
       hios_id: '92479DC0020002',
       name: 'Access PPO',
-      active_year: '2020',
+      active_year: 2020,
       is_dental_only: false,
       metal_level: 'gold',
       product_kind: 'health',
