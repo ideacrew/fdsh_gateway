@@ -37,9 +37,7 @@ module Fdsh
 
         def encode_request_xml(determination_request)
           encoding_result = Try do
-            AcaEntities::Serializers::Xml::Fdsh::Ridp::PrimaryRequest.domain_to_mapper(
-              determination_request
-            ).to_xml
+            AcaEntities::Serializers::Xml::Fdsh::Ridp::Request.domain_to_mapper(determination_request, 'primary_request').to_xml
           end
 
           encoding_result.or do |e|
