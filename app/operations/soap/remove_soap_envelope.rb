@@ -21,8 +21,8 @@ module Soap
       parse_result
     end
 
-    def remove_soap_envelope(_soap_xml_doc)
-      soap_body_element = xml_doc.at_xpath("//soap:Body", XMLNS)
+    def remove_soap_envelope(soap_xml_doc)
+      soap_body_element = soap_xml_doc.at_xpath("//soap:Body", XMLNS)
       child_node = soap_body_element.children.detect(&:element?)
       Success(child_node.canonicalize)
     end
