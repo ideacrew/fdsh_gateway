@@ -5,6 +5,8 @@ module Soap
   class RemoveSoapEnvelope
     include Dry::Monads[:result, :do, :try]
 
+    XMLNS = { soap: "http://www.w3.org/2003/05/soap-envelope" }.freeze
+
     def call(xml_string)
       xml_doc = yield parse_xml_response(xml_string)
       Success(remove_soap_envelope(xml_doc))
@@ -21,8 +23,8 @@ module Soap
       parse_result
     end
 
-    def remove_soap_envelope(_soap_xml_doc)
-      soap_body_element = xml_doc.at_xpath("//soap:Body", XMLNS)
+    def remove_soap_envelope(soap_xml_doc)
+      soap_body_element = soap_xml_doc.at_xpath("//soap:Body", XMLNS)
       child_node = soap_body_element.children.detect(&:element?)
       Success(child_node.canonicalize)
     end
