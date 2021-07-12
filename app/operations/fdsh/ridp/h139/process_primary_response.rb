@@ -36,12 +36,6 @@ module Fdsh
         end
 
         def construct_params(parsed_xml)
-          questions_set = parsed_xml.verification_response.verification_questions.verification_question_sets.collect do |question_set|
-            {
-              VerificationQuestionText: question_set.VerificationQuestionText,
-              VerificationAnswerChoiceText: question_set.VerificationAnswerChoiceText
-            }
-          end
           result_hash = {
             Response: {
               ResponseMetadata: {
@@ -54,12 +48,23 @@ module Fdsh
                 SessionIdentification: parsed_xml.verification_response.SessionIdentification,
                 DSHReferenceNumber: parsed_xml.verification_response.DSHReferenceNumber,
                 FinalDecisionCode: parsed_xml.verification_response.FinalDecisionCode,
-                VerificationQuestions: { VerificationQuestionSet: questions_set }
+                VerificationQuestions: { VerificationQuestionSet: get_question_set(parsed_xml) }
               }
             }
           }
 
           Success(result_hash)
+        end
+
+        def get_question_set(parsed_xml)
+          return unless parsed_xml&.verification_response&.verification_questions
+
+          parsed_xml.verification_response.verification_questions.verification_question_sets.collect do |question_set|
+            {
+              VerificationQuestionText: question_set.VerificationQuestionText,
+              VerificationAnswerChoiceText: question_set.VerificationAnswerChoiceTexts
+            }
+          end
         end
 
         # Validate input object
@@ -69,7 +74,7 @@ module Fdsh
           if result.success?
             Success(result)
           else
-            Failure("Invalid response, #{result.errors}")
+            Failure("Invalid response, #{result.failure.errors.to_h}")
           end
         end
 
@@ -82,7 +87,7 @@ module Fdsh
         end
 
         def create_attestation(ridp_attestation)
-          Success(::AcaEntities::Attestations::Attestation.new({ attestations: ridp_attestation.to_h }))
+          Success(::AcaEntities::Attestations::Attestation.new({ attestations: { ridp_attestation: ridp_attestation.to_h } }))
         end
       end
     end

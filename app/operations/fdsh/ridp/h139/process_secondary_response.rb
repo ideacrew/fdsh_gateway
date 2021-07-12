@@ -71,7 +71,7 @@ module Fdsh
         end
 
         def create_attestation(ridp_attestation)
-          Success(::AcaEntities::Attestations::Attestation.new({ attestations: ridp_attestation.to_h }))
+          Success(::AcaEntities::Attestations::Attestation.new({ attestations: { ridp_attestation: ridp_attestation.to_h } }))
         end
       end
     end
