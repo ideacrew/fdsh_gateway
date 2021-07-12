@@ -24,14 +24,26 @@ module Fdsh
         private
 
         def construct_attestation_params(response)
+          decision_code = response.Response.VerificationResponse&.FinalDecisionCode
           params = {
-            is_satisfied: response.Response.VerificationResponse.FinalDecisionCode == 'ACC',
+            is_satisfied: decision_code == 'ACC',
             is_self_attested: true,
-            satisfied_at: DateTime.now,
+            satisfied_at: (decision_code == 'ACC') ? DateTime.now : nil,
             evidences: create_evidence(response),
-            status: 'in_progress'
+            status: get_status(decision_code)
           }
           Success(params)
+        end
+
+        def get_status(decision_code)
+          case decision_code.to_s
+          when 'ACC'
+            'success'
+          when 'REF'
+            'failure'
+          else
+            'in_progress'
+          end
         end
 
         def create_evidence(response)

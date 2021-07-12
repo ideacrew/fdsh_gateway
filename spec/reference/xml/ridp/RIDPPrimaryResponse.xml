@@ -1,38 +1,37 @@
-<?xml version="1.0" encoding="UTF-8"?> 
-<exch:Response xmlns:exch="http://ridp.dsh.cms.gov/exchange/1.0"
- xmlns:ext="http://ridp.dsh.cms.gov/extension/1.0"
- xmlns:i="http://niem.gov/niem/appinfo/2.0"
- xmlns:i2="http://niem.gov/niem/appinfo/2.1"
- xmlns:niem-xsd="http://niem.gov/niem/proxy/xsd/2.0"
- xmlns:s="http://niem.gov/niem/structures/2.0"
- xmlns:iso_639-3="http://niem.gov/niem/iso_639-3/2.0"
- xmlns:nc="http://niem.gov/niem/niem-core/2.0"
- xmlns:usps="http://niem.gov/niem/usps_states/2.0"
- xmlns:hix-core="http://hix.cms.gov/0.1/hix-core"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://ridp.dsh.cms.gov/exchange/1.0 ../XMLschemas/constraint/XMLschemas/exchange/ExchangeModel.xsd">
-    <hix-core:ResponseMetadata>
-        <hix-core:ResponseCode>Response</hix-core:ResponseCode>
-        <hix-core:ResponseDescriptionText>ResponseDescriptionText0</hix-core:ResponseDescriptionText>
-        <hix-core:TDSResponseDescriptionText>TDSResponseDescriptionText0</hix-core:TDSResponseDescriptionText>
-    </hix-core:ResponseMetadata>
-    <ext:VerificationResponse>
-        <ext:SessionIdentification>SessionIdentification0</ext:SessionIdentification>
-        <ext:VerificationQuestions>
-            <ext:VerificationQuestionSet>
-                <ext:VerificationQuestionText>VerificationQuestionText0</ext:VerificationQuestionText>
-                <ext:VerificationAnswerChoiceText>VerificationAnswerChoiceText0</ext:VerificationAnswerChoiceText>
-            </ext:VerificationQuestionSet>
-            <ext:VerificationQuestionSet>
-                <ext:VerificationQuestionText>VerificationQuestionText1</ext:VerificationQuestionText>
-                <ext:VerificationAnswerChoiceText>VerificationAnswerChoiceText1</ext:VerificationAnswerChoiceText>
-            </ext:VerificationQuestionSet>
-            <ext:VerificationQuestionSet>
-                <ext:VerificationQuestionText>VerificationQuestionText2</ext:VerificationQuestionText>
-                <ext:VerificationAnswerChoiceText>VerificationAnswerChoiceText2</ext:VerificationAnswerChoiceText>
-            </ext:VerificationQuestionSet>
-        </ext:VerificationQuestions>
-        <ext:FinalDecisionCode>ACC</ext:FinalDecisionCode>
-        <ext:DSHReferenceNumber>DSHReferenceNumber0</ext:DSHReferenceNumber>
-    </ext:VerificationResponse>
+<?xml version="1.0" encoding="UTF-8"?>
+<exch:Response xmlns:exch="http://ridp.dsh.cms.gov/exchange/1.0">
+   <hix-core:ResponseMetadata xmlns:hix-core="http://hix.cms.gov/0.1/hix-core">
+      <hix-core:ResponseCode>HS000000</hix-core:ResponseCode>
+      <hix-core:ResponseDescriptionText>Successful</hix-core:ResponseDescriptionText>
+   </hix-core:ResponseMetadata>
+   <ext:VerificationResponse xmlns:ext="http://ridp.dsh.cms.gov/extension/1.0">
+      <ext:SessionIdentification>AB.##.KYQD</ext:SessionIdentification>
+      <ext:VerificationQuestions>
+         <ext:VerificationQuestionSet>
+            <ext:VerificationQuestionText>¿Qué modelo de coche Ud. conduce?</ext:VerificationQuestionText>
+            <ext:VerificationAnswerChoiceText>Ford</ext:VerificationAnswerChoiceText>
+            <ext:VerificationAnswerChoiceText>Chevy</ext:VerificationAnswerChoiceText>
+            <ext:VerificationAnswerChoiceText>Honda</ext:VerificationAnswerChoiceText>
+            <ext:VerificationAnswerChoiceText>Toyota</ext:VerificationAnswerChoiceText>
+            <ext:VerificationAnswerChoiceText>Ninguna de las anteriores</ext:VerificationAnswerChoiceText>
+         </ext:VerificationQuestionSet>
+         <ext:VerificationQuestionSet>
+            <ext:VerificationQuestionText>¿Cuál es el año de su coche?</ext:VerificationQuestionText>
+            <ext:VerificationAnswerChoiceText>2003</ext:VerificationAnswerChoiceText>
+            <ext:VerificationAnswerChoiceText>2005</ext:VerificationAnswerChoiceText>
+            <ext:VerificationAnswerChoiceText>2009</ext:VerificationAnswerChoiceText>
+            <ext:VerificationAnswerChoiceText>2013</ext:VerificationAnswerChoiceText>
+            <ext:VerificationAnswerChoiceText>Ninguna de las anteriores</ext:VerificationAnswerChoiceText>
+         </ext:VerificationQuestionSet>
+         <ext:VerificationQuestionSet>
+            <ext:VerificationQuestionText>¿En cuál ciudad ha vivido anteriormente?</ext:VerificationQuestionText>
+            <ext:VerificationAnswerChoiceText>Richmond</ext:VerificationAnswerChoiceText>
+            <ext:VerificationAnswerChoiceText>Little Rock</ext:VerificationAnswerChoiceText>
+            <ext:VerificationAnswerChoiceText>Spokane</ext:VerificationAnswerChoiceText>
+            <ext:VerificationAnswerChoiceText>Seattle</ext:VerificationAnswerChoiceText>
+            <ext:VerificationAnswerChoiceText>Ninguna de las anteriores</ext:VerificationAnswerChoiceText>
+         </ext:VerificationQuestionSet>
+      </ext:VerificationQuestions>
+      <ext:DSHReferenceNumber>a22a-97-7c28</ext:DSHReferenceNumber>
+   </ext:VerificationResponse>
 </exch:Response>
