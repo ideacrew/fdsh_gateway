@@ -1,6 +1,6 @@
 --no-private
 --protected
---markup="markdown" lib/**/*.rb
+--markup="markdown" app/**/*.rb
 --main README.md
 --hide-tag todo
 -
