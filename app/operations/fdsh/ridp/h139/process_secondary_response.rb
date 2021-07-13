@@ -58,7 +58,7 @@ module Fdsh
           if result.success?
             Success(result)
           else
-            Failure("Invalid response, #{result.errors}")
+            Failure("Invalid response, #{result.errors.to_h}")
           end
         end
 

@@ -48,7 +48,7 @@ module Fdsh
                 SessionIdentification: parsed_xml.verification_response.SessionIdentification,
                 DSHReferenceNumber: parsed_xml.verification_response.DSHReferenceNumber,
                 FinalDecisionCode: parsed_xml.verification_response.FinalDecisionCode,
-                VerificationQuestions: { VerificationQuestionSet: get_question_set(parsed_xml) }
+                VerificationQuestions: get_question_set(parsed_xml)
               }
             }
           }
@@ -59,12 +59,14 @@ module Fdsh
         def get_question_set(parsed_xml)
           return unless parsed_xml&.verification_response&.verification_questions
 
-          parsed_xml.verification_response.verification_questions.verification_question_sets.collect do |question_set|
+          verification_question_set = parsed_xml.verification_response.verification_questions.verification_question_sets.collect do |question_set|
             {
               VerificationQuestionText: question_set.VerificationQuestionText,
               VerificationAnswerChoiceText: question_set.VerificationAnswerChoiceTexts
             }
           end
+
+          { VerificationQuestionSet: verification_question_set }
         end
 
         # Validate input object
@@ -74,7 +76,7 @@ module Fdsh
           if result.success?
             Success(result)
           else
-            Failure("Invalid response, #{result.failure.errors.to_h}")
+            Failure("Invalid response, #{result.errors.to_h}")
           end
         end
 
