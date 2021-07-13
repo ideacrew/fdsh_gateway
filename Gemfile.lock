@@ -15,7 +15,7 @@ GIT
 
 GIT
   remote: https://github.com/ideacrew/event_source.git
-  revision: ca1738c6bec46fdea1c57379f303bee47b468cba
+  revision: 61644f757c4ad19e2e345a38e85e4301c31c0671
   branch: release_0.5.3
   specs:
     event_source (0.5.3)
@@ -193,7 +193,7 @@ GEM
     faraday-em_synchrony (1.0.0)
     faraday-excon (1.1.0)
     faraday-net_http (1.0.1)
-    faraday-net_http_persistent (1.1.0)
+    faraday-net_http_persistent (1.2.0)
     faraday_middleware (1.0.0)
       faraday (~> 1.0)
     ffi (1.15.3)
