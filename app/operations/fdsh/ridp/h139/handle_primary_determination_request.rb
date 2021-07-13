@@ -32,6 +32,7 @@ module Fdsh
         end
 
         def publish(event)
+          Rails.logger.info("before publishing the event &&&&&&&&&&&&&&&&&&&&&&&&& #{event.inspect}")
           event.publish
 
           Success('Primary determination response published successfully')
