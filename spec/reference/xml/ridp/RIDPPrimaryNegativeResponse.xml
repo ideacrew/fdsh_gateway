@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exch:Response xmlns:exch="http://ridp.dsh.cms.gov/exchange/1.0">
+    <hix-core:ResponseMetadata xmlns:hix-core="http://hix.cms.gov/0.1/hix-core">
+       <hix-core:ResponseCode>HE000050</hix-core:ResponseCode>
+       <hix-core:ResponseDescriptionText>Cannot formulate questions for this consumer. Please reference Final Decision Code.</hix-core:ResponseDescriptionText>
+    </hix-core:ResponseMetadata>
+    <ext:VerificationResponse xmlns:ext="http://ridp.dsh.cms.gov/extension/1.0">
+       <ext:SessionIdentification>7DD2695681D96E9707B8BFCA0A53097B.pidd1v-1303061611500210129028464</ext:SessionIdentification>
+       <ext:FinalDecisionCode>RF1</ext:FinalDecisionCode>
+       <ext:DSHReferenceNumber>877f-d8-973a</ext:DSHReferenceNumber>
+    </ext:VerificationResponse>
+ </exch:Response>
