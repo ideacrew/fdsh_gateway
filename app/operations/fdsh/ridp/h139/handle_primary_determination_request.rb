@@ -27,6 +27,7 @@ module Fdsh
 
         def build_event(correlation_id, primary_determination_outcome)
           payload = primary_determination_outcome.to_h
+          Rails.logger.info("In build Event &&&&&&&&&&&&&&&&&&&&&&&&& #{payload}")
 
           event('events.fdsh.primary_determination_complete', attributes: payload, headers: { correlation_id: correlation_id })
         end
