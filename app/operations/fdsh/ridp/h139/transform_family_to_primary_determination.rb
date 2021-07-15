@@ -61,7 +61,7 @@ module Fdsh
 
         # Validate PrimaryRequest params against PrimaryRequest Contract
         def validate_primary_request(params)
-          params.merge!({ LevelOfProofingCode: 'LevelThree' })
+          params.merge!({ LevelOfProofingCode: 'LevelTwo' })
           result =
             ::AcaEntities::Fdsh::Ridp::H139::PrimaryRequestContract.new.call(params)
 

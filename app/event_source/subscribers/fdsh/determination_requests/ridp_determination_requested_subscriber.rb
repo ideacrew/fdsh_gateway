@@ -43,7 +43,7 @@ module Subscribers
 
         subscribe(
           :on_secondary_determination_requested
-        ) do |_delivery_info, _metadata, payload|
+        ) do |delivery_info, properties, payload|
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_secondary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
           # Sequence of steps that are executed as single operation

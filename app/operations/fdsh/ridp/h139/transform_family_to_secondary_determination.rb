@@ -7,7 +7,7 @@ module Fdsh
   module Ridp
     module H139
       # This class takes AcaEntities::Families::Famlily as input and returns the secondary request.
-      class GenerateSecondaryRequestPayload
+      class TransformFamilyToSecondaryDetermination
         include Dry::Monads[:result, :do, :try]
         include AcaEntities::AppHelper
 
@@ -33,7 +33,7 @@ module Fdsh
           end
         end
 
-        def fetch_primary_family_member(family)
+        def fetch_primary_family_members_person(family)
           primary_family_member = family.family_members.detect(&:is_primary_applicant)
           if primary_family_member
             Success(primary_family_member.person)
@@ -44,18 +44,15 @@ module Fdsh
 
         def fetch_secondary_request_evidence(primary_person)
           Try do
-            primary_person.user.attestations[:ridp_attestation].evidences.detect do |evidence|
-              evidence.secondary_request.present?
+            primary_person.user.attestations.first.attestations[:ridp_attestation][:evidences].detect do |evidence|
+              evidence[:secondary_request].present?
             end
           end
         end
 
         def fetch_secondary_request(evidence)
-          if evidence.is_a?(::AcaEntities::Evidences::RidpEvidence)
-            Success(evidence.secondary_request)
-          else
-            Failure("Invalid Evidence, given value is not a AcaEntities::Evidences::RidpEvidence, input_value:#{evidence}")
-          end
+          params = evidence[:secondary_request]
+          Success(AcaEntities::Fdsh::Ridp::H139::SecondaryRequest.new(params))
         end
       end
     end

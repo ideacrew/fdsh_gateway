@@ -84,7 +84,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestSecondaryDetermination, "given:
 
   let(:transform_operation_mock) do
     instance_double(
-      Fdsh::Ridp::H139::GenerateSecondaryRequestPayload
+      Fdsh::Ridp::H139::TransformFamilyToSecondaryDetermination
     )
   end
 
@@ -95,7 +95,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestSecondaryDetermination, "given:
                                                  .and_return(family_contract_validation_result)
     allow(AcaEntities::Families::Family).to receive(:new).with({})
                                                          .and_return(family_mock)
-    allow(Fdsh::Ridp::H139::GenerateSecondaryRequestPayload).to receive(:new)
+    allow(Fdsh::Ridp::H139::TransformFamilyToSecondaryDetermination).to receive(:new)
       .and_return(transform_operation_mock)
     allow(transform_operation_mock).to receive(:call).with(family_mock)
                                                      .and_return(Dry::Monads::Result::Failure.call(nil))
@@ -139,7 +139,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestSecondaryDetermination, "given:
 
   let(:transform_operation_mock) do
     instance_double(
-      Fdsh::Ridp::H139::GenerateSecondaryRequestPayload
+      Fdsh::Ridp::H139::TransformFamilyToSecondaryDetermination
     )
   end
 
@@ -168,7 +168,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestSecondaryDetermination, "given:
                                                  .and_return(family_contract_validation_result)
     allow(AcaEntities::Families::Family).to receive(:new).with({})
                                                          .and_return(family_mock)
-    allow(Fdsh::Ridp::H139::GenerateSecondaryRequestPayload).to receive(:new)
+    allow(Fdsh::Ridp::H139::TransformFamilyToSecondaryDetermination).to receive(:new)
       .and_return(transform_operation_mock)
     allow(transform_operation_mock).to receive(:call).with(family_mock)
                                                      .and_return(Dry::Monads::Result::Success.call(validation_request_mock))

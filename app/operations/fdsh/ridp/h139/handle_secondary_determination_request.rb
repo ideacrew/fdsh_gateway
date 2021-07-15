@@ -12,7 +12,7 @@ module Fdsh
         def call(params)
           secondary_determination_result_soap = yield RequestSecondaryDetermination.new.call(params[:payload])
           secondary_determination_result = yield ::Soap::RemoveSoapEnvelope.new.call(secondary_determination_result_soap.body)
-          secondary_determination_outcome = yield ProcessSecondaryResponse.new.call(secondary_determination_result)
+          secondary_determination_outcome = yield ::Fdsh::Ridp::H139::ProcessSecondaryResponse.new.call(secondary_determination_result)
 
           event  = yield build_event(params[:correlation_id], secondary_determination_outcome)
           result = yield publish(event)

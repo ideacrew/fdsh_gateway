@@ -27,7 +27,7 @@ module Fdsh
         private
 
         def process_xml(xml_response)
-          result = AcaEntities::Serializers::Xml::Fdsh::Ridp::SecondaryResponse.parse(xml_response.root.canonicalize, :single => true)
+          result = AcaEntities::Serializers::Xml::Fdsh::Ridp::SecondaryResponse.parse(xml_response, :single => true)
           Success(result)
         end
 
@@ -35,15 +35,15 @@ module Fdsh
           result_hash = {
             Response: {
               ResponseMetadata: {
-                ResponseCode: parsed_xml.response_metadata.ResponseCode,
-                ResponseDescriptionText: parsed_xml.response_metadata.ResponseDescriptionText,
-                TDSResponseDescriptionText: parsed_xml.response_metadata.TDSResponseDescriptionText
+                ResponseCode: parsed_xml&.response_metadata&.ResponseCode,
+                ResponseDescriptionText: parsed_xml&.response_metadata&.ResponseDescriptionText,
+                TDSResponseDescriptionText: parsed_xml&.response_metadata&.TDSResponseDescriptionText
               },
 
               VerificationResponse: {
-                SessionIdentification: parsed_xml.verification_response.SessionIdentification,
-                DSHReferenceNumber: parsed_xml.verification_response.DSHReferenceNumber,
-                FinalDecisionCode: parsed_xml.verification_response.FinalDecisionCode
+                SessionIdentification: parsed_xml&.verification_response&.SessionIdentification,
+                DSHReferenceNumber: parsed_xml&.verification_response&.DSHReferenceNumber,
+                FinalDecisionCode: parsed_xml&.verification_response&.FinalDecisionCode
               }
             }
           }

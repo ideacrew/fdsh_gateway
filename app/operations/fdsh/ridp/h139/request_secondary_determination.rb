@@ -19,7 +19,7 @@ module Fdsh
           json_hash = yield parse_json(params)
           family_hash = yield validate_family_json_hash(json_hash)
           family = yield build_family(family_hash)
-          determination_request = yield GenerateSecondaryRequestPayload.new.call(family)
+          determination_request = yield TransformFamilyToSecondaryDetermination.new.call(family)
           xml_string = yield encode_xml_and_schema_validate(determination_request)
           determination_request_xml = yield encode_request_xml(xml_string)
 
