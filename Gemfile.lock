@@ -105,6 +105,8 @@ GEM
       public_suffix (>= 2.0.2, < 5.0)
     amq-protocol (2.3.2)
     ast (2.4.2)
+    bootsnap (1.7.5)
+      msgpack (~> 1.0)
     bson (4.12.1)
     builder (3.2.4)
     bunny (2.19.0)
@@ -232,6 +234,7 @@ GEM
       activemodel (>= 5.1, < 6.2)
       mongo (>= 2.10.5, < 3.0.0)
     mono_logger (1.1.1)
+    msgpack (1.4.2)
     multi_json (1.15.0)
     multipart-post (2.1.1)
     mustermann (1.1.1)
@@ -245,7 +248,7 @@ GEM
     oj (3.12.1)
     ox (2.14.5)
     parallel (1.20.1)
-    parser (3.0.1.1)
+    parser (3.0.2.0)
       ast (~> 2.4.1)
     pry (0.13.1)
       coderay (~> 1.1)
@@ -339,7 +342,7 @@ GEM
       rspec-mocks (~> 3.10)
       rspec-support (~> 3.10)
     rspec-support (3.10.2)
-    rubocop (1.10.0)
+    rubocop (1.13.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -348,7 +351,7 @@ GEM
       rubocop-ast (>= 1.2.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.7.0)
+    rubocop-ast (1.8.0)
       parser (>= 3.0.1.1)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.4)
@@ -406,6 +409,7 @@ PLATFORMS
 
 DEPENDENCIES
   aca_entities!
+  bootsnap (>= 1.4.4)
   byebug
   dry-matcher (~> 0.8)
   dry-monads (~> 1.3)
@@ -414,19 +418,22 @@ DEPENDENCIES
   dry-types (~> 1.4)
   dry-validation (~> 1.6)
   event_source!
-  factory_bot_rails
+  factory_bot_rails (~> 6.2)
   listen (~> 3.3)
   mongoid (~> 7.2.1)
   pry-byebug
   puma (~> 5.0)
-  rails (~> 6.1.3, >= 6.1.3.1)
+  rails (~> 6.1.3)
   rspec-rails (~> 5.0)
-  rubocop (= 1.10.0)
+  rubocop (= 1.13.0)
   sass-rails (>= 6)
   shoulda-matchers (~> 3)
   tzinfo-data
   webmock
   yard
+
+RUBY VERSION
+   ruby 2.7.2p137
 
 BUNDLED WITH
    2.2.14
