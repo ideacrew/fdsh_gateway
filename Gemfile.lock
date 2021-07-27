@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ideacrew/aca_entities.git
-  revision: 5f93e8891dce958a3a89ee8a27f4d5410f18057f
+  revision: 3138eeccf1029cb8480d366f89805e834737b044
   branch: release_0.3.0
   specs:
     aca_entities (0.3.0)
@@ -10,12 +10,13 @@ GIT
       dry-transformer (~> 0.1.1)
       dry-types (~> 1.0)
       dry-validation (~> 1.2)
+      iso_country_codes
       nokogiri-happymapper
       oj (~> 3.11)
 
 GIT
   remote: https://github.com/ideacrew/event_source.git
-  revision: 0293bce120e36775fc5f8364a8b4bf2acf0398aa
+  revision: 7f4864116338abcc5ab2e7c4340778abfe9999be
   branch: release_0.5.3
   specs:
     event_source (0.5.3)
@@ -207,6 +208,7 @@ GEM
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
+    iso_country_codes (0.7.8)
     listen (3.5.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -244,7 +246,7 @@ GEM
       racc (~> 1.4)
     nokogiri-happymapper (0.8.1)
       nokogiri (~> 1.5)
-    oj (3.12.1)
+    oj (3.12.2)
     ox (2.14.5)
     parallel (1.20.1)
     parser (3.0.2.0)
