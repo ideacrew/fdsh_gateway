@@ -1,0 +1,31 @@
+<vlp:InitialVerificationResponse xmlns:vlp="http://vlp.ee.sim.dsh.cms.hhs.gov">
+   <vlp:InitialVerificationResponseSet>
+      <vlp:InitialVerificationIndividualResponse>
+         <vlp:ResponseMetadata>
+            <vlp:ResponseCode>HS000000</vlp:ResponseCode>
+            <vlp:ResponseDescriptionText>Successful.</vlp:ResponseDescriptionText>
+            <vlp:TDSResponseDescriptionText>Successful.</vlp:TDSResponseDescriptionText>
+         </vlp:ResponseMetadata>
+         <vlp:LawfulPresenceVerifiedCode>Y</vlp:LawfulPresenceVerifiedCode>
+         <vlp:InitialVerificationIndividualResponseSet>
+            <vlp:CaseNumber>6000060033064OC</vlp:CaseNumber>
+            <vlp:NonCitLastName>Benstce</vlp:NonCitLastName>
+            <vlp:NonCitFirstName>Jamison</vlp:NonCitFirstName>
+            <vlp:NonCitBirthDate>1979-10-15</vlp:NonCitBirthDate>
+            <vlp:NonCitCountryBirthCd>IND</vlp:NonCitCountryBirthCd>
+            <vlp:NonCitProvOfLaw>A02</vlp:NonCitProvOfLaw>
+            <vlp:NonCitEadsExpireDate>2025-01-02</vlp:NonCitEadsExpireDate>
+            <vlp:EligStatementCd>10</vlp:EligStatementCd>
+            <vlp:EligStatementTxt>TEMPORARY EMPLOYMENT AUTHORIZED</vlp:EligStatementTxt>
+            <vlp:WebServSftwrVer>37</vlp:WebServSftwrVer>
+            <vlp:GrantDateReasonCd>Not Applicable</vlp:GrantDateReasonCd>
+            <vlp:SponsorDataFoundIndicator>false</vlp:SponsorDataFoundIndicator>
+            <vlp:AgencyAction>Invoke CloseCase Web method to close the case.</vlp:AgencyAction>
+            <vlp:FiveYearBarApplyCode>X</vlp:FiveYearBarApplyCode>
+            <vlp:QualifiedNonCitizenCode>N</vlp:QualifiedNonCitizenCode>
+            <vlp:FiveYearBarMetCode>X</vlp:FiveYearBarMetCode>
+            <vlp:USCitizenCode>X</vlp:USCitizenCode>
+         </vlp:InitialVerificationIndividualResponseSet>
+      </vlp:InitialVerificationIndividualResponse>
+   </vlp:InitialVerificationResponseSet>
+</vlp:InitialVerificationResponse>
