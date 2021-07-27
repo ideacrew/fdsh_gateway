@@ -14,7 +14,7 @@ jobs:
           sudo rabbitmqctl set_permissions -p event_source guest ".*" ".*" ".*"
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7
+          ruby-version: 2.7.2
       - uses: actions/cache@v2
         with:
           path: vendor/bundle
