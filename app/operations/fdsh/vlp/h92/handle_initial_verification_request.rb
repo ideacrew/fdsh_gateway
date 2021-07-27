@@ -12,7 +12,7 @@ module Fdsh
         def call(params)
           initial_verification_result_soap = yield RequestInitialVerification.new.call(params[:payload])
           initial_verification_result = yield ::Soap::RemoveSoapEnvelope.new.call(initial_verification_result_soap.body)
-          initial_verification_outcome = yield ProcessinitialVerificationResponse.new.call(initial_verification_result)
+          initial_verification_outcome = yield ProcessInitialVerificationResponse.new.call(initial_verification_result)
 
           event  = yield build_event(params[:correlation_id], initial_verification_outcome)
           result = yield publish(event)

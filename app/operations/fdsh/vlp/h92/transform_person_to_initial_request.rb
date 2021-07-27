@@ -32,7 +32,7 @@ module Fdsh
         end
 
         # Transform Person params To PrimaryRequest Contract params
-        def build_request(person)
+        def build_request_entity(person)
           ::AcaEntities::Fdsh::Vlp::H92::Operations::PersonToInitialRequest.new.call(person)
         end
       end
