@@ -7,7 +7,6 @@ EventSource.configure do |config|
   config.app_name = :fdsh_gateway
 
   config.servers do |server|
-
     server.amqp do |rabbitmq|
       rabbitmq.ref = 'amqp://rabbitmq:5672/event_source'
       rabbitmq.host = ENV['RABBITMQ_HOST'] || 'amqp://localhost'
@@ -57,4 +56,4 @@ EventSource.configure do |config|
     end
 end
 
-EventSource.initialize!
+# EventSource.initialize!

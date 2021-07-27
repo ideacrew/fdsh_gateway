@@ -6,6 +6,10 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 # ruby '2.7.2'
 
 gem 'aca_entities',  git:  'https://github.com/ideacrew/aca_entities.git', branch: 'release_0.3.0'
+
+# This gem overrides Rails' UJS behaviour to open up a Bootstrap Modal instead of the browser's built in confirm() dialog
+gem 'data-confirm-modal'
+
 gem 'dry-matcher',          '~> 0.8'
 gem 'dry-monads',           '~> 1.3'
 gem 'dry-struct',           '~> 1.3'
@@ -13,7 +17,20 @@ gem 'dry-transaction',      '~> 0.13'
 gem 'dry-types',            '~> 1.4'
 gem 'dry-validation',       '~> 1.6'
 gem 'event_source',  git:  'https://github.com/ideacrew/event_source.git', branch: 'release_0.5.3'
+
+# Use jquery as the JavaScript library
+gem 'jquery-rails'
+
+# jQuery UI's JavaScript, CSS, and image files packaged for the Rails 3.1+ asset pipeline
+gem 'jquery-ui-rails'
+
+# SSO Authentication
+gem 'keycloak', '~> 3.2', '>= 3.2.1'
+
 gem 'mongoid',             '~> 7.2.1'
+
+# Rack middleware to enable Keycloak authentication
+# gem 'omniauth-keycloak'
 
 # Use Puma as the app server
 gem 'puma', '~> 5.0'

@@ -1,0 +1,13 @@
+{
+    "realm": "me_sbe_bizops",
+    "auth-server-url": "http://localhost:8080/auth/",
+    "ssl-required": "external",
+    "resource": "fdsh_gateway",
+    "verify-token-audience": true,
+    "credentials": {
+        "secret": "da1a42f5-85fa-4cbd-a972-07abe5bed2ed"
+    },
+    "use-resource-role-mappings": true,
+    "confidential-port": 0,
+    "policy-enforcer": {}
+}
