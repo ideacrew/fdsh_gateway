@@ -179,7 +179,7 @@ RSpec.describe Fdsh::Vlp::H92::RequestInitialVerification, "given:
       :call
     ).with(validation_request_mock).and_return(Dry::Monads::Result::Success.call(expected_xml))
 
-    stub_request(:post, "https://impl.hub.cms.gov/Imp1/VLPService")
+    stub_request(:post, "https://impl.hub.cms.gov/Imp1/VerifyLawfulPresenceServiceV37")
       .with(
         headers: {
           'Accept' => 'application/soap+xml',
