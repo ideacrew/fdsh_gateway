@@ -69,7 +69,6 @@ module Fdsh
 
         def publish_event(initial_verification_request_xml)
           event = PublishEventStruct.new(PUBLISH_EVENT, initial_verification_request_xml)
-
           Success(Publishers::Fdsh::VlpServicePublisher.publish(event))
         end
       end
