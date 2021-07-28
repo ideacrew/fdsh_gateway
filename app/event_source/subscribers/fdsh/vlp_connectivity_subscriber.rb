@@ -4,9 +4,9 @@ module Subscribers
   module Fdsh
     # Receive response from FDSH requests
     class VlpConnectivitySubscriber
-      include ::EventSource::Subscriber[http: '/VlpHubConnectivityService']
+      include ::EventSource::Subscriber[http: '/HubConnectivityService']
 
-      subscribe(:on_VlpHubConnectivityService) do |body, status, _headers|
+      subscribe(:on_HubConnectivityService) do |body, status, _headers|
         if status.to_s == "200"
           logger.info "Subscribers::Fdsh::VlpConnectivitySubscriber: :on_HubConnectivityService OK #{status}, #{body}"
         else

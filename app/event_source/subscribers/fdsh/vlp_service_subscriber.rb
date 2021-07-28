@@ -4,9 +4,9 @@ module Subscribers
   module Fdsh
     # Receive response from FDSH requests
     class VlpServiceSubscriber
-      include ::EventSource::Subscriber[http: '/VLPService']
+      include ::EventSource::Subscriber[http: '/VerifyLawfulPresenceServiceV37']
 
-      subscribe(:on_VLPService) do |body, status, _headers|
+      subscribe(:on_VerifyLawfulPresenceServiceV37) do |body, status, _headers|
         if status.to_s == "200"
           logger.info "Subscribers::Fdsh::VlpServiceSubscribe: on_VLPService OK #{status}, #{body}"
         else

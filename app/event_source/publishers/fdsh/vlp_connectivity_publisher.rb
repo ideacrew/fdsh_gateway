@@ -4,9 +4,9 @@ module Publishers
   module Fdsh
     # Publish requests to test instance of CMS HTTP FDSH Vlp Services
     class VlpConnectivityPublisher
-      include ::EventSource::Publisher[http: '/VlpHubConnectivityService']
+      include ::EventSource::Publisher[http: '/HubConnectivityService']
 
-      register_event '/VlpHubConnectivityService'
+      register_event '/HubConnectivityService'
     end
   end
 end
