@@ -1,24 +1,26 @@
 GIT
   remote: https://github.com/ideacrew/aca_entities.git
-  revision: 4c7e52bb755705130f471fcac385ed5375edc382
-  branch: fdsh
+  revision: 71bf138433f8787da12a4e5d482facdbeffb0854
+  branch: trunk
   specs:
-    aca_entities (0.2.2)
+    aca_entities (0.3.0)
       deep_merge
       dry-monads (~> 1.2)
       dry-struct (~> 1.0)
       dry-transformer (~> 0.1.1)
       dry-types (~> 1.0)
       dry-validation (~> 1.2)
+      iso_country_codes
+      nokogiri-happymapper
       oj (~> 3.11)
 
 GIT
   remote: https://github.com/ideacrew/event_source.git
-  revision: b69ca07bb255894fc7b492d1d37925ad2f032d50
-  branch: release_0.5.0
+  revision: 7f261d5a8f985b8434572390b50065b02b6bcfcd
+  branch: trunk
   specs:
-    event_source (0.5.0)
-      bunny (~> 2.17.0)
+    event_source (0.5.3)
+      bunny (>= 1.7.1)
       deep_merge (~> 1.2.0)
       dry-events (~> 0.3)
       dry-inflector (~> 0.2)
@@ -32,7 +34,7 @@ GIT
       faraday_middleware (~> 1.0)
       logging (~> 2.3.0)
       mime-types
-      nokogiri (~> 1.11.5)
+      nokogiri (>= 1.10.8)
       oj (~> 3.11)
       ox (~> 2.14)
       resque-bus (~> 0.7.0)
@@ -100,14 +102,22 @@ GEM
       minitest (>= 5.1)
       tzinfo (~> 2.0)
       zeitwerk (~> 2.3)
+    addressable (2.8.0)
+      public_suffix (>= 2.0.2, < 5.0)
     amq-protocol (2.3.2)
+    ast (2.4.2)
+    bootsnap (1.7.5)
+      msgpack (~> 1.0)
     bson (4.12.1)
     builder (3.2.4)
-    bunny (2.17.0)
+    bunny (2.19.0)
       amq-protocol (~> 2.3, >= 2.3.1)
+      sorted_set (~> 1, >= 1.0.2)
     byebug (11.1.3)
     coderay (1.1.3)
     concurrent-ruby (1.1.9)
+    crack (0.4.5)
+      rexml
     crass (1.0.6)
     deep_merge (1.2.1)
     diff-lcs (1.4.4)
@@ -117,23 +127,22 @@ GEM
     dry-container (0.8.0)
       concurrent-ruby (~> 1.0)
       dry-configurable (~> 0.1, >= 0.1.3)
-    dry-core (0.6.0)
+    dry-core (0.7.1)
       concurrent-ruby (~> 1.0)
     dry-equalizer (0.3.0)
     dry-events (0.3.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.5, >= 0.5)
-    dry-inflector (0.2.0)
+    dry-inflector (0.2.1)
     dry-initializer (3.0.4)
     dry-logic (1.2.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.5, >= 0.5)
     dry-matcher (0.9.0)
       dry-core (~> 0.4, >= 0.4.8)
-    dry-monads (1.3.5)
+    dry-monads (1.4.0)
       concurrent-ruby (~> 1.0)
-      dry-core (~> 0.4, >= 0.4.4)
-      dry-equalizer
+      dry-core (~> 0.7)
     dry-schema (1.6.2)
       concurrent-ruby (~> 1.0)
       dry-configurable (~> 0.8, >= 0.8.3)
@@ -174,7 +183,7 @@ GEM
     factory_bot_rails (6.2.0)
       factory_bot (~> 6.2.0)
       railties (>= 5.0.0)
-    faraday (1.4.2)
+    faraday (1.4.3)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
       faraday-excon (~> 1.1)
@@ -186,18 +195,20 @@ GEM
     faraday-em_synchrony (1.0.0)
     faraday-excon (1.1.0)
     faraday-net_http (1.0.1)
-    faraday-net_http_persistent (1.1.0)
-    faraday_middleware (1.0.0)
+    faraday-net_http_persistent (1.2.0)
+    faraday_middleware (1.1.0)
       faraday (~> 1.0)
-    ffi (1.15.1)
+    ffi (1.15.3)
     fugit (1.5.0)
       et-orbi (~> 1.1, >= 1.1.8)
       raabro (~> 1.4)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
+    hashdiff (1.0.1)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
+    iso_country_codes (0.7.8)
     listen (3.5.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -214,7 +225,7 @@ GEM
     method_source (1.0.0)
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2021.0225)
+    mime-types-data (3.2021.0704)
     mini_mime (1.0.3)
     mini_portile2 (2.5.3)
     minitest (5.14.4)
@@ -224,6 +235,7 @@ GEM
       activemodel (>= 5.1, < 6.2)
       mongo (>= 2.10.5, < 3.0.0)
     mono_logger (1.1.1)
+    msgpack (1.4.2)
     multi_json (1.15.0)
     multipart-post (2.1.1)
     mustermann (1.1.1)
@@ -232,17 +244,23 @@ GEM
     nokogiri (1.11.7)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
-    oj (3.11.5)
+    nokogiri-happymapper (0.8.1)
+      nokogiri (~> 1.5)
+    oj (3.12.2)
     ox (2.14.5)
+    parallel (1.20.1)
+    parser (3.0.2.0)
+      ast (~> 2.4.1)
     pry (0.13.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
     pry-byebug (3.9.0)
       byebug (~> 11.0)
       pry (~> 0.13.0)
+    public_suffix (4.0.6)
     puma (5.3.2)
       nio4r (~> 2.0)
-    queue-bus (0.10.0)
+    queue-bus (0.11.0)
       multi_json
       redis
     raabro (1.4.0)
@@ -278,13 +296,16 @@ GEM
       method_source
       rake (>= 0.8.7)
       thor (~> 1.0)
+    rainbow (3.0.0)
     rake (13.0.3)
     rb-fsevent (0.11.0)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
-    redis (4.2.5)
+    rbtree (0.4.4)
+    redis (4.4.0)
     redis-namespace (1.8.1)
       redis (>= 3.0.4)
+    regexp_parser (2.1.1)
     resque (1.27.4)
       mono_logger (~> 1.0)
       multi_json (~> 1.0)
@@ -304,6 +325,7 @@ GEM
       redis (>= 3.3)
       resque (>= 1.26)
       rufus-scheduler (~> 3.2)
+    rexml (3.2.5)
     rspec-core (3.10.1)
       rspec-support (~> 3.10.0)
     rspec-expectations (3.10.1)
@@ -321,8 +343,20 @@ GEM
       rspec-mocks (~> 3.10)
       rspec-support (~> 3.10)
     rspec-support (3.10.2)
-    ruby2_keywords (0.0.4)
-    rufus-scheduler (3.7.0)
+    rubocop (1.13.0)
+      parallel (~> 1.10)
+      parser (>= 3.0.0.0)
+      rainbow (>= 2.2.2, < 4.0)
+      regexp_parser (>= 1.8, < 3.0)
+      rexml
+      rubocop-ast (>= 1.2.0, < 2.0)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (>= 1.4.0, < 3.0)
+    rubocop-ast (1.8.0)
+      parser (>= 3.0.1.1)
+    ruby-progressbar (1.11.0)
+    ruby2_keywords (0.0.5)
+    rufus-scheduler (3.8.0)
       fugit (~> 1.1, >= 1.1.6)
     sass-rails (6.0.0)
       sassc-rails (~> 2.1, >= 2.1.1)
@@ -334,6 +368,7 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
+    set (1.0.1)
     shoulda-matchers (3.1.3)
       activesupport (>= 4.0.0)
     sinatra (2.1.0)
@@ -341,6 +376,9 @@ GEM
       rack (~> 2.2)
       rack-protection (= 2.1.0)
       tilt (~> 2.0)
+    sorted_set (1.0.3)
+      rbtree
+      set (~> 1.0)
     sprockets (4.0.2)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
@@ -354,8 +392,13 @@ GEM
       ethon (>= 0.9.0)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
+    unicode-display_width (2.0.0)
     vegas (0.1.11)
       rack (>= 1.0.0)
+    webmock (3.13.0)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
     websocket-driver (0.7.4)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -367,24 +410,27 @@ PLATFORMS
 
 DEPENDENCIES
   aca_entities!
+  bootsnap (>= 1.4.4)
   byebug
   dry-matcher (~> 0.8)
   dry-monads (~> 1.3)
   dry-struct (~> 1.3)
-  dry-transaction
+  dry-transaction (~> 0.13)
   dry-types (~> 1.4)
   dry-validation (~> 1.6)
   event_source!
-  factory_bot_rails
+  factory_bot_rails (~> 6.2)
   listen (~> 3.3)
   mongoid (~> 7.2.1)
   pry-byebug
   puma (~> 5.0)
-  rails (~> 6.1.3, >= 6.1.3.1)
+  rails (~> 6.1.3)
   rspec-rails (~> 5.0)
+  rubocop (= 1.13.0)
   sass-rails (>= 6)
   shoulda-matchers (~> 3)
   tzinfo-data
+  webmock
   yard
 
 RUBY VERSION

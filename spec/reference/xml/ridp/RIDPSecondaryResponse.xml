@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<exch:Response xmlns:exch="http://ridp.dsh.cms.gov/exchange/1.0">
+   <hix-core:ResponseMetadata xmlns:hix-core="http://hix.cms.gov/0.1/hix-core">
+      <hix-core:ResponseCode>HS000000</hix-core:ResponseCode>
+      <hix-core:ResponseDescriptionText>Successful</hix-core:ResponseDescriptionText>
+   </hix-core:ResponseMetadata>
+   <ext:VerificationResponse xmlns:ext="http://ridp.dsh.cms.gov/extension/1.0">
+      <ext:SessionIdentification>RS9BJ7Z39POFGCLFC8RB5UET.pidd2v-210716093805417312402</ext:SessionIdentification>
+      <ext:FinalDecisionCode>RF2</ext:FinalDecisionCode>
+      <ext:DSHReferenceNumber>359e-33-7a6c</ext:DSHReferenceNumber>
+   </ext:VerificationResponse>
+</exch:Response>

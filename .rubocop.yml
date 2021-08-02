@@ -97,6 +97,11 @@ Style/TernaryParentheses:
 Style/WordArray:
   Enabled: false
 
+Style/Documentation: 
+  Enabled: true
+  Exclude:
+    - "config/application.rb"
+
 Bundler/OrderedGems:
   Enabled: false
 

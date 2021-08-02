@@ -3,19 +3,24 @@ on: push
 
 jobs:
   rspec:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Boot RabbitMQ
+        run: |
+          sudo apt-get update
+          sudo apt-get install rabbitmq-server
+          sudo rabbitmqctl add_vhost event_source
+          sudo rabbitmqctl set_permissions -p event_source guest ".*" ".*" ".*"
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7
-      - name: Cache Gems
-        uses: actions/cache@v1
+          ruby-version: 2.7.2
+      - uses: actions/cache@v2
         with:
           path: vendor/bundle
-          key: ${{ runner.os }}-aca_entities-gems-${{ hashFiles('**/Gemfile.lock') }}
+          key: v2-${{ runner.os }}-gems-fdsh_gateway-${{ hashFiles('**/Gemfile.lock') }}-${{ hashFiles('**/Gemfile' ) }}
           restore-keys: |
-            ${{ runner.os }}-aca_entities-gems-${{ hashFiles('**/Gemfile.lock') }}
+            v2-${{ runner.os }}-gems-fdsh_gateway-${{ hashFiles('**/Gemfile.lock') }}-${{ hashFiles('**/Gemfile' ) }}
       - name: bundle install
         run: |
           bundle config path vendor/bundle
