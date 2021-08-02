@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ideacrew/aca_entities.git
-  revision: aa357cb5b625438a042a550022b2d66a2b4e9ea5
-  branch: release_0.3.0
+  revision: 71bf138433f8787da12a4e5d482facdbeffb0854
+  branch: trunk
   specs:
     aca_entities (0.3.0)
       deep_merge
@@ -16,8 +16,8 @@ GIT
 
 GIT
   remote: https://github.com/ideacrew/event_source.git
-  revision: 7f4864116338abcc5ab2e7c4340778abfe9999be
-  branch: release_0.5.3
+  revision: 7f261d5a8f985b8434572390b50065b02b6bcfcd
+  branch: trunk
   specs:
     event_source (0.5.3)
       bunny (>= 1.7.1)
@@ -196,7 +196,7 @@ GEM
     faraday-excon (1.1.0)
     faraday-net_http (1.0.1)
     faraday-net_http_persistent (1.2.0)
-    faraday_middleware (1.0.0)
+    faraday_middleware (1.1.0)
       faraday (~> 1.0)
     ffi (1.15.3)
     fugit (1.5.0)
@@ -302,7 +302,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rbtree (0.4.4)
-    redis (4.3.1)
+    redis (4.4.0)
     redis-namespace (1.8.1)
       redis (>= 3.0.4)
     regexp_parser (2.1.1)

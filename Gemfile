@@ -5,7 +5,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.7.2'
 
-gem 'aca_entities',  git:  'https://github.com/ideacrew/aca_entities.git', branch: 'release_0.3.0'
+gem 'aca_entities',  git:  'https://github.com/ideacrew/aca_entities.git', branch: 'trunk'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
 gem 'dry-matcher',          '~> 0.8'
@@ -14,7 +14,7 @@ gem 'dry-struct',           '~> 1.3'
 gem 'dry-transaction',      '~> 0.13'
 gem 'dry-types',            '~> 1.4'
 gem 'dry-validation',       '~> 1.6'
-gem 'event_source',  git:  'https://github.com/ideacrew/event_source.git', branch: 'release_0.5.3'
+gem 'event_source',  git:  'https://github.com/ideacrew/event_source.git', branch: 'trunk'
 gem 'mongoid',             '~> 7.2.1'
 
 # Use Puma as the app server
