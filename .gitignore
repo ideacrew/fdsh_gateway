@@ -32,6 +32,7 @@ yarn-debug.log*
 .yarn-integrity
 
 /.yardoc
+/doc
 
 .bash_history
 

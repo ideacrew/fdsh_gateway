@@ -5,10 +5,7 @@ services:
     build:
       context: .
       dockerfile: ./.docker/development/Dockerfile
-      args:
-        RUBY_VERSION: "2.7.2"
-        BUNDLER_VERSION_OVERRIDE: "2.2.14"
-    image: fdsh_gateway_dev:0.3.0
+    image: fdsh_gateway_dev:0.2.0
     links:
       - db
     ports:
