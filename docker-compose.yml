@@ -6,8 +6,9 @@ services:
       context: .
       dockerfile: ./.docker/development/Dockerfile
     image: fdsh_gateway_dev:0.2.0
-    links:
-      - db
+    depends_on:
+      - mongodb
+      - rabbitmq
     ports:
       - "3000:3000"
     volumes:
@@ -68,10 +69,8 @@ services:
     tmpfs:
       - /tmp
     command: bash -c "rm -f tmp/pids/server.pid && mkdir -p tmp/pids && yarn install --check-files && bundle install && bundle exec puma -C config/puma.rb"
-    depends_on:
-      - db
-      - rabbitmq
-  db:
+
+  mongodb:
     image: mongo:4.2
     volumes:
       - mongodb:/data/db
