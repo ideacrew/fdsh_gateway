@@ -33,6 +33,7 @@ module Journal
         Journal::TransactionContract.new.call(params)
       end
 
+      # rubocop:disable Style/MultilineBlockChain
       def find_or_create_transaction(values)
         Try() do
           ::Transaction.where(correlation_id: values[:correlation_id])
@@ -51,6 +52,8 @@ module Journal
         end
       end
 
+      # rubocop:enable Style/MultilineBlockChain
+
       def persist(instance)
         if instance.save
           Success(instance)
@@ -59,12 +62,6 @@ module Journal
         end
       end
 
-      # document.serializable_hash(:include => :addresses)
-      # options
-      # :include (Symbol) — What relations to include.
-      # :only (Symbol) — Limit the fields to only these.
-      # :except (Symbol) — Dont include these fields.
-      # :methods (Symbol) — What methods to include.
       def to_entity(document)
         Success(document.serializable_hash(except: :_id).deep_symbolize_keys)
       end

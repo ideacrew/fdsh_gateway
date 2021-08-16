@@ -22,6 +22,7 @@ module Journal
 
       private
 
+      # rubocop:disable Style/MultilineBlockChain
       def validate_params(params)
         Try() do
           Journal::ActivityContract.new.call(params[:activity])
@@ -36,6 +37,8 @@ module Journal
           end
         end
       end
+
+      # rubocop:enable Style/MultilineBlockChain
 
       def find_or_create_transaction(values)
         Journal::Transactions::FindOrCreate.new.call(values)

@@ -35,12 +35,17 @@ RSpec.describe Journal::Transactions::AddActivity do
         )
 
       expect(result.success?).to be_truthy
+
+      # rubocop:disable Layout/FirstArrayElementIndentation
       expect(result.value!.keys).to eq %i[
            activities
            correlation_id
            created_at
            updated_at
          ]
+
+      # rubocop:enable Layout/FirstArrayElementIndentation
+
       expect(result.value![:activities].size).to eq 1
       expect(result.value![:activities].first[:command]).to eq request_command
     end
