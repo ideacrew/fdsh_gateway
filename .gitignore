@@ -35,6 +35,8 @@ yarn-debug.log*
 /doc
 
 .bash_history
+.irb_history
+.local/share/pry
 
 # rspec failure tracking
 .rspec_status

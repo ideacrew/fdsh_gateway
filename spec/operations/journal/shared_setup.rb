@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-RequestEventMessage = {
+RequestEventAttributes = {
   request_id: '00998877',
   ifsv_applicant: {
     person: {
       person_name: {
-        PersonGivenName: 'Michael',
-        PersonMiddleName: 'J',
-        PersonSurName: 'Brady'
+        person_given_name: 'Michael',
+        person_middle_name: 'J',
+        person_sur_name: 'Brady'
       },
       person_ssn_identification: {
         identification_id: '222131234'
@@ -17,7 +17,7 @@ RequestEventMessage = {
   }
 }.freeze
 
-ResponseEventMessage = {
+ResponseEventAttributes = {
   irs_response: {
     request_id: '00998877',
     household: {
@@ -112,3 +112,4 @@ ResponseEventMessage = {
     }
   }
 }.freeze
+# RSpec.shared_context('with events') {}
