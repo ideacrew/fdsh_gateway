@@ -1,0 +1,50 @@
+# frozen_string_literal: true
+
+module Fdsh
+  module Esi
+    module H14
+      # This class takes a json representing a family as input and invokes RIDP.
+      class RequestEsiDetermination
+        include Dry::Monads[:result, :do, :try]
+        include EventSource::Command
+
+        PublishEventStruct = Struct.new(:name, :payload, :headers)
+
+        PUBLISH_EVENT = "fdsh_determine_esi_mec_eligibility"
+
+        # @return [Dry::Monads::Result]
+        def call(application)
+          esi_request = yield TransformApplicationToEsiMecRequest.new.call(application)
+          xml_string = yield encode_xml_and_schema_validate(esi_request)
+          esi_request_xml = yield encode_request_xml(xml_string)
+
+          publish_event(esi_request_xml)
+        end
+
+        protected
+
+        def encode_xml_and_schema_validate(esi_request)
+          AcaEntities::Serializers::Xml::Fdsh::Esi::H14::Operations::EsiRequestToXml.new.call(esi_request)
+        end
+
+        def encode_request_xml(xml_string)
+          encoding_result = Try do
+            xml_doc = Nokogiri::XML(xml_string)
+            xml_doc.to_xml(:indent => 2, :encoding => 'UTF-8', :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION)
+          end
+
+          encoding_result.or do |e|
+            Failure(e)
+          end
+        end
+
+        def publish_event(_esi_request_xml)
+          event = PublishEventStruct.new(PUBLISH_EVENT, determination_request_xml)
+
+          Success(Publishers::Fdsh::RidpServicePublisher.publish(event))
+        end
+
+      end
+    end
+  end
+end
