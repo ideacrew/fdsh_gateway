@@ -8,7 +8,7 @@ RSpec.describe Journal::Transactions::AddActivity do
   before :all do
     DatabaseCleaner.clean
   end
-  
+
   let(:request_command) { 'request_fdsh_ifsv_determination' }
   let(:request_event_key) { 'VLPService' }
   let(:request_event_attributes) { RequestEventAttributes }
