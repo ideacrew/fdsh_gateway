@@ -35,7 +35,7 @@ end
 RSpec.describe Fdsh::Esi::H14::ProcessEsiDeterminationResponse do
 
   let(:file) do
-    loc = File.join(Rails.root, "spec", "reference", "xml", "esi", "TestResponse.xml")
+    loc = File.join(Rails.root, "spec", "reference", "xml", "esi", "MaxResponse.xml")
     File.expand_path(loc)
   end
 
