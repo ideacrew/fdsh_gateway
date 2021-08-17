@@ -13,15 +13,28 @@ module Fdsh
         PUBLISH_EVENT = "fdsh_determine_esi_mec_eligibility"
 
         # @return [Dry::Monads::Result]
-        def call(application)
+        def call(application, params)
+          _transaction = yield create_or_update_transaction('application', application.to_h, params)
           esi_request = yield TransformApplicationToEsiMecRequest.new.call(application)
           xml_string = yield encode_xml_and_schema_validate(esi_request)
+          _updated_transaction = yield create_or_update_transaction('request', xml_string, params)
           esi_request_xml = yield encode_request_xml(xml_string)
 
           publish_event(esi_request_xml)
         end
 
         protected
+
+        def create_or_update_transaction(key, value, params)
+          activity_hash = {
+            correlation_id: "esi_#{params[:correlation_id]}",
+            command: "Fdsh::Esi::H14::RequestEsiDetermination",
+            event_key: params[:event_key],
+            message: { "#{key}": value }
+          }
+
+          Try(Journal::Transactions::AddActivity.new.call(activity_hash))
+        end
 
         def encode_xml_and_schema_validate(esi_request)
           AcaEntities::Serializers::Xml::Fdsh::Esi::H14::Operations::EsiRequestToXml.new.call(esi_request)

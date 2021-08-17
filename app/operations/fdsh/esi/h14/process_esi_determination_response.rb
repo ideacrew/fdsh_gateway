@@ -13,16 +13,30 @@ module Fdsh
 
         # @param [Hash] opts The options to process
         # @return [Dry::Monads::Result]
-        def call(xml_response)
-          parsed_xml      = yield process_xml(xml_response)
-          params          = yield construct_params(parsed_xml)
-          valid_response  = yield validate_esi_response(params)
-          esi_response    = yield create_esi_response(valid_response)
+        def call(xml_response, params)
+          _response_activity = yield create_response_activity(xml_response, params)
+          parsed_xml         = yield process_xml(xml_response)
+          params             = yield construct_params(parsed_xml)
+          valid_response     = yield validate_esi_response(params)
+          esi_response       = yield create_esi_response(valid_response)
 
           Success(esi_response)
         end
 
         private
+
+        def create_response_activity(response, params)
+          activity_hash = {
+            correlation_id: "esi_#{params[:correlation_id]}",
+            command: "Fdsh::Esi::H14::ProcessEsiDeterminationResponse",
+            event_key: params[:event_key],
+            message: { response: response }
+          }
+
+          Try do
+            Journal::Transactions::AddActivity.new.call(activity_hash)
+          end
+        end
 
         def process_xml(xml_body)
           result = AcaEntities::Serializers::Xml::Fdsh::Esi::H14::EsiMecResponse.parse(xml_body, :single => true)

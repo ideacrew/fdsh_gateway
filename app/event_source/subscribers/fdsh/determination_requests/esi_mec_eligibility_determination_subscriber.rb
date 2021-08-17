@@ -13,10 +13,12 @@ module Subscribers
         subscribe(:on_determine_esi_mec_eligibility) do |delivery_info, properties, payload|
           # Sequence of steps that are executed as single operation
           correlation_id = properties.correlation_id
+          event_key = "determine_esi_mec_eligibility"
 
           determination_result = ::Fdsh::Esi::H14::HandleEligibilityDeterminationRequest.new.call({
                                                                                                     payload: payload,
-                                                                                                    correlation_id: correlation_id
+                                                                                                    correlation_id: correlation_id,
+                                                                                                    event_key: event_key
                                                                                                   })
 
           if determination_result.success?

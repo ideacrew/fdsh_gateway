@@ -32,10 +32,10 @@ EventSource.configure do |config|
       http.client_certificate do |client_cert|
         client_cert.client_certificate =
           ENV['RIDP_CLIENT_CERT_PATH'] ||
-            File.join(File.dirname(__FILE__), '..', 'ridp_test_cert.pem')
+          File.join(File.dirname(__FILE__), '..', 'ridp_test_cert.pem')
         client_cert.client_key =
           ENV['RIDP_CLIENT_KEY_PATH'] ||
-            File.join(File.dirname(__FILE__), '..', 'ridp_test_key.key')
+          File.join(File.dirname(__FILE__), '..', 'ridp_test_key.key')
       end
       http.default_content_type = 'application/soap+xml'
       http.soap do |soap|
