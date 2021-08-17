@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exch:ESIMECResponse xmlns:ext="http://vesim.dsh.cms.gov/extension/1.0"
+ xmlns:fbi="http://niem.gov/niem/fbi/2.0"
+ xmlns:hix-core="http://hix.cms.gov/0.1/hix-core"
+ xmlns:hix-ee="http://hix.cms.gov/0.1/hix-ee"
+ xmlns:i="http://niem.gov/niem/appinfo/2.0"
+ xmlns:nc="http://niem.gov/niem/niem-core/2.0"
+ xmlns:niem-xsd="http://niem.gov/niem/proxy/xsd/2.0"
+ xmlns:s="http://niem.gov/niem/structures/2.0"
+ xmlns:usps="http://niem.gov/niem/usps_states/2.0"
+ xmlns:exch="http://vesim.dsh.cms.gov/exchange/1.0"
+ xmlns:ns0="http://niem.gov/niem/appinfo/2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://vesim.dsh.cms.gov/exchange/1.0 ../XMLschemas/constraint/XMLschemas/exchange/ExchangeModel.xsd">
+    <ext:ApplicantResponseSet>
+        <ext:ApplicantResponse>
+            <ext:ResponsePerson>
+                <nc:PersonSSNIdentification>
+                    <nc:IdentificationID>518124854</nc:IdentificationID>
+                </nc:PersonSSNIdentification>
+            </ext:ResponsePerson>
+            <hix-core:ResponseMetadata>
+                <hix-core:ResponseCode>HS0000000</hix-core:ResponseCode>
+                <hix-core:ResponseDescriptionText>Applicant is eligible</hix-core:ResponseDescriptionText>
+            </hix-core:ResponseMetadata>
+            <ext:ApplicantMECInformation>
+                <ext:InsuranceApplicantResponse>
+                    <hix-ee:InsuranceApplicantRequestedCoverage>
+                        <nc:StartDate>
+                            <nc:Date>2021-01-01</nc:Date>
+                        </nc:StartDate>
+                        <nc:EndDate>
+                            <nc:Date>2021-12-31</nc:Date>
+                        </nc:EndDate>
+                    </hix-ee:InsuranceApplicantRequestedCoverage>
+                    <hix-ee:InsuranceApplicantEligibleEmployerSponsoredInsuranceIndicator>false</hix-ee:InsuranceApplicantEligibleEmployerSponsoredInsuranceIndicator>
+                    <hix-ee:InsuranceApplicantInsuredIndicator>false</hix-ee:InsuranceApplicantInsuredIndicator>
+                </ext:InsuranceApplicantResponse>
+                <hix-core:InconsistencyIndicator>false</hix-core:InconsistencyIndicator>
+                <ext:MonthlyPremiumAmount>
+                    <ext:EmployeePremiumAmount>
+                        <hix-ee:InsurancePremiumAmount>0</hix-ee:InsurancePremiumAmount>
+                    </ext:EmployeePremiumAmount>
+                </ext:MonthlyPremiumAmount>
+            </ext:ApplicantMECInformation>
+        </ext:ApplicantResponse>
+    </ext:ApplicantResponseSet>    
+</exch:ESIMECResponse>
