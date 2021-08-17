@@ -22,7 +22,7 @@ services:
       - AMQP_HOST=""
       - AMQP_PASSWORD=${AMQP_PASSWORD:-guest}
       - AMQP_PORT=""
-      - AMQP_URL=${RABBITMQ_URL:-amqp://guest:guest@amqp:5672}
+      - AMQP_URL=${RABBITMQ_URL_EVENT_SOURCE:-amqp://guest:guest@amqp:5672}
       - AMQP_VERSION=""
       - AMQP_USERNAME=${AMQP_USERNAME:-guest}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-AKIA123456789}
@@ -51,7 +51,7 @@ services:
       - RABBITMQ_VHOST=${RABBITMQ_VHOST:-event_source}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
       - RABBITMQ_PORT=${RABBITMQ_PORT:-5672}
-      - RABBITMQ_URL=${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}
+      - RABBITMQ_URL_EVENT_SOURCE=${RABBITMQ_URL_EVENT_SOURCE:-amqp://guest:guest@rabbitmq:5672}
       - RABBITMQ_USERNAME=${AMQP_USERNAME:-guest}
       - RAILS_ENV=${RAILS_ENV:-development}
       - SFTP_HOST=""
@@ -102,7 +102,7 @@ services:
     #   - RABBITMQ_VHOST=${RABBITMQ_VHOST:-event_source}
     #   - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
     #   - RABBITMQ_PORT=${RABBITMQ_PORT:-5672}
-    #   - RABBITMQ_URL=${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}
+    #   - RABBITMQ_URL_EVENT_SOURCE=${RABBITMQ_URL_EVENT_SOURCE:-amqp://guest:guest@rabbitmq:5672}
     #   - RABBITMQ_USERNAME=${AMQP_USERNAME:-guest}
     #   - ACTION_MAILER_HOST=${ACTION_MAILER_HOST:-localhost}
     #   - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-AKIA123456789}
