@@ -23,19 +23,19 @@ module Subscribers
 
           if determination_result.success?
             logger.info(
-              "OK: :on_fdsh_esi_mec_eligibility_determinattion_subscriber successful and acked"
+              "OK: :on_fdsh_esi_mec_eligibility_determination_subscriber successful and acked"
             )
             ack(delivery_info.delivery_tag)
           else
             logger.error(
-              "Error: :on_fdsh_esi_mec_eligibility_determinattion_subscriber; nacked due to:#{determination_result.inspect}"
+              "Error: :on_fdsh_esi_mec_eligibility_determination_subscriber; nacked due to:#{determination_result.inspect}"
             )
             nack(delivery_info.delivery_tag)
           end
 
         rescue Exception => e
           logger.error(
-            "Exception: :on_fdsh_esi_mec_eligibility_determinattion_subscriber\n Exception: #{e.inspect}" +
+            "Exception: :on_fdsh_esi_mec_eligibility_determination_subscriber\n Exception: #{e.inspect}" +
             "\n Backtrace:\n" + e.backtrace.join("\n")
           )
           nack(delivery_info.delivery_tag)

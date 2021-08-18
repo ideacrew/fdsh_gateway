@@ -33,7 +33,9 @@ module Fdsh
             message: { "#{key}": value }
           }
 
-          Try(Journal::Transactions::AddActivity.new.call(activity_hash))
+          Try do
+            Journal::Transactions::AddActivity.new.call(activity_hash)
+          end
         end
 
         def encode_xml_and_schema_validate(esi_request)
