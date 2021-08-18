@@ -74,6 +74,7 @@ module Fdsh
         end
 
         def construct_mec_information(mec_information)
+          return unless mec_information
           {
             InsuranceApplicantResponse: construct_insurance_applicant_response(mec_information.InsuranceApplicantResponse),
             InconsistencyIndicator: mec_information.InconsistencyIndicator,
@@ -82,6 +83,7 @@ module Fdsh
         end
 
         def construct_monthly_premium_amount(monthly_premium)
+          return unless monthly_premium
           premium_hash = {}
 
           if monthly_premium.EmployeePremiumAmount
@@ -96,6 +98,7 @@ module Fdsh
         end
 
         def construct_insurance_applicant_response(response)
+          return unless response
           {
             InsuranceApplicantRequestedCoverage: construct_requested_coverage(response.InsuranceApplicantRequestedCoverage),
             InsuranceApplicantEligibleEmployerSponsoredInsuranceIndicator: response.InsuranceApplicantEligibleEmployerSponsoredInsuranceIndicator,

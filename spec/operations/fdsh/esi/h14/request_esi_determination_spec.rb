@@ -1,41 +1,8 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'open3'
 
-RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
-
-  let(:response_params) do
-    {
-      :ApplicantResponseSet => {
-        :ApplicantResponses => [
-          {
-            :ResponsePerson => {
-              :PersonSSNIdentification => {
-                :IdentificationID => "518124854"
-              }
-            },
-            :ResponseMetadata => {
-              :ResponseCode => "HS0000000",
-              :ResponseDescriptionText => "Applicant is eligible"
-            },
-            :ApplicantMECInformation => {
-              :InsuranceApplicantResponse => {
-                :InsuranceApplicantRequestedCoverage => {
-                  :StartDate => Date.today.beginning_of_year,
-                  :EndDate => Date.today.end_of_year
-                },
-                :InsuranceApplicantEligibleEmployerSponsoredInsuranceIndicator => true,
-                :InsuranceApplicantInsuredIndicator => true
-              },
-              :InconsistencyIndicator => false,
-              :MonthlyPremiumAmount => nil
-            }
-          }
-        ]
-      }
-    }
-  end
+RSpec.describe Fdsh::Esi::H14::RequestEsiDetermination, "given invalid JSON" do
 
   let(:application_params) do
     {
@@ -290,24 +257,37 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
     }
   end
 
-  let(:application) { AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_params).value! }
-  let(:esi_response) {::AcaEntities::Fdsh::Esi::H14::ESIMECResponse.new(response_params)}
+  let(:params) do
+    {
+      correlation_id: 'correlation_id',
+      payload: application_params.to_json,
+      event_key: 'event_key'
+    }
+  end
+
+  let(:application) do
+    AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_params).value!
+  end
 
   before do
-    @result = described_class.new.call(application, esi_response)
+    stub_request(:post, "https://impl.hub.cms.gov/Imp1/CalculateOPMPremiumServiceV2")
+      .with(
+        headers: {
+          'Accept' => 'application/soap+xml',
+          'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+          'Content-Type' => 'application/soap+xml',
+          'User-Agent' => 'Faraday v1.4.3'
+        }
+      ) do |_request|
+      true
+    end.to_return(status: 200, body: "", headers: {})
   end
 
-  it "is successful" do
-    expect(@result.success?).to be_truthy
+  subject do
+    described_class.new.call(application, params)
   end
 
-  it "result to be an Attestation object" do
-    expect(@result.value!).to be_a AcaEntities::MagiMedicaid::Application
-  end
-
-  it "evidence should be in outstanding state" do
-    applicant = @result.value!.applicants.first
-    evidence = applicant.evidences.first
-    expect(evidence.eligibility_status).to eq 'outstanding'
+  it "success" do
+    expect(subject.success?).to be_truthy
   end
 end
