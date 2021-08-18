@@ -56,7 +56,7 @@ module Fdsh
         def publish_event(esi_request_xml)
           event = PublishEventStruct.new(PUBLISH_EVENT, esi_request_xml)
 
-          Success(Publishers::Fdsh::RidpServicePublisher.publish(event))
+          Success(Publishers::Fdsh::EsiServicePublisher.publish(event))
         end
 
       end
