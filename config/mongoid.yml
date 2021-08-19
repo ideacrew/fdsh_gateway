@@ -172,7 +172,7 @@ test:
     default:
       database: fdsh_gateway_test
       hosts:
-        - mongoid:27017
+        - localhost:27017
       options:
         read:
           mode: :primary

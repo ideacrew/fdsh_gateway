@@ -26,8 +26,8 @@ module Fdsh
           esi_insured_indicator = esi_response_hash[:esi_insured_indicator]
           esi_inconsistency_indicator = esi_response_hash[:esi_inconsistency_indicator]
 
-          applicant_is_esi_eligible = applicant.is_esi_eligible?
-          applicant_is_esi_enrolled = applicant.is_esi_enrolled?
+          applicant_is_esi_eligible = applicant.esi_eligible?
+          applicant_is_esi_enrolled = applicant.esi_enrolled?
           esi_evidence = applicant.esi_evidence
 
           return if esi_inconsistency_indicator
