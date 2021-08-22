@@ -5,66 +5,6 @@ require 'open3'
 
 RSpec.describe Fdsh::NonEsi::H31::UpdateApplicationWithResponse do
 
-  let(:response_params) do
-    {
-      :IndividualResponseSet => {
-        :IndividualResponses => [
-          {
-            :Applicant => {
-              :PersonSSNIdentification => "518124854",
-              :PersonName => {
-                :PersonGivenName => "CLARA",
-                :PersonMiddleName => "K",
-                :PersonSurName => "STEPHENS",
-                :PersonNameSuffixText => nil
-              },
-              :PersonBirthDate => Date.new(1988, 11, 11),
-              :PersonSexCode => "M"
-            },
-            :PartialResponseIndicator => false,
-            :OtherCoverages => [
-              {
-                :OrganizationCode => "BHPC",
-                :ResponseMetadata => { :ResponseCode => "HE007001", :ResponseDescriptionText => "Service Not Provided" },
-                :MECCoverage => { :LocationStateUSPostalServiceCode => "AL", :MECVerificationCode => "N", :Insurances => [] }
-              },
-              {
-                :OrganizationCode => "PECO",
-                :ResponseMetadata => { :ResponseCode => "HE000001", :ResponseDescriptionText => "Applicant Not Found" },
-                :MECCoverage => { :LocationStateUSPostalServiceCode => nil, :MECVerificationCode => "N", :Insurances => [] }
-              },
-              {
-                :OrganizationCode => "TRIC",
-                :ResponseMetadata => { :ResponseCode => "HE000001", :ResponseDescriptionText => "Applicant Not Found" },
-                :MECCoverage => { :LocationStateUSPostalServiceCode => nil, :MECVerificationCode => "N", :Insurances => [] }
-              },
-              {
-                :OrganizationCode => "MEDI",
-                :ResponseMetadata => { :ResponseCode => "HE040008", :ResponseDescriptionText => "SSN does not match" },
-                :MECCoverage => { :LocationStateUSPostalServiceCode => nil, :MECVerificationCode => "N", :Insurances => [] }
-              },
-              {
-                :OrganizationCode => "VHPC",
-                :ResponseMetadata => { :ResponseCode => "HE000000", :ResponseDescriptionText => "Success" },
-                :MECCoverage => { :LocationStateUSPostalServiceCode => 'AL', :MECVerificationCode => "Y", :Insurances => [] }
-              },
-              {
-                :OrganizationCode => "CHIP",
-                :ResponseMetadata => { :ResponseCode => "HE000001", :ResponseDescriptionText => "Applicant Not Found" },
-                :MECCoverage => { :LocationStateUSPostalServiceCode => "AL", :MECVerificationCode => "N", :Insurances => [] }
-              },
-              {
-                :OrganizationCode => "MEDC",
-                :ResponseMetadata => { :ResponseCode => "HE000001", :ResponseDescriptionText => "Applicant Not Found" },
-                :MECCoverage => { :LocationStateUSPostalServiceCode => "AL", :MECVerificationCode => "N", :Insurances => [] }
-              }
-            ]
-          }
-        ]
-      }
-    }
-  end
-
   let(:application_params) do
     {
       :family_reference => { :hbx_id => "10205" },
@@ -384,23 +324,116 @@ RSpec.describe Fdsh::NonEsi::H31::UpdateApplicationWithResponse do
   end
 
   let(:application) { AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_params).value! }
-  let(:non_esi_response) {::AcaEntities::Fdsh::NonEsi::H31::VerifyNonESIMECResponse.new(response_params)}
 
-  before do
-    @result = described_class.new.call(application, non_esi_response)
+  context "in case of failure response" do
+
+    let(:mini_response_params) do
+      {
+        :ResponseMetadata => { :ResponseCode => "HE000001", :ResponseDescriptionText => "Applicant Not Found" }
+      }
+    end
+
+    let(:non_esi_response) {::AcaEntities::Fdsh::NonEsi::H31::VerifyNonESIMECResponse.new(mini_response_params)}
+
+    before do
+      @result1 = described_class.new.call(application, non_esi_response)
+    end
+
+    it "is successful" do
+      expect(@result1.success?).to be_truthy
+    end
+
+    it "result to be an Application object" do
+      expect(@result1.value!).to be_a AcaEntities::MagiMedicaid::Application
+    end
+
+    it "evidence should be in attested state" do
+      applicant = @result1.value!.applicants.first
+      evidence = applicant.evidences.first
+      expect(evidence.eligibility_status).to eq 'attested'
+    end
   end
 
-  it "is successful" do
-    expect(@result.success?).to be_truthy
-  end
+  context "in case of failure response" do
 
-  it "result to be an Application object" do
-    expect(@result.value!).to be_a AcaEntities::MagiMedicaid::Application
-  end
+    let(:max_response_params) do
+      {
+        :IndividualResponseSet => {
+          :IndividualResponses => [
+            {
+              :Applicant => {
+                :PersonSSNIdentification => "518124854",
+                :PersonName => {
+                  :PersonGivenName => "CLARA",
+                  :PersonMiddleName => "K",
+                  :PersonSurName => "STEPHENS",
+                  :PersonNameSuffixText => nil
+                },
+                :PersonBirthDate => Date.new(1988, 11, 11),
+                :PersonSexCode => "M"
+              },
+              :PartialResponseIndicator => false,
+              :OtherCoverages => [
+                {
+                  :OrganizationCode => "BHPC",
+                  :ResponseMetadata => { :ResponseCode => "HE007001", :ResponseDescriptionText => "Service Not Provided" },
+                  :MECCoverage => { :LocationStateUSPostalServiceCode => "AL", :MECVerificationCode => "N", :Insurances => [] }
+                },
+                {
+                  :OrganizationCode => "PECO",
+                  :ResponseMetadata => { :ResponseCode => "HE000001", :ResponseDescriptionText => "Applicant Not Found" },
+                  :MECCoverage => { :LocationStateUSPostalServiceCode => nil, :MECVerificationCode => "N", :Insurances => [] }
+                },
+                {
+                  :OrganizationCode => "TRIC",
+                  :ResponseMetadata => { :ResponseCode => "HE000001", :ResponseDescriptionText => "Applicant Not Found" },
+                  :MECCoverage => { :LocationStateUSPostalServiceCode => nil, :MECVerificationCode => "N", :Insurances => [] }
+                },
+                {
+                  :OrganizationCode => "MEDI",
+                  :ResponseMetadata => { :ResponseCode => "HE040008", :ResponseDescriptionText => "SSN does not match" },
+                  :MECCoverage => { :LocationStateUSPostalServiceCode => nil, :MECVerificationCode => "N", :Insurances => [] }
+                },
+                {
+                  :OrganizationCode => "VHPC",
+                  :ResponseMetadata => { :ResponseCode => "HE000000", :ResponseDescriptionText => "Success" },
+                  :MECCoverage => { :LocationStateUSPostalServiceCode => 'AL', :MECVerificationCode => "Y", :Insurances => [] }
+                },
+                {
+                  :OrganizationCode => "CHIP",
+                  :ResponseMetadata => { :ResponseCode => "HE000001", :ResponseDescriptionText => "Applicant Not Found" },
+                  :MECCoverage => { :LocationStateUSPostalServiceCode => "AL", :MECVerificationCode => "N", :Insurances => [] }
+                },
+                {
+                  :OrganizationCode => "MEDC",
+                  :ResponseMetadata => { :ResponseCode => "HE000001", :ResponseDescriptionText => "Applicant Not Found" },
+                  :MECCoverage => { :LocationStateUSPostalServiceCode => "AL", :MECVerificationCode => "N", :Insurances => [] }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    end
 
-  it "evidence should be in outstanding state" do
-    applicant = @result.value!.applicants.first
-    evidence = applicant.evidences.first
-    expect(evidence.eligibility_status).to eq 'outstanding'
+    let(:non_esi_response) {::AcaEntities::Fdsh::NonEsi::H31::VerifyNonESIMECResponse.new(max_response_params)}
+
+    before do
+      @result2 = described_class.new.call(application, non_esi_response)
+    end
+
+    it "is successful" do
+      expect(@result2.success?).to be_truthy
+    end
+
+    it "result to be an Application object" do
+      expect(@result2.value!).to be_a AcaEntities::MagiMedicaid::Application
+    end
+
+    it "evidence should be in outstanding state" do
+      applicant = @result2.value!.applicants.first
+      evidence = applicant.evidences.first
+      expect(evidence.eligibility_status).to eq 'outstanding'
+    end
   end
 end

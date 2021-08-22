@@ -64,7 +64,7 @@ module Fdsh
           application_hash[:applicants].each do |applicant_hash|
             applicant = applicant_entity(applicant_hash)
             non_esi_evidence = applicant.non_esi_evidence.to_h
-            eligibility_hash = eligibility_result_hash(non_esi_response, 'ineligible', "FDSH NON_ESI")
+            eligibility_hash = eligibility_result_hash(non_esi_response.to_h, 'ineligible', "FDSH NON_ESI")
             non_esi_evidence[:eligibility_results] = [eligibility_hash]
             applicant_hash[:evidences].detect {|e| e[:key] == :non_esi_mec}.merge!(non_esi_evidence)
           end
