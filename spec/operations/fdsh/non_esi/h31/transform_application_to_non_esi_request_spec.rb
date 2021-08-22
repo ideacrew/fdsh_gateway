@@ -1,41 +1,8 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'open3'
 
-RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
-
-  let(:response_params) do
-    {
-      :ApplicantResponseSet => {
-        :ApplicantResponses => [
-          {
-            :ResponsePerson => {
-              :PersonSSNIdentification => {
-                :IdentificationID => "518124854"
-              }
-            },
-            :ResponseMetadata => {
-              :ResponseCode => "HS0000000",
-              :ResponseDescriptionText => "Applicant is eligible"
-            },
-            :ApplicantMECInformation => {
-              :InsuranceApplicantResponse => {
-                :InsuranceApplicantRequestedCoverage => {
-                  :StartDate => Date.today.beginning_of_year,
-                  :EndDate => Date.today.end_of_year
-                },
-                :InsuranceApplicantEligibleEmployerSponsoredInsuranceIndicator => true,
-                :InsuranceApplicantInsuredIndicator => true
-              },
-              :InconsistencyIndicator => false,
-              :MonthlyPremiumAmount => nil
-            }
-          }
-        ]
-      }
-    }
-  end
+RSpec.describe Fdsh::NonEsi::H31::TransformApplicationToNonEsiMecRequest, "given invalid JSON" do
 
   let(:application_params) do
     {
@@ -170,7 +137,88 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
           :emails => [],
           :phones => [],
           :incomes => [],
-          :benefits => [],
+          :benefits => [
+            {
+              :name => nil,
+              :kind => "medicare",
+              :status => "is_enrolled",
+              :is_employer_sponsored => false,
+              :employer => nil,
+              :esi_covered => nil,
+              :is_esi_waiting_period => false,
+              :is_esi_mec_met => false,
+              :employee_cost => 0,
+              :employee_cost_frequency => nil,
+              :start_on => Date.today,
+              :end_on => nil,
+              :submitted_at => DateTime.now,
+              :hra_kind => nil
+            },
+            {
+              :name => nil,
+              :kind => "veterans_administration_health_benefits",
+              :status => "is_enrolled",
+              :is_employer_sponsored => false,
+              :employer => nil,
+              :esi_covered => nil,
+              :is_esi_waiting_period => false,
+              :is_esi_mec_met => false,
+              :employee_cost => 0,
+              :employee_cost_frequency => nil,
+              :start_on => Date.today,
+              :end_on => nil,
+              :submitted_at => DateTime.now,
+              :hra_kind => nil
+            },
+            {
+              :name => nil,
+              :kind => "tricare",
+              :status => "is_eligible",
+              :is_employer_sponsored => false,
+              :employer => nil,
+              :esi_covered => nil,
+              :is_esi_waiting_period => false,
+              :is_esi_mec_met => false,
+              :employee_cost => 0,
+              :employee_cost_frequency => nil,
+              :start_on => Date.today,
+              :end_on => nil,
+              :submitted_at => DateTime.now,
+              :hra_kind => nil
+            },
+            {
+              :name => nil,
+              :kind => "acf_refugee_medical_assistance",
+              :status => "is_eligible",
+              :is_employer_sponsored => false,
+              :employer => nil,
+              :esi_covered => nil,
+              :is_esi_waiting_period => false,
+              :is_esi_mec_met => false,
+              :employee_cost => 0,
+              :employee_cost_frequency => nil,
+              :start_on => Date.today,
+              :end_on => nil,
+              :submitted_at => DateTime.now,
+              :hra_kind => nil
+            },
+            {
+              :name => nil,
+              :kind => "veterans_administration_health_benefits",
+              :status => "is_eligible",
+              :is_employer_sponsored => false,
+              :employer => nil,
+              :esi_covered => nil,
+              :is_esi_waiting_period => false,
+              :is_esi_mec_met => false,
+              :employee_cost => 0,
+              :employee_cost_frequency => nil,
+              :start_on => Date.today,
+              :end_on => nil,
+              :submitted_at => DateTime.now,
+              :hra_kind => nil
+            }
+          ],
           :deductions => [],
           :is_medicare_eligible => false,
           :is_self_attested_long_term_care => false,
@@ -290,24 +338,20 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
     }
   end
 
-  let(:application) { AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_params).value! }
-  let(:esi_response) {::AcaEntities::Fdsh::Esi::H14::ESIMECResponse.new(response_params)}
-
-  before do
-    @result = described_class.new.call(application, esi_response)
+  let(:application) do
+    AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_params).value!
   end
 
-  it "is successful" do
-    expect(@result.success?).to be_truthy
+  subject do
+    described_class.new.call(application)
   end
 
-  it "result to be an Application object" do
-    expect(@result.value!).to be_a AcaEntities::MagiMedicaid::Application
+  it "success" do
+    expect(subject.success?).to be_truthy
   end
 
-  it "evidence should be in outstanding state" do
-    applicant = @result.value!.applicants.first
-    evidence = applicant.evidences.first
-    expect(evidence.eligibility_status).to eq 'outstanding'
+  it 'should return organizattion codes' do
+    org_codes = subject.value!.IndividualRequests.first.Organization.OrganizationCodes
+    expect(org_codes).to eq(["MEDI", "VHPC", "TRIC"])
   end
 end

@@ -2,7 +2,7 @@
 
 module Publishers
   module Fdsh
-    # Publish requests to test instance of CMS HTTP FDSH SSA Services
+    # Publish requests to test instance of CMS HTTP FDSH ESI MEC Services
     class EsiServicePublisher
       include ::EventSource::Publisher[http: '/CalculateOPMPremiumServiceV2']
 

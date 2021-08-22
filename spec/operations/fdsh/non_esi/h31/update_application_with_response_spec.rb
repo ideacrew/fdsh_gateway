@@ -3,34 +3,62 @@
 require 'spec_helper'
 require 'open3'
 
-RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
+RSpec.describe Fdsh::NonEsi::H31::UpdateApplicationWithResponse do
 
   let(:response_params) do
     {
-      :ApplicantResponseSet => {
-        :ApplicantResponses => [
+      :IndividualResponseSet => {
+        :IndividualResponses => [
           {
-            :ResponsePerson => {
-              :PersonSSNIdentification => {
-                :IdentificationID => "518124854"
-              }
-            },
-            :ResponseMetadata => {
-              :ResponseCode => "HS0000000",
-              :ResponseDescriptionText => "Applicant is eligible"
-            },
-            :ApplicantMECInformation => {
-              :InsuranceApplicantResponse => {
-                :InsuranceApplicantRequestedCoverage => {
-                  :StartDate => Date.today.beginning_of_year,
-                  :EndDate => Date.today.end_of_year
-                },
-                :InsuranceApplicantEligibleEmployerSponsoredInsuranceIndicator => true,
-                :InsuranceApplicantInsuredIndicator => true
+            :Applicant => {
+              :PersonSSNIdentification => "518124854",
+              :PersonName => {
+                :PersonGivenName => "CLARA",
+                :PersonMiddleName => "K",
+                :PersonSurName => "STEPHENS",
+                :PersonNameSuffixText => nil
               },
-              :InconsistencyIndicator => false,
-              :MonthlyPremiumAmount => nil
-            }
+              :PersonBirthDate => Date.new(1988, 11, 11),
+              :PersonSexCode => "M"
+            },
+            :PartialResponseIndicator => false,
+            :OtherCoverages => [
+              {
+                :OrganizationCode => "BHPC",
+                :ResponseMetadata => { :ResponseCode => "HE007001", :ResponseDescriptionText => "Service Not Provided" },
+                :MECCoverage => { :LocationStateUSPostalServiceCode => "AL", :MECVerificationCode => "N", :Insurances => [] }
+              },
+              {
+                :OrganizationCode => "PECO",
+                :ResponseMetadata => { :ResponseCode => "HE000001", :ResponseDescriptionText => "Applicant Not Found" },
+                :MECCoverage => { :LocationStateUSPostalServiceCode => nil, :MECVerificationCode => "N", :Insurances => [] }
+              },
+              {
+                :OrganizationCode => "TRIC",
+                :ResponseMetadata => { :ResponseCode => "HE000001", :ResponseDescriptionText => "Applicant Not Found" },
+                :MECCoverage => { :LocationStateUSPostalServiceCode => nil, :MECVerificationCode => "N", :Insurances => [] }
+              },
+              {
+                :OrganizationCode => "MEDI",
+                :ResponseMetadata => { :ResponseCode => "HE040008", :ResponseDescriptionText => "SSN does not match" },
+                :MECCoverage => { :LocationStateUSPostalServiceCode => nil, :MECVerificationCode => "N", :Insurances => [] }
+              },
+              {
+                :OrganizationCode => "VHPC",
+                :ResponseMetadata => { :ResponseCode => "HE000000", :ResponseDescriptionText => "Success" },
+                :MECCoverage => { :LocationStateUSPostalServiceCode => 'AL', :MECVerificationCode => "Y", :Insurances => [] }
+              },
+              {
+                :OrganizationCode => "CHIP",
+                :ResponseMetadata => { :ResponseCode => "HE000001", :ResponseDescriptionText => "Applicant Not Found" },
+                :MECCoverage => { :LocationStateUSPostalServiceCode => "AL", :MECVerificationCode => "N", :Insurances => [] }
+              },
+              {
+                :OrganizationCode => "MEDC",
+                :ResponseMetadata => { :ResponseCode => "HE000001", :ResponseDescriptionText => "Applicant Not Found" },
+                :MECCoverage => { :LocationStateUSPostalServiceCode => "AL", :MECVerificationCode => "N", :Insurances => [] }
+              }
+            ]
           }
         ]
       }
@@ -49,9 +77,9 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
       :applicants => [
         {
           :name => {
-            :first_name => "esi",
-            :middle_name => nil,
-            :last_name => "evidence",
+            :first_name => "CLARA",
+            :middle_name => 'K',
+            :last_name => "STEPHENS",
             :name_sfx => nil,
             :name_pfx => nil
           },
@@ -170,7 +198,72 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
           :emails => [],
           :phones => [],
           :incomes => [],
-          :benefits => [],
+          :benefits => [
+            {
+              :name => nil,
+              :kind => "medicare",
+              :status => "is_enrolled",
+              :is_employer_sponsored => false,
+              :employer => nil,
+              :esi_covered => nil,
+              :is_esi_waiting_period => false,
+              :is_esi_mec_met => false,
+              :employee_cost => 0,
+              :employee_cost_frequency => nil,
+              :start_on => Date.today,
+              :end_on => nil,
+              :submitted_at => DateTime.now,
+              :hra_kind => nil
+            },
+            # {
+            #   :name=>nil,
+            #   :kind=>"veterans_administration_health_benefits",
+            #   :status=>"is_enrolled",
+            #   :is_employer_sponsored=>false,
+            #   :employer=>nil,
+            #   :esi_covered=>nil,
+            #   :is_esi_waiting_period=>false,
+            #   :is_esi_mec_met=>false,
+            #   :employee_cost=> 0,
+            #   :employee_cost_frequency=>nil,
+            #   :start_on=>Date.today,
+            #   :end_on=>nil,
+            #   :submitted_at=>DateTime.now,
+            #   :hra_kind=>nil
+            # },
+            {
+              :name => nil,
+              :kind => "tricare",
+              :status => "is_eligible",
+              :is_employer_sponsored => false,
+              :employer => nil,
+              :esi_covered => nil,
+              :is_esi_waiting_period => false,
+              :is_esi_mec_met => false,
+              :employee_cost => 0,
+              :employee_cost_frequency => nil,
+              :start_on => Date.today,
+              :end_on => nil,
+              :submitted_at => DateTime.now,
+              :hra_kind => nil
+            },
+            {
+              :name => nil,
+              :kind => "acf_refugee_medical_assistance",
+              :status => "is_eligible",
+              :is_employer_sponsored => false,
+              :employer => nil,
+              :esi_covered => nil,
+              :is_esi_waiting_period => false,
+              :is_esi_mec_met => false,
+              :employee_cost => 0,
+              :employee_cost_frequency => nil,
+              :start_on => Date.today,
+              :end_on => nil,
+              :submitted_at => DateTime.now,
+              :hra_kind => nil
+            }
+          ],
           :deductions => [],
           :is_medicare_eligible => false,
           :is_self_attested_long_term_care => false,
@@ -222,7 +315,7 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
               :due_on => nil,
               :eligibility_status => "attested",
               :external_service => nil,
-              :key => :esi_mec,
+              :key => :non_esi_mec,
               :title => "MEC",
               :updated_by => nil
             }
@@ -241,8 +334,8 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
           :tax_household_members => [
             {
               :applicant_reference => {
-                :first_name => "esi",
-                :last_name => "evidence",
+                :first_name => "CLARA",
+                :last_name => "STEPHENS",
                 :dob => Date.new(1988, 11, 11),
                 :person_hbx_id => "1629165429385938",
                 :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n"
@@ -291,10 +384,10 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
   end
 
   let(:application) { AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_params).value! }
-  let(:esi_response) {::AcaEntities::Fdsh::Esi::H14::ESIMECResponse.new(response_params)}
+  let(:non_esi_response) {::AcaEntities::Fdsh::NonEsi::H31::VerifyNonESIMECResponse.new(response_params)}
 
   before do
-    @result = described_class.new.call(application, esi_response)
+    @result = described_class.new.call(application, non_esi_response)
   end
 
   it "is successful" do

@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
 module Fdsh
-  module Esi
-    module H14
+  module NonEsi
+    module H31
       # This class takes AcaEntities::MagiMedicaid::Application as input and returns the Esi Mec request hash.
-      class TransformApplicationToEsiMecRequest
+      class TransformApplicationToNonEsiMecRequest
         include Dry::Monads[:result, :do, :try]
         include EventSource::Command
 
         # @param params [Hash] The params to execute an FDSH SSA Composite Verification Request
         # @option params [AcaEntities::MagiMedicaid::Application] :Applicattion
         # @return [Dry::Monads::Result]
-        def call(params)
-          application = yield validate_application(params)
-          request_entity = yield build_request_entity(application)
+        def call(application)
+          valid_application = yield validate_application(application)
+          request_entity = yield build_request_entity(valid_application)
 
           Success(request_entity)
         end
@@ -31,7 +31,7 @@ module Fdsh
 
         # Transform application params To EsiMecRequest Contract params
         def build_request_entity(application)
-          ::AcaEntities::Fdsh::Esi::H14::Operations::BuildEsiMecRequest.new.call(application)
+          ::AcaEntities::Fdsh::NonEsi::H31::Operations::BuildNonEsiMecRequest.new.call(application)
         end
       end
     end

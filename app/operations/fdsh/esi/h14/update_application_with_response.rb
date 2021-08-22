@@ -73,7 +73,7 @@ module Fdsh
         def update_application(application, esi_response)
           application_hash = application.to_h
 
-          return application_hash if esi_response.ResponseMetadata.present?
+          return Success(application_hash) if esi_response.ResponseMetadata.present?
 
           esi_response_hash = esi_response.to_h
           application_hash[:applicants].each do |applicant_hash|
