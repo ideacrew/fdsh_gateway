@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Fdsh::NonEsi::H31::RequestNonEsiDetermination, "given invalid JSON" do
+RSpec.describe Fdsh::NonEsi::H31::RequestNonEsiDetermination do
 
   let(:application_params) do
     {
@@ -288,6 +288,7 @@ RSpec.describe Fdsh::NonEsi::H31::RequestNonEsiDetermination, "given invalid JSO
   end
 
   it "success" do
+    puts subject
     expect(subject.success?).to be_truthy
   end
 end
