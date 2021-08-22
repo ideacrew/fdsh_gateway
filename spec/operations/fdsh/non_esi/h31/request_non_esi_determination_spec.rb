@@ -288,7 +288,7 @@ RSpec.describe Fdsh::NonEsi::H31::RequestNonEsiDetermination do
   end
 
   it "success" do
-    puts subject
+    puts "RequestNonEsiDetermination spec result #{subject}"
     expect(subject.success?).to be_truthy
   end
 end
