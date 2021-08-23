@@ -83,8 +83,8 @@ module Fdsh
             MECVerificationCode: mec_coverage.MECVerificationCode,
             Insurances: mec_coverage.Insurances.collect do |insurance|
               {
-                InsuranceEffectiveDate: insurance.InsuranceEffectiveDate,
-                InsuranceEndDate: insurance.InsuranceEndDate
+                InsuranceEffectiveDate: insurance.InsuranceEffectiveDate&.date,
+                InsuranceEndDate: insurance.InsuranceEndDate&.date
               }
             end
           }

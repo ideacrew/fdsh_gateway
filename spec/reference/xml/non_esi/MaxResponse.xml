@@ -1,0 +1,96 @@
+<vnem:VerifyNonESIMECResponse xmlns:vnem="http://vnem.ee.sim.dsh.cms.hhs.gov">
+   <vnem:IndividualResponseSet>
+      <vnem:IndividualResponse>
+         <vnem:Applicant>
+            <vnem:PersonSSNIdentification>003302608</vnem:PersonSSNIdentification>
+            <vnem:PersonName>
+               <vnem:PersonGivenName>WONDERFUL</vnem:PersonGivenName>
+               <vnem:PersonSurName>BEING</vnem:PersonSurName>
+            </vnem:PersonName>
+            <nc:PersonBirthDate xmlns:nc="http://niem.gov/niem/niem-core/2.0">
+               <nc:Date>1982-06-17</nc:Date>
+            </nc:PersonBirthDate>
+            <nc:PersonSexCode xmlns:nc="http://niem.gov/niem/niem-core/2.0">F</nc:PersonSexCode>
+         </vnem:Applicant>
+         <vnem:PartialResponseIndicator>false</vnem:PartialResponseIndicator>
+         <vnem:OtherCoverage>
+            <vnem:OrganizationCode>BHPC</vnem:OrganizationCode>
+            <vnem:ResponseMetadata>
+               <vnem:ResponseCode>HE007001</vnem:ResponseCode>
+               <vnem:ResponseDescriptionText>Service Not Provided</vnem:ResponseDescriptionText>
+            </vnem:ResponseMetadata>
+            <vnem:MECCoverage>
+               <nc:LocationStateUSPostalServiceCode xmlns:nc="http://niem.gov/niem/niem-core/2.0">ME</nc:LocationStateUSPostalServiceCode>
+               <vnem:MECVerificationCode>N</vnem:MECVerificationCode>
+            </vnem:MECCoverage>
+         </vnem:OtherCoverage>
+         <vnem:OtherCoverage>
+            <vnem:OrganizationCode>PECO</vnem:OrganizationCode>
+            <vnem:ResponseMetadata>
+               <vnem:ResponseCode>HS000000</vnem:ResponseCode>
+               <vnem:ResponseDescriptionText>Success</vnem:ResponseDescriptionText>
+            </vnem:ResponseMetadata>
+            <vnem:MECCoverage>
+               <vnem:MECVerificationCode>Y</vnem:MECVerificationCode>
+               <nc:Insurance xmlns:nc="http://niem.gov/niem/niem-core/2.0">
+                  <nc:InsuranceEffectiveDate>
+                     <nc:Date>2021-01-01</nc:Date>
+                  </nc:InsuranceEffectiveDate>
+               </nc:Insurance>
+            </vnem:MECCoverage>
+         </vnem:OtherCoverage>
+         <vnem:OtherCoverage>
+            <vnem:OrganizationCode>MEDI</vnem:OrganizationCode>
+            <vnem:ResponseMetadata>
+               <vnem:ResponseCode>HE040010</vnem:ResponseCode>
+               <vnem:ResponseDescriptionText>First Name does not match</vnem:ResponseDescriptionText>
+            </vnem:ResponseMetadata>
+            <vnem:MECCoverage>
+               <vnem:MECVerificationCode>N</vnem:MECVerificationCode>
+            </vnem:MECCoverage>
+         </vnem:OtherCoverage>
+         <vnem:OtherCoverage>
+            <vnem:OrganizationCode>TRIC</vnem:OrganizationCode>
+            <vnem:ResponseMetadata>
+               <vnem:ResponseCode>HE000001</vnem:ResponseCode>
+               <vnem:ResponseDescriptionText>Applicant Not Found</vnem:ResponseDescriptionText>
+            </vnem:ResponseMetadata>
+            <vnem:MECCoverage>
+               <vnem:MECVerificationCode>N</vnem:MECVerificationCode>
+            </vnem:MECCoverage>
+         </vnem:OtherCoverage>
+         <vnem:OtherCoverage>
+            <vnem:OrganizationCode>VHPC</vnem:OrganizationCode>
+            <vnem:ResponseMetadata>
+               <vnem:ResponseCode>HE000001</vnem:ResponseCode>
+               <vnem:ResponseDescriptionText>Applicant Not Found</vnem:ResponseDescriptionText>
+            </vnem:ResponseMetadata>
+            <vnem:MECCoverage>
+               <vnem:MECVerificationCode>N</vnem:MECVerificationCode>
+            </vnem:MECCoverage>
+         </vnem:OtherCoverage>
+         <vnem:OtherCoverage>
+            <vnem:OrganizationCode>MEDC</vnem:OrganizationCode>
+            <vnem:ResponseMetadata>
+               <vnem:ResponseCode>HE000001</vnem:ResponseCode>
+               <vnem:ResponseDescriptionText>Applicant Not Found</vnem:ResponseDescriptionText>
+            </vnem:ResponseMetadata>
+            <vnem:MECCoverage>
+               <nc:LocationStateUSPostalServiceCode xmlns:nc="http://niem.gov/niem/niem-core/2.0">ME</nc:LocationStateUSPostalServiceCode>
+               <vnem:MECVerificationCode>N</vnem:MECVerificationCode>
+            </vnem:MECCoverage>
+         </vnem:OtherCoverage>
+         <vnem:OtherCoverage>
+            <vnem:OrganizationCode>CHIP</vnem:OrganizationCode>
+            <vnem:ResponseMetadata>
+               <vnem:ResponseCode>HE000001</vnem:ResponseCode>
+               <vnem:ResponseDescriptionText>Applicant Not Found</vnem:ResponseDescriptionText>
+            </vnem:ResponseMetadata>
+            <vnem:MECCoverage>
+               <nc:LocationStateUSPostalServiceCode xmlns:nc="http://niem.gov/niem/niem-core/2.0">ME</nc:LocationStateUSPostalServiceCode>
+               <vnem:MECVerificationCode>N</vnem:MECVerificationCode>
+            </vnem:MECCoverage>
+         </vnem:OtherCoverage>
+      </vnem:IndividualResponse>
+   </vnem:IndividualResponseSet>
+</vnem:VerifyNonESIMECResponse>
