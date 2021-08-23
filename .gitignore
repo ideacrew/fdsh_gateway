@@ -32,8 +32,11 @@ yarn-debug.log*
 .yarn-integrity
 
 /.yardoc
+/doc
 
 .bash_history
+.irb_history
+.local/share/pry
 
 # rspec failure tracking
 .rspec_status

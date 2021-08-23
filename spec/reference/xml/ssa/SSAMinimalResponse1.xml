@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exch:SSACompositeResponse xmlns:s="http://niem.gov/niem/structures/2.0"
+ xmlns:usps="http://niem.gov/niem/usps_states/2.0"
+ xmlns:i="http://niem.gov/niem/appinfo/2.0"
+ xmlns:ssac="http://extn.ssac.ee.sim.dsh.cms.hhs.gov"
+ xmlns:nc="http://niem.gov/niem/niem-core/2.0"
+ xmlns:niem-xsd="http://niem.gov/niem/proxy/xsd/2.0"
+ xmlns:ssac-codes="http://codes.ssac.ee.sim.dsh.cms.hhs.gov"
+ xmlns:exch="http://ssac.ee.sim.dsh.cms.hhs.gov"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://ssac.ee.sim.dsh.cms.hhs.gov exchange.xsd">
+    <ssac:ResponseMetadata>
+        <ssac:ResponseCode>Response</ssac:ResponseCode>
+        <ssac:ResponseDescriptionText>ResponseDescriptionText0</ssac:ResponseDescriptionText>
+    </ssac:ResponseMetadata>
+</exch:SSACompositeResponse>
