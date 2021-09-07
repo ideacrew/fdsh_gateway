@@ -1,4 +1,4 @@
-FROM ruby:2.7.2 as fdsh_gateway
+FROM ruby:2.7.3 as fdsh_gateway
 
 LABEL author="IdeaCrew"
 

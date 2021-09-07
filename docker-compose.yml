@@ -9,6 +9,8 @@ services:
     depends_on:
       - mongodb
       - rabbitmq
+    env_file:
+      - .env
     ports:
       - "3000:3000"
     volumes:
@@ -18,54 +20,13 @@ services:
       - node_modules:/fdsh_gateway/node_modules
       - packs:/fdsh_gateway/public/packs
     environment:
-      - ACTION_MAILER_HOST=${ACTION_MAILER_HOST:-localhost}
-      - AMQP_HOST=""
-      - AMQP_PASSWORD=${AMQP_PASSWORD:-guest}
-      - AMQP_PORT=""
-      - AMQP_URL=${RABBITMQ_URL:-amqp://guest:guest@amqp:5672}
-      - AMQP_VERSION=""
-      - AMQP_USERNAME=${AMQP_USERNAME:-guest}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-AKIA123456789}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-AbcD987654321}
-      - AWS_REGION=${AWS_REGION:-us-east-1}
-      - AWS_S3_ROOT_NAMESPACE=${AWS_S3_ROOT_NAMESPACE:-root_bucket}
-      - AWS_BUCKET_ROOT_NAMESPACE=${AWS_BUCKET_ROOT_NAMESPACE:-root_bucket}
-      - AWS_CONNECT_INSTANCE_ID=${AWS_CONNECT_INSTANCE_ID:-123456789}
-      - AWS_CONNECT_INSTANCE_URL=${AWS_CONNECT_INSTANCE_URL:-http://localhost}
-      - BLIND_INDEX_MASTER_KEY=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-      - DB_DATABASE=dcas_journal_development
-      - DB_HOST=db
-      - DB_PORT=27017
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres_local
-      - FIN_SVC_PRIVATE_KEY=""
-      - FIN_SVC_API_SECRET=""
-      - INTERFACE="0.0.0.0"
-      - MITC_HOST=${MITC_HOST:-http://mitc}
-      - MITC_PORT=${MITC_PORT:-3001}
-      - MITC_URL=${MITC_URL:-http://mitc:3001}
-      - QB_CLIENT_ID=${QB_CLIENT_ID:-1234567890}
-      - QB_CLIENT_SECRET=${QB_CLIENT_SECRET:-1234567890}
-      - QB_REALM_ID=${QB_REALM_ID:-1234567890}
       - RABBITMQ_HOST=${RABBITMQ_HOST:-amqp://rabbitmq}
       - RABBITMQ_VHOST=${RABBITMQ_VHOST:-event_source}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
       - RABBITMQ_PORT=${RABBITMQ_PORT:-5672}
-      - RABBITMQ_URL=${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}
+      - RABBITMQ_URL_EVENT_SOURCE=${RABBITMQ_URL_EVENT_SOURCE:-amqp://guest:guest@rabbitmq:5672}
       - RABBITMQ_USERNAME=${AMQP_USERNAME:-guest}
       - RAILS_ENV=${RAILS_ENV:-development}
-      - SFTP_HOST=""
-      - SFTP_PORT=""
-      - SMTP_DOMAIN=${SMTP_DOMAIN:-ideacrew.com}
-      - SMTP_HOST=${SMTP_HOST:-localhost}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-password}
-      - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USERNAME=${SMTP_USERNAME:-username}
-      - SNS_HOST=""
-      - SNS_PORT=""
-      - WF_BILLER_KEY=${WF_API_KEY:-1234567890}
-      - WF_API_SECRET=${WF_API_KEY:-1234567890}
-      - WF_PRIVATE_KEY=${WF_API_KEY:-1234567890}
     tmpfs:
       - /tmp
     command: bash -c "rm -f tmp/pids/server.pid && mkdir -p tmp/pids && yarn install --check-files && bundle install && bundle exec puma -C config/puma.rb"
@@ -91,46 +52,6 @@ services:
       - 5672:5672
       - 15672:15672
 
-    # enroll:
-    # image: enroll:dev-0.1.0
-    #  links:
-    #   - db
-    # ports:
-    #   - "3002:3000"
-    # environments:
-    #   - RAILS_ENV=${RAILS_ENV:-development}
-    #   - RABBITMQ_VHOST=${RABBITMQ_VHOST:-event_source}
-    #   - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
-    #   - RABBITMQ_PORT=${RABBITMQ_PORT:-5672}
-    #   - RABBITMQ_URL=${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}
-    #   - RABBITMQ_USERNAME=${AMQP_USERNAME:-guest}
-    #   - ACTION_MAILER_HOST=${ACTION_MAILER_HOST:-localhost}
-    #   - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-AKIA123456789}
-    #   - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-AbcD987654321}
-    #   - AWS_REGION=${AWS_REGION:-us-east-1}
-    #   - ENROLL_DB_NAME=enroll_development
-    #   - ENROLL_DB_HOST=db
-    #   - ENROLL_DB_PASSWORD=enroll_local
-    #   - ENROLL_DB_PORT=27017
-    #   - ENROLL_DB_USERNAME=enroll
-    #   - ENROLL_DB_AUTH=false
-    #   - ENROLL_FQDN=localhost
-    #   - LOGOUT_URL=localhost
-    #   - CARTAFACT_HOST=cartafact
-    #   - ENV_NAME=dev
-    #   - AWS_ENV=dev
-    #   - HBX_ID=me0
-    #   - MITC_HOST=http://mitc
-    #   - MITC_PORT=3001
-    #   - MITC_URL=http://mitc:3001
-    #   - RAILS_ENV=development
-    #   - CHECKBOOK_BASE_URL=http://checkbook
-    #   - CHECKBOOK_IVL_PATH=ivl
-    #   - CHECKBOOK_SHOP_PATH=shop
-    #   - CHECKBOOK_CONGRESS_URL=congress
-    #   - CHECKBOOK_REMOTE_ACCESS_KEY=123456789
-    #   - CHECKBOOK_REFERENCE_ID=12345
-    # command: bash -c "rm -f tmp/pids/server.pid && mkdir -p tmp/pids && bundle exec puma -C config/puma.rb"
 volumes:
   bundle:
   rails_cache:
