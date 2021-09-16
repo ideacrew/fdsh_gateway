@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/ideacrew/aca_entities.git
-  revision: 3d3985fc09f3f183d3c8b89e9687c9c7949760f8
-  branch: trunk
+  revision: 9f33c89c780fdd858499bd12f282e7a59036522c
+  branch: release_0.6.0
   specs:
-    aca_entities (0.4.0)
+    aca_entities (0.6.0)
       deep_merge
       dry-monads (~> 1.2)
       dry-struct (~> 1.0)
@@ -384,6 +384,7 @@ GEM
       rubocop-ast (>= 1.1.0)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.5)
+    rubyzip (2.3.2)
     rufus-scheduler (3.8.0)
       fugit (~> 1.1, >= 1.1.6)
     sass-rails (6.0.0)
@@ -481,6 +482,7 @@ DEPENDENCIES
   rubocop-rails
   rubocop-rake
   rubocop-rspec
+  rubyzip
   sass-rails (>= 6)
   shoulda-matchers
   turbolinks (~> 5)
