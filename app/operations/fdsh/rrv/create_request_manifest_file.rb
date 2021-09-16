@@ -29,7 +29,7 @@ module Fdsh
       def create_medicare_xml_file(rrv_medicare_xml)
         folder = "#{Rails.root}/rrv_request_outbound"
         @outbound_folder = FileUtils.mkdir_p(folder).first
-        file_name = @outbound_folder + "/IFSV_Request_00001_#{Time.now.gmtime.strftime('%Y%m%dT%H%M%S%LZ')}.xml"
+        file_name = @outbound_folder + "/MDCR_Request_00001_#{Time.now.gmtime.strftime('%Y%m%dT%H%M%S%LZ')}.xml"
         file = File.open(file_name, "w")
         file.write(rrv_medicare_xml.to_s)
         file.close
