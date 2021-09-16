@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Fdsh::Rrv::Medicare::RequestRrvMedicareDetermination, "given invalid JSON" do
+RSpec.describe Fdsh::Rrv::Medicare::CreateRequestManifestFile do
 
   let(:application_params) do
     {
@@ -16,20 +16,20 @@ RSpec.describe Fdsh::Rrv::Medicare::RequestRrvMedicareDetermination, "given inva
       :applicants => [
         {
           :name => {
-            :first_name => "esi",
-            :middle_name => nil,
-            :last_name => "evidence",
+            :first_name => "MATILDA",
+            :middle_name => "B",
+            :last_name => "BOTTOM",
             :name_sfx => nil,
             :name_pfx => nil
           },
           :identifying_information => {
             :has_ssn => "0",
             :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
-            :ssn => "518124854"
+            :ssn => "295682407"
           },
           :demographic => {
             :gender => "Male",
-            :dob => Date.new(1988, 11, 11),
+            :dob => Date.new(1950, 0o4, 17),
             :ethnicity => ["", "", "", "", "", "", ""],
             :race => nil, :is_veteran_or_active_military => false,
             :is_vets_spouse_or_child => false
@@ -269,22 +269,8 @@ RSpec.describe Fdsh::Rrv::Medicare::RequestRrvMedicareDetermination, "given inva
     AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_params).value!
   end
 
-  before do
-    stub_request(:post, "https://impl.hub.cms.gov/Imp1/CalculateOPMPremiumServiceV2")
-      .with(
-        headers: {
-          'Accept' => 'application/soap+xml',
-          'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-          'Content-Type' => 'application/soap+xml',
-          'User-Agent' => 'Faraday v1.4.3'
-        }
-      ) do |_request|
-      true
-    end.to_return(status: 200, body: "", headers: {})
-  end
-
   subject do
-    described_class.new.call(application, params)
+    described_class.new.call([application])
   end
 
   it "success" do
