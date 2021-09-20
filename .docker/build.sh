@@ -8,7 +8,7 @@ cp .docker/config/production.rb config/environments/
 cp .docker/config/credentials.yml.enc config/
 cp .docker/config/master.key config/
 
-docker build --build-arg BUNDLER_VERSION_OVERRIDE='2.2.10' \
+docker build --build-arg BUNDLER_VERSION_OVERRIDE='2.2.24' \
              --build-arg NODE_MAJOR='12' \
              --build-arg YARN_VERSION='1.22.4' \
              -f .docker/production/Dockerfile --target app -t $2:$1 .
