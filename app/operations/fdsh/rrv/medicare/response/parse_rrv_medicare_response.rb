@@ -15,12 +15,12 @@ module Fdsh
           include EventSource::Command
 
           def call(file_path)
-            _unziped_files = yield unzip_medicare_response(file_path)
-            _processed_manifest_xml = yield parse_manifest_response_xml
+            unzip_medicare_response(file_path)
+            processed_manifest_xml = yield parse_manifest_response_xml
             processed_medicare_xml = yield parse_medicare_response_xml
-            # _status = yield verify_checksum(processed_manifest_xml)
-            remove_unziped_dir
+            _status = yield verify_checksum(processed_manifest_xml)
             response_entity = yield ConstructMedicareResponse.new.call(processed_medicare_xml)
+            binding.irb
             Success(response_entity)
           end
 
@@ -36,17 +36,17 @@ module Fdsh
                 zip_file.extract(f, f_path) unless File.exist?(f_path)
               end
             end
-            Success(true)
           end
 
           def parse_manifest_response_xml
-            manifest_response_xml = File.read("#{Rails.root}/rrv_medicare_response/manifest.xml")
+            manifest_response_xml = File.read("#{Rails.root}/manifest.xml")
             valid_xml = remove_xml_node(manifest_response_xml)
             Success(AcaEntities::Serializers::Xml::Fdsh::Rrv::H79::Response::BatchHandlingServiceResponse.parse(valid_xml, :single => true))
           end
 
           def parse_medicare_response_xml
-            rrv_response_xml = File.read("#{Rails.root}/rrv_medicare_response/RRV_MEDICARE_RESP.xml")
+            file_name = Dir.glob('MDCR_Response_*.xml').first
+            rrv_response_xml = File.read(file_name)
             valid_xml = remove_xml_node(rrv_response_xml)
             Success(AcaEntities::Serializers::Xml::Fdsh::Rrv::Medicare::EesDshBatchResponseData.parse(valid_xml, :single => true))
           end
@@ -59,8 +59,9 @@ module Fdsh
 
           def verify_checksum(manifest_xml)
             checksum = manifest_xml.Attachments.first.DocumentBinary.ChecksumAugmentation
-            rrv_response_xml_checksum = generate_checksum_hexdigest("#{Rails.root}/rrv_medicare_response/RRV_MEDICARE_RESP.xml")
-            checksum == rrv_response_xml_checksum ? Success(true) : Failure("Checksum did not match")
+            file_name = Dir.glob('MDCR_Response_*.xml').first
+            rrv_response_xml_checksum = generate_checksum_hexdigest(File.join(file_name))
+            checksum.SHA256HashValueText == rrv_response_xml_checksum ? Success(true) : Failure("Checksum did not match")
           end
 
           def generate_checksum_hexdigest(file_path)

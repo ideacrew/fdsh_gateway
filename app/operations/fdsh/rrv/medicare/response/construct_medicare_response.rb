@@ -62,10 +62,12 @@ module Fdsh
 
           def construct_insurances(insurances)
             insurances.collect do |insurance|
-              {
-                InsuranceEffectiveDate: insurance.InsuranceEffectiveDate,
-                InsuranceEndDate: insurance.InsuranceEndDate
-              }
+              insurance_hash = {}
+
+              insurance_hash.merge!(InsuranceEffectiveDate: insurance.InsuranceEffectiveDate) if insurance.InsuranceEffectiveDate.present?
+              insurance_hash.merge!(InsuranceEndDate: insurance.InsuranceEndDate) if insurance.InsuranceEndDate.present?
+
+              insurance_hash
             end
           end
         end
