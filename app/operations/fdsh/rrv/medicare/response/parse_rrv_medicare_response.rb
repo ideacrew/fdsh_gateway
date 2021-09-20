@@ -20,7 +20,6 @@ module Fdsh
             processed_medicare_xml = yield parse_medicare_response_xml
             _status = yield verify_checksum(processed_manifest_xml)
             response_entity = yield ConstructMedicareResponse.new.call(processed_medicare_xml)
-            binding.irb
             Success(response_entity)
           end
 
