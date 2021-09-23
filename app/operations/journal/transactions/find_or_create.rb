@@ -36,7 +36,7 @@ module Journal
       # rubocop:disable Style/MultilineBlockChain
       def find_or_create_transaction(values)
         Try() do
-          ::Transaction.where(correlation_id: values[:correlation_id])
+          ::Transaction.where(correlation_id: values[:correlation_id], magi_medicaid_application: values[:magi_medicaid_application])
         end.bind do |result|
           if result.empty?
             Success(::Transaction.new(values))

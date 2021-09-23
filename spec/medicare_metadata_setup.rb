@@ -75,7 +75,19 @@ TEST_APPLICATION_1 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -162,7 +174,19 @@ TEST_APPLICATION_2 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -249,7 +273,19 @@ TEST_APPLICATION_3 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -336,7 +372,19 @@ TEST_APPLICATION_4 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -423,7 +471,19 @@ TEST_APPLICATION_5 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -510,7 +570,19 @@ TEST_APPLICATION_6 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -597,7 +669,19 @@ TEST_APPLICATION_7 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -690,7 +774,19 @@ TEST_APPLICATION_8 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -777,7 +873,19 @@ TEST_APPLICATION_9 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -864,7 +972,19 @@ TEST_APPLICATION_10 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -951,7 +1071,19 @@ TEST_APPLICATION_11 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -1038,7 +1170,19 @@ TEST_APPLICATION_12 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -1125,7 +1269,19 @@ TEST_APPLICATION_13 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -1212,7 +1368,19 @@ TEST_APPLICATION_14 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -1299,7 +1467,19 @@ TEST_APPLICATION_15 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -1386,7 +1566,19 @@ TEST_APPLICATION_16 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",
@@ -1473,7 +1665,19 @@ TEST_APPLICATION_17 = {
       :benchmark_premium => {
         :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
-      }
+      },
+      :benefits => [],
+      :evidences => [
+        {
+          :description => nil,
+          :due_on => nil,
+          :eligibility_status => "attested",
+          :external_service => nil,
+          :key => :non_esi_mec,
+          :title => "Non ESI MEC",
+          :updated_by => nil
+        }
+      ]
     }
   ],
   :us_state => "DC",

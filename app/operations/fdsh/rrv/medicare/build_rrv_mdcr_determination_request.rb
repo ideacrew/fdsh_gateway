@@ -7,7 +7,7 @@ module Fdsh
   module Rrv
     module Medicare
       # This class takes happy mapper hash as input and returns
-      class BuildMedicareRequestXml
+      class BuildRrvMdcrDeterminationRequest
         include Dry::Monads[:result, :do, :try]
         include EventSource::Command
 
