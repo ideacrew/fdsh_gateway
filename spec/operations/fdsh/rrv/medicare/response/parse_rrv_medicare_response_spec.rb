@@ -29,7 +29,7 @@ end
 
 RSpec.describe Fdsh::Rrv::Medicare::Response::ParseRrvMedicareResponse do
 
-  after do
+  after :all do
     DatabaseCleaner.clean
   end
 

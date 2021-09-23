@@ -46,6 +46,7 @@ RSpec.describe Journal::Transactions::AddActivity do
            activities
            correlation_id
            created_at
+           magi_medicaid_application
            updated_at
          ]
 

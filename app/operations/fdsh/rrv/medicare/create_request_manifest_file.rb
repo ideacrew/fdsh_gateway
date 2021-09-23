@@ -15,7 +15,7 @@ module Fdsh
 
         def call(applications)
           @applicants_count = applications.flat_map(&:applicants).count
-          medicare_payload = yield BuildMedicareRequestXml.new.call(applications)
+          medicare_payload = yield BuildRrvMdcrDeterminationRequest.new.call(applications)
           @medicare_file = yield create_medicare_xml_file(medicare_payload)
           manifest_request = yield construct_manifest_request
           validated_manifest_request = yield validate_manifest_request(manifest_request)

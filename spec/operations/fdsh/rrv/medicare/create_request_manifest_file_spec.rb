@@ -5,7 +5,7 @@ require 'medicare_metadata_setup'
 
 RSpec.describe Fdsh::Rrv::Medicare::CreateRequestManifestFile do
 
-  after do
+  before :all do
     DatabaseCleaner.clean
   end
 

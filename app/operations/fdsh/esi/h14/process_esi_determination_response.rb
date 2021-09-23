@@ -14,10 +14,10 @@ module Fdsh
         # @param [Hash] opts The options to process
         # @return [Dry::Monads::Result]
         def call(xml_response, params)
-          _response_activity = yield create_response_activity(xml_response, params)
-          parsed_xml         = yield process_xml(xml_response)
-          params             = yield construct_params(parsed_xml)
-          valid_response     = yield validate_esi_response(params)
+          parsed_xml = yield process_xml(xml_response)
+          response_params = yield construct_params(parsed_xml)
+          _response_activity = yield create_response_activity(response_params, params)
+          valid_response     = yield validate_esi_response(response_params)
           esi_response       = yield create_esi_response(valid_response)
 
           Success(esi_response)
