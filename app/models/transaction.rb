@@ -9,7 +9,9 @@ class Transaction
   # embedded_in :transactable, polymorphic: true
 
   field :correlation_id, as: :request_id, type: String
-  field :magi_medicaid_application, type: String
+  field :magi_medicaid_application_ciphertext, type: String
+
+  encrypts :magi_medicaid_application
 
   embeds_many :activities, cascade_callbacks: true
   accepts_nested_attributes_for :activities

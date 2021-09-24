@@ -39,11 +39,15 @@ module Journal
           ::Transaction.where(correlation_id: values[:correlation_id], magi_medicaid_application: values[:magi_medicaid_application])
         end.bind do |result|
           if result.empty?
+            values[:activities].each do |activity|
+              activity[:message] = activity[:message].to_json
+            end
             Success(::Transaction.new(values))
           else
             transaction = result.first
             activities = values[:activities] || []
             activities.each do |activity_hash|
+              activity_hash[:message] = activity_hash[:message].to_json
               activity = ::Activity.new(activity_hash)
               transaction.activities << activity
             end

@@ -65,7 +65,7 @@ module Fdsh
               correlation_id: "rrv_mdcr_#{individual_response.PersonSSNIdentification}",
               command: "Fdsh::Rrv::Medicare::ProcessRrvMedicareDetermination",
               event_key: "rrv_mdcr_determination_determined",
-              message: { response: individual_response.to_h }
+              message: { response: individual_response.to_h }.to_json
             }
             transaction.activities << Activity.new(activity_hash)
           end
