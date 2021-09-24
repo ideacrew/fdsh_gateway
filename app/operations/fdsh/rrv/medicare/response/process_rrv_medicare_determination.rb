@@ -87,7 +87,7 @@ module Fdsh
             insurance_effective_date = individual_response.Insurances&.first&.InsuranceEffectiveDate
             insurance_end_date = individual_response.Insurances&.first&.InsuranceEndDate
             benefits = applicant.health_benefits_for("medicare")
-            benefits == false && (insurance_effective_date.present? || insurance_end_date.present?) ? "outstanding" : nil
+            benefits == false && (insurance_effective_date.present? || insurance_end_date.present?) ? "outstanding" : "attested"
           end
 
           def publish(application, request_id)
