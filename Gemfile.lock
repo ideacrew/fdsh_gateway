@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ideacrew/aca_entities.git
-  revision: e047cacbb7077d2cdf262784d87b5e55af40396b
-  branch: trunk
+  revision: 38b9302d53993deb5ffc82852dfef2f6fc912a01
+  branch: release_0.8.0
   specs:
     aca_entities (0.6.0)
       deep_merge
@@ -126,12 +126,12 @@ GEM
       mongoid
     deep_merge (1.2.1)
     diff-lcs (1.4.4)
-    dry-configurable (0.12.1)
+    dry-configurable (0.13.0)
       concurrent-ruby (~> 1.0)
-      dry-core (~> 0.5, >= 0.5.0)
-    dry-container (0.8.0)
+      dry-core (~> 0.6)
+    dry-container (0.9.0)
       concurrent-ruby (~> 1.0)
-      dry-configurable (~> 0.1, >= 0.1.3)
+      dry-configurable (~> 0.13, >= 0.13.0)
     dry-core (0.7.1)
       concurrent-ruby (~> 1.0)
     dry-equalizer (0.3.0)
@@ -259,7 +259,7 @@ GEM
       racc (~> 1.4)
     nokogiri-happymapper (0.8.1)
       nokogiri (~> 1.5)
-    oj (3.13.3)
+    oj (3.13.7)
     ox (2.14.5)
     parallel (1.20.1)
     parser (3.0.2.0)

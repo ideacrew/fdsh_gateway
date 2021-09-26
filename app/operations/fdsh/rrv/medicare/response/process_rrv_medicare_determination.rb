@@ -92,7 +92,9 @@ module Fdsh
 
           def publish(application, request_id)
             payload = application.to_h
-            event = event('events.fdsh.non_esi_determination_complete', attributes: payload, headers: { correlation_id: request_id }).value!
+            event = event('events.fdsh.renewal_eligibilities.magi_medicaid_application_renewal_eligibilities_medicare_determined',
+                          attributes: payload,
+                          headers: { correlation_id: request_id }).value!
             event.publish
           end
         end
