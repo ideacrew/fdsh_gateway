@@ -31,7 +31,6 @@ module Subscribers
                                                                                                  event_key: 'determine_non_esi_mec_eligibility'
                                                                                                })
 
-
           if non_esi_result.success?
             logger.info("OK: :on_fdsh_mec_eligibility_determination_subscriber successful and acked")
             ack(delivery_info.delivery_tag)
