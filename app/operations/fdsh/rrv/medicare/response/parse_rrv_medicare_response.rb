@@ -20,10 +20,15 @@ module Fdsh
             processed_medicare_xml = yield parse_medicare_response_xml
             _status = yield verify_checksum(processed_manifest_xml)
             response_entity = yield ConstructMedicareResponse.new.call(processed_medicare_xml)
+            process_rrv_ifsv_determination(response_entity)
             Success(response_entity)
           end
 
           private
+
+          def process_rrv_ifsv_determination(response_entity)
+            ProcessRrvMedicareDetermination.new.call(response_entity) if response_entity.IndividualResponses.present?
+          end
 
           def unzip_medicare_response(file_path)
             # file-path: "{Rails.root}/rrv_medicare_response.zip"

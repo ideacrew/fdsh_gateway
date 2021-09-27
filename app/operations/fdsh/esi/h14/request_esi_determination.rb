@@ -33,8 +33,9 @@ module Fdsh
             message: { "#{key}": value }
           }
 
+          transaction_hash = { correlation_id: activity_hash[:correlation_id], activity: activity_hash }
           Try do
-            Journal::Transactions::AddActivity.new.call(activity_hash)
+            Journal::Transactions::AddActivity.new.call(transaction_hash)
           end
         end
 

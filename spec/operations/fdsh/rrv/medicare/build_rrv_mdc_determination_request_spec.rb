@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'medicare_metadata_setup'
 
-RSpec.describe Fdsh::Rrv::Medicare::CreateRequestManifestFile do
+RSpec.describe Fdsh::Rrv::Medicare::BuildRrvMdcrDeterminationRequest do
 
   before :all do
     DatabaseCleaner.clean
@@ -22,5 +22,7 @@ RSpec.describe Fdsh::Rrv::Medicare::CreateRequestManifestFile do
 
   it "success" do
     expect(subject.success?).to be_truthy
+    expect(Transaction.all.count).to eq 17
   end
+
 end

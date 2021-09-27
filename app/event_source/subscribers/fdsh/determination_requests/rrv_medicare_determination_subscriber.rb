@@ -5,12 +5,12 @@ module Subscribers
     module DeterminationRequests
       # Publish events for FDSH RRV requests
       class RrvMedicareDeterminationSubscriber
-        include ::EventSource::Subscriber[amqp: 'enroll.fdsh.verifications']
+        include ::EventSource::Subscriber[amqp: 'enroll.fdsh_verifications.rrv']
 
         # rubocop:disable Lint/RescueException
         # rubocop:disable Style/LineEndConcatenation
         # rubocop:disable Style/StringConcatenation
-        subscribe(:on_magi_medicaid_application_determined) do |delivery_info, properties, payload|
+        subscribe(:on_magi_medicaid_application_renewal_assistance_eligible) do |delivery_info, properties, payload|
           # Sequence of steps that are executed as single operation
           correlation_id = properties.correlation_id
 
@@ -20,9 +20,7 @@ module Subscribers
                                                                                                            })
 
           if determination_result.success?
-            logger.info(
-              "OK: :on_fdsh_rrv_medicare_eligibility_determination_subscriber successful and acked"
-            )
+            logger.info("OK: :on_fdsh_rrv_medicare_eligibility_determination_subscriber successful and acked")
             ack(delivery_info.delivery_tag)
           else
             logger.error(

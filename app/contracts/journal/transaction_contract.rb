@@ -10,6 +10,7 @@ module Journal
     # @return [Dry::Monads::Result]
     params do
       required(:correlation_id).filled(:string)
+      optional(:magi_medicaid_application).maybe(:string)
       optional(:activities).array(Journal::ActivityContract.params)
     end
   end

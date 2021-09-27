@@ -30,6 +30,7 @@ module Journal
           if result.success?
             Journal::TransactionContract.new.call(
               correlation_id: params[:correlation_id],
+              magi_medicaid_application: params[:magi_medicaid_application],
               activities: [result.to_h]
             )
           else
