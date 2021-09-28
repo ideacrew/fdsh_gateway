@@ -30,8 +30,7 @@ RSpec.describe Fdsh::Esi::H14::HandleEligibilityDeterminationRequest, "given:
           },
           :identifying_information => {
             :has_ssn => "0",
-            :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
-            :ssn => "518124854"
+            :encrypted_ssn => "QEVuQwQAndF/A5V0udKwqZe34CjgHg=="
           },
           :demographic => {
             :gender => "Male",
@@ -218,7 +217,7 @@ RSpec.describe Fdsh::Esi::H14::HandleEligibilityDeterminationRequest, "given:
                 :last_name => "evidence",
                 :dob => Date.new(1988, 11, 11),
                 :person_hbx_id => "1629165429385938",
-                :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n"
+                :encrypted_ssn => "QEVuQwQAndF/A5V0udKwqZe34CjgHg=="
               },
               :product_eligibility_determination => {
                 :is_ia_eligible => false,
