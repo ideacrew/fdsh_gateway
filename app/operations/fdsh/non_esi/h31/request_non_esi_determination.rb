@@ -30,7 +30,7 @@ module Fdsh
             correlation_id: "non_esi_#{params[:correlation_id]}",
             command: "Fdsh::NonEsi::H31::RequestNonEsiDetermination",
             event_key: params[:event_key],
-            message: { "#{key}": value }
+            message: { "#{key}": key == 'request' ? encrypt(value.to_json) : value }
           }
 
           transaction_hash = { correlation_id: activity_hash[:correlation_id], activity: activity_hash }
@@ -38,6 +38,10 @@ module Fdsh
           Try do
             Journal::Transactions::AddActivity.new.call(transaction_hash)
           end
+        end
+
+        def encrypt(value)
+          AcaEntities::Operations::Encryption::Encrypt.new.call({ value: value }).value!
         end
 
         def encode_xml_and_schema_validate(non_esi_request)

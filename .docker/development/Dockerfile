@@ -10,7 +10,7 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 
 RUN apt-get update \
   && apt-get -yq dist-upgrade \
-  && apt-get install -y tzdata build-essential nodejs vim \
+  && apt-get install -y tzdata build-essential nodejs vim libsodium23 \
   && apt-get autoremove -y \
   && npm install --force --global yarn
 

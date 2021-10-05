@@ -30,7 +30,7 @@ module Fdsh
             correlation_id: "esi_#{params[:correlation_id]}",
             command: "Fdsh::Esi::H14::RequestEsiDetermination",
             event_key: params[:event_key],
-            message: { "#{key}": value }
+            message: { "#{key}": key == 'request' ? encrypt(value.to_json) : value }
           }
 
           transaction_hash = { correlation_id: activity_hash[:correlation_id], activity: activity_hash }
@@ -41,6 +41,10 @@ module Fdsh
 
         def encode_xml_and_schema_validate(esi_request)
           AcaEntities::Serializers::Xml::Fdsh::Esi::H14::Operations::EsiRequestToXml.new.call(esi_request)
+        end
+
+        def encrypt(value)
+          AcaEntities::Operations::Encryption::Encrypt.new.call({ value: value }).value!
         end
 
         def encode_request_xml(xml_string)

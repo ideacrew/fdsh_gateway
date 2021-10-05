@@ -17,7 +17,8 @@ RSpec.describe Fdsh::Ssa::H3::TransformPersonToSsaRequest, dbclean: :after_each 
         :alternate_name => nil
       },
       :person_demographics => {
-        :ssn => "368748379",
+        :ssn => nil,
+        :encrypted_ssn => "yobheUbYUK2Abfc6lrq37YQCsPgBL8lLkw==\n",
         :no_ssn => false,
         :gender => "male",
         :dob => Date.new(1990, 10, 10),

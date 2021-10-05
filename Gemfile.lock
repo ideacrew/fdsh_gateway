@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ideacrew/aca_entities.git
-  revision: 6e7726d7a26137d703d23d82efd14b1590a8fef8
-  branch: release_0.8.0
+  revision: a6daf8a6534001a95fc9a00706a752f9ef3706d8
+  branch: release_0.9.0
   specs:
     aca_entities (0.8.0)
       deep_merge
@@ -13,7 +13,7 @@ GIT
       iso_country_codes
       nokogiri-happymapper
       oj (~> 3.11)
-      symmetric-encryption (~> 4.3)
+      rbnacl (~> 7.1)
 
 GIT
   remote: https://github.com/ideacrew/event_source.git
@@ -117,8 +117,6 @@ GEM
       sorted_set (~> 1, >= 1.0.2)
     byebug (11.1.3)
     coderay (1.1.3)
-    coercible (1.0.0)
-      descendants_tracker (~> 0.0.1)
     concurrent-ruby (1.1.9)
     crack (0.4.5)
       rexml
@@ -128,8 +126,6 @@ GEM
       database_cleaner-core (~> 2.0.0)
       mongoid
     deep_merge (1.2.1)
-    descendants_tracker (0.0.4)
-      thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.4.4)
     dry-configurable (0.13.0)
       concurrent-ruby (~> 1.0)
@@ -323,6 +319,8 @@ GEM
     rb-fsevent (0.11.0)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
+    rbnacl (7.1.1)
+      ffi
     rbtree (0.4.4)
     redis (4.4.0)
     redis-namespace (1.8.1)
@@ -421,10 +419,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    symmetric-encryption (4.3.3)
-      coercible (~> 1.0)
     thor (1.1.0)
-    thread_safe (0.3.6)
     tilt (2.0.10)
     turbolinks (5.2.1)
       turbolinks-source (~> 5.2)
