@@ -46,7 +46,7 @@ module Fdsh
 
         def create_or_update_transaction(key, value, applicant)
           activity_hash = {
-            correlation_id: "rrv_mdcr_#{applicant.identifying_information.ssn}",
+            correlation_id: "rrv_mdcr_#{applicant.identifying_information.encrypted_ssn}",
             command: "Fdsh::Rrv::Medicare::BuildMedicareRequestXml",
             event_key: "rrv_mdcr_determination_requested",
             message: { "#{key}": value.to_h }

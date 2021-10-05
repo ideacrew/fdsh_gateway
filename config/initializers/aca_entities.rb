@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 AcaEntities::Configuration::Encryption.configure do |config|
-  config.encrypted_key = ENV['SYMMETRIC_ENCRYPTION_ENCRYPTED_KEY'] || "1234567890ABCDEF"
-  config.encrypted_iv = ENV['SYMMETRIC_ENCRYPTION_ENCRYPTED_IV'] || "1234567890ABCDEF"
-  config.private_rsa_key = ENV['ENROLL_SYMMETRIC_ENCRYPTION_PRIVATE_KEY'] || "1234567890ABCDEF"
-  config.app_env = Rails.env
+  config.secret_key = ENV['RBNACL_SECRET_KEY'] || "C639A572E14D5075C526FDDD43E4ECF6B095EA17783D32EF3D2710AF9F359DD4"
+  config.iv = ENV['RBNACL_IV'] || "1234567890ABCDEFGHIJKLMN"
 end

@@ -98,7 +98,8 @@ module Fdsh
         def find_response_for_applicant(applicant, non_esi_response)
           non_esi_response[:IndividualResponseSet][:IndividualResponses].detect do |individual_response|
             ssn = individual_response.dig(:Applicant, :PersonSSNIdentification)
-            applicant[:identifying_information][:ssn] == ssn
+            encrypted_ssn = AcaEntities::Operations::Encryption::Encrypt.new.call({ value: ssn }).value!
+            applicant[:identifying_information][:encrypted_ssn] == encrypted_ssn
           end
         end
       end

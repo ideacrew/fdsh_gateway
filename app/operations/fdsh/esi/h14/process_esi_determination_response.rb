@@ -30,13 +30,17 @@ module Fdsh
             correlation_id: "esi_#{params[:correlation_id]}",
             command: "Fdsh::Esi::H14::ProcessEsiDeterminationResponse",
             event_key: params[:event_key],
-            message: { response: response }
+            message: { response: encrypt(response.to_json) }
           }
 
           transaction_hash = { correlation_id: activity_hash[:correlation_id], activity: activity_hash }
           Try do
             Journal::Transactions::AddActivity.new.call(transaction_hash)
           end
+        end
+
+        def encrypt(value)
+          AcaEntities::Operations::Encryption::Encrypt.new.call({ value: value }).value!
         end
 
         def process_xml(xml_body)

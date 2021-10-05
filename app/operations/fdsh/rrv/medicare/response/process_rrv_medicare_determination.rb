@@ -27,7 +27,8 @@ module Fdsh
             medicare_response.IndividualResponses.each do |individual_response|
               person_ssn = individual_response.PersonSSNIdentification
               next unless person_ssn.present?
-              transaction = ::Transaction.where(correlation_id: "rrv_mdcr_#{person_ssn}").first
+              encrypted_ssn = encrypt(person_ssn)
+              transaction = ::Transaction.where(correlation_id: "rrv_mdcr_#{encrypted_ssn}").first
               store_response(transaction, individual_response)
               application_entity = fetch_application_from_transaction(transaction.magi_medicaid_application)
               application_hash = determine_medicare_eligibility(individual_response, application_entity)
@@ -38,7 +39,8 @@ module Fdsh
           def determine_medicare_eligibility(individual_response, application)
             application_hash = application.to_h
             application_hash[:applicants].each do |applicant_hash|
-              applicant = fetch_applicant(individual_response.PersonSSNIdentification, applicant_hash)
+              encrypted_ssn = encrypt(individual_response.PersonSSNIdentification)
+              applicant = fetch_applicant(encrypted_ssn, applicant_hash)
               next if applicant.blank?
               applicant_entity = applicant_entity(applicant)
               non_esi_evidence = applicant_entity&.non_esi_evidence&.to_h
@@ -62,7 +64,7 @@ module Fdsh
 
           def store_response(transaction, individual_response)
             activity_hash = {
-              correlation_id: "rrv_mdcr_#{individual_response.PersonSSNIdentification}",
+              correlation_id: "rrv_mdcr_#{encrypt(individual_response.PersonSSNIdentification)}",
               command: "Fdsh::Rrv::Medicare::ProcessRrvMedicareDetermination",
               event_key: "rrv_mdcr_determination_determined",
               message: { response: individual_response.to_h }
@@ -70,12 +72,16 @@ module Fdsh
             transaction.activities << Activity.new(activity_hash)
           end
 
+          def encrypt(value)
+            AcaEntities::Operations::Encryption::Encrypt.new.call({ value: value }).value!
+          end
+
           def applicant_entity(applicant_hash)
             AcaEntities::MagiMedicaid::Applicant.new(applicant_hash)
           end
 
-          def fetch_applicant(person_ssn, applicant_hash)
-            applicant_hash[:identifying_information][:ssn] == person_ssn ? applicant_hash : nil
+          def fetch_applicant(encrypted_ssn, applicant_hash)
+            applicant_hash[:identifying_information][:encrypted_ssn] == encrypted_ssn ? applicant_hash : nil
           end
 
           def update_non_esi_evidence(non_esi_evidence_hash,  status)
