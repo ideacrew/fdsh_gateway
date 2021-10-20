@@ -89,9 +89,9 @@ module Fdsh
         def esi_response_params(esi_applicant_response)
           {
             esi_eligibility_indicator: esi_applicant_response&.dig(:ApplicantMECInformation, :InsuranceApplicantResponse,
-                                                                  :InsuranceApplicantEligibleEmployerSponsoredInsuranceIndicator),
+                                                                   :InsuranceApplicantEligibleEmployerSponsoredInsuranceIndicator),
             esi_insured_indicator: esi_applicant_response&.dig(:ApplicantMECInformation, :InsuranceApplicantResponse,
-                                                              :InsuranceApplicantInsuredIndicator),
+                                                               :InsuranceApplicantInsuredIndicator),
             esi_inconsistency_indicator: esi_applicant_response&.dig(:ApplicantMECInformation, :InconsistencyIndicator)
           }
         end
