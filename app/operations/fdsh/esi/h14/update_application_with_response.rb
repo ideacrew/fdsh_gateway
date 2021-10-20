@@ -60,8 +60,8 @@ module Fdsh
           {
             result: (status == 'verified' ? :eligible : :ineligible),
             source: "FDSH",
-            code: esi_applicant_response.dig(:ResponseMetadata, :ResponseCode),
-            code_description: esi_applicant_response.dig(:ResponseMetadata, :ResponseDescriptionText)
+            code: esi_applicant_response&.dig(:ResponseMetadata, :ResponseCode),
+            code_description: esi_applicant_response&.dig(:ResponseMetadata, :ResponseDescriptionText)
           }
         end
 
@@ -88,11 +88,11 @@ module Fdsh
 
         def esi_response_params(esi_applicant_response)
           {
-            esi_eligibility_indicator: esi_applicant_response.dig(:ApplicantMECInformation, :InsuranceApplicantResponse,
+            esi_eligibility_indicator: esi_applicant_response&.dig(:ApplicantMECInformation, :InsuranceApplicantResponse,
                                                                   :InsuranceApplicantEligibleEmployerSponsoredInsuranceIndicator),
-            esi_insured_indicator: esi_applicant_response.dig(:ApplicantMECInformation, :InsuranceApplicantResponse,
+            esi_insured_indicator: esi_applicant_response&.dig(:ApplicantMECInformation, :InsuranceApplicantResponse,
                                                               :InsuranceApplicantInsuredIndicator),
-            esi_inconsistency_indicator: esi_applicant_response.dig(:ApplicantMECInformation, :InconsistencyIndicator)
+            esi_inconsistency_indicator: esi_applicant_response&.dig(:ApplicantMECInformation, :InconsistencyIndicator)
           }
         end
 

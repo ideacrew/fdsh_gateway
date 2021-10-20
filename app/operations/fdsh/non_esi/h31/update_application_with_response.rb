@@ -50,8 +50,8 @@ module Fdsh
           {
             result: (status == 'outstanding') ? :ineligible : :eligible,
             source: source,
-            code: response.dig(:ResponseMetadata, :ResponseCode),
-            code_description: response.dig(:ResponseMetadata, :ResponseDescriptionText)
+            code: response&.dig(:ResponseMetadata, :ResponseCode),
+            code_description: response&.dig(:ResponseMetadata, :ResponseDescriptionText)
           }
         end
 
