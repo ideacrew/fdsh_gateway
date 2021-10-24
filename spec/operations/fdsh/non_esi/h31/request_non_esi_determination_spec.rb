@@ -189,8 +189,8 @@ RSpec.describe Fdsh::NonEsi::H31::RequestNonEsiDetermination do
               :due_on => nil,
               :eligibility_status => "attested",
               :external_service => nil,
-              :key => :esi_mec,
-              :title => "MEC",
+              :key => :non_esi_mec,
+              :title => "ESI MEC",
               :updated_by => nil
             }
           ],

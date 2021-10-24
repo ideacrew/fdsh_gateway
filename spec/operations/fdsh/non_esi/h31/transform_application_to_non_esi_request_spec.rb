@@ -270,7 +270,7 @@ RSpec.describe Fdsh::NonEsi::H31::TransformApplicationToNonEsiMecRequest, "given
               :due_on => nil,
               :eligibility_status => "attested",
               :external_service => nil,
-              :key => :esi_mec,
+              :key => :non_esi_mec,
               :title => "MEC",
               :updated_by => nil
             }

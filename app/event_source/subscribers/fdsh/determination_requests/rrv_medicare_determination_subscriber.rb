@@ -10,14 +10,10 @@ module Subscribers
         # rubocop:disable Lint/RescueException
         # rubocop:disable Style/LineEndConcatenation
         # rubocop:disable Style/StringConcatenation
-        subscribe(:on_magi_medicaid_application_renewal_assistance_eligible) do |delivery_info, properties, payload|
+        subscribe(:on_magi_medicaid_application_renewal_assistance_eligible) do |delivery_info, _properties, payload|
           # Sequence of steps that are executed as single operation
-          correlation_id = properties.correlation_id
-
-          determination_result = Operations::Fdsh::Rrv::Medicare::RequestRrvMedicareDetermination.new.call({
-                                                                                                             payload: payload,
-                                                                                                             correlation_id: correlation_id
-                                                                                                           })
+          values = JSON.parse(payload, :symbolize_names => true)
+          determination_result = Operations::Fdsh::Rrv::Medicare::CreateRequestManifestFile.new.call(values[:applications])
 
           if determination_result.success?
             logger.info("OK: :on_fdsh_rrv_medicare_eligibility_determination_subscriber successful and acked")

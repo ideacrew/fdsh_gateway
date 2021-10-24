@@ -8,26 +8,34 @@ module Fdsh
         include Dry::Monads[:result, :do, :try]
         include EventSource::Command
 
-        # @param params [Hash] The params to execute an FDSH SSA Composite Verification Request
         # @option params [AcaEntities::MagiMedicaid::Application] :Applicattion
         # @return [Dry::Monads::Result]
         def call(applications)
-          _validated_application = yield validate_application(applications)
-          _updated_transaction = yield store_request(applications)
-          request_entity = yield build_request_entity(applications)
+          validated_applications = yield validate_applications(applications)
+          _updated_transaction = yield store_request(validated_applications)
+          request_entity = yield build_request_entity(validated_applications)
 
           Success(request_entity)
         end
 
+        def build_application(application_hash)
+          result = AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_hash)
+          result.success? ? result : Failure(result.failure.errors.to_h)
+        end
+
         # Validate input object
-        def validate_application(applications)
-          results = applications.collect do |application|
-            next if application.is_a?(::AcaEntities::MagiMedicaid::Application)
-            Failure(
-              "Invalid application, given value is not a ::AcaEntities::MagiMedicaid::Application, input_value:#{application}"
-            )
+        def validate_applications(applications)
+          valid_applications = []
+          applications.each do |application|
+            if application.is_a?(::AcaEntities::MagiMedicaid::Application)
+              valid_applications << application
+            else
+              result = build_application(application)
+              valid_applications << result.value! if parsed_result.success?
+            end
           end
-          results.compact.present? ? Failure("Invalid applications present") : Success(true)
+
+          Success(valid_applications)
         end
 
         # Transform application params To BuildMedicareRequest Contract params

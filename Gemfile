@@ -5,7 +5,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.7.3'
 
-gem 'aca_entities', git:  'https://github.com/ideacrew/aca_entities.git', branch: 'release_0.9.0'
+gem 'aca_entities', git:  'https://github.com/ideacrew/aca_entities.git', branch: 'release_0.10.0'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
 
