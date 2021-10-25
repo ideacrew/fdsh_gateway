@@ -24,8 +24,7 @@ RSpec.describe Fdsh::Esi::H14::RequestEsiDetermination, "given invalid JSON" do
           },
           :identifying_information => {
             :has_ssn => "0",
-            :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
-            :ssn => "518124854"
+            :encrypted_ssn => "yobheUbYUK2Abfc6lrq37YQCsPgBL8lLkw==\n"
           },
           :demographic => {
             :gender => "Male",
@@ -212,7 +211,7 @@ RSpec.describe Fdsh::Esi::H14::RequestEsiDetermination, "given invalid JSON" do
                 :last_name => "evidence",
                 :dob => Date.new(1988, 11, 11),
                 :person_hbx_id => "1629165429385938",
-                :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n"
+                :encrypted_ssn => "yobheUbYUK2Abfc6lrq37YQCsPgBL8lLkw==\n"
               },
               :product_eligibility_determination => {
                 :is_ia_eligible => false,

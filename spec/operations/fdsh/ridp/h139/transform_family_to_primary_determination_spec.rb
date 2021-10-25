@@ -305,7 +305,8 @@ RSpec.describe Fdsh::Ridp::H139::TransformFamilyToPrimaryDetermination, dbclean:
 
   let!(:person_demographics) do
     {
-      ssn: "123456789",
+      ssn: nil,
+      encrypted_ssn: "yobheUbYUK2Abfc6lrq37YQCsPgBL8lLkw==\n",
       no_ssn: false,
       gender: 'male',
       dob: Date.today,
@@ -321,6 +322,7 @@ RSpec.describe Fdsh::Ridp::H139::TransformFamilyToPrimaryDetermination, dbclean:
       last_name: 'last name',
       dob: Date.today,
       gender: 'male',
+      encrypted_ssn: nil,
       ssn: nil
     }
   end
@@ -497,7 +499,7 @@ RSpec.describe Fdsh::Ridp::H139::TransformFamilyToPrimaryDetermination, dbclean:
         start_on: Date.today,
         end_on: Date.today,
         reason_code: "initial_individual_market_transition_created_using_data_migration",
-        submitted_at: Date.today
+        submitted_at: DateTime.now
       }
     ]
   end

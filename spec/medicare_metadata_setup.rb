@@ -19,7 +19,7 @@ TEST_APPLICATION_1 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "B2vCRxjVT+wkKK4I1ESwNYECuf4LIslOlQ==\n",
         :ssn => "011789802"
       },
       :demographic => {
@@ -118,7 +118,7 @@ TEST_APPLICATION_2 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "3Anhgga7NaHpVchr9OTi7YUCvfkKL8FOkA==\n",
         :ssn => "415094007"
       },
       :demographic => {
@@ -217,7 +217,7 @@ TEST_APPLICATION_3 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "pF1s19Wep5toMdRxHfAywoAGu/EHKcROlA==\n",
         :ssn => "153842503"
       },
       :demographic => {
@@ -316,7 +316,7 @@ TEST_APPLICATION_4 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "iId0NR+8sS2x7LG02Ct6FIEFsP4HLsBOnw==\n",
         :ssn => "068745108"
       },
       :demographic => {
@@ -415,7 +415,7 @@ TEST_APPLICATION_5 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "prqggGDxIboHLjps+Gg9HoEDv/8HKMFOlA==\n",
         :ssn => "007643003"
       },
       :demographic => {
@@ -514,7 +514,7 @@ TEST_APPLICATION_6 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "GNTtdh8unj78rxyWvX7KxIMEuvgAKcJOkg==\n",
         :ssn => "272132305"
       },
       :demographic => {
@@ -613,7 +613,7 @@ TEST_APPLICATION_7 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "SBdBnh1cCA0uk7MdFtADuIECuPsLK8JOkA==\n",
         :ssn => "010280307"
       },
       :demographic => {
@@ -712,7 +712,7 @@ TEST_APPLICATION_8 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "qRnaN721ulBW4q3k0+Z5ooEDu/4HI8VOlA==\n",
         :ssn => "003748403"
       },
       :demographic => {
@@ -817,7 +817,7 @@ TEST_APPLICATION_9 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "VT4oGl3fPrw9ZkERAGAerIIKvvwBI8FOkg==\n",
         :ssn => "396528005"
       },
       :demographic => {
@@ -916,7 +916,7 @@ TEST_APPLICATION_10 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "a/XjCRqUzbz5aqCwpZFC0oECuP8FI8ZOlA==\n",
         :ssn => "010668703"
       },
       :demographic => {
@@ -1015,7 +1015,7 @@ TEST_APPLICATION_11 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "ZocnE1smaxpU38VhhV02f4IFv/gLKcROkQ==\n",
         :ssn => "367182506"
       },
       :demographic => {
@@ -1114,7 +1114,7 @@ TEST_APPLICATION_12 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "vXWl1Exb3yi/fCU4/sXae4ECsP0DLclOnw==\n",
         :ssn => "018406808"
       },
       :demographic => {
@@ -1213,7 +1213,7 @@ TEST_APPLICATION_13 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "ChFxBJQIwg1oCW94ZV+rCYEEsP8FI8lOkg==\n",
         :ssn => "078668805"
       },
       :demographic => {
@@ -1312,7 +1312,7 @@ TEST_APPLICATION_14 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "qGhTvJo/RqXiCnU/JZWWBoIBufAHI8dOkQ==\n",
         :ssn => "321948606"
       },
       :demographic => {
@@ -1411,7 +1411,7 @@ TEST_APPLICATION_15 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "MDyqMdsgwrqsu9sUBvNjG4EDvP8DI8VOkA==\n",
         :ssn => "004608407"
       },
       :demographic => {
@@ -1510,7 +1510,7 @@ TEST_APPLICATION_16 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "ISdBV+tIAWixO/qyx/kOv4MBuPgFL8dOkg==\n",
         :ssn => "220164605"
       },
       :demographic => {
@@ -1609,7 +1609,7 @@ TEST_APPLICATION_17 = {
       },
       :identifying_information => {
         :has_ssn => "0",
-        :encrypted_ssn => "3sO2LBAb5OGkrkPQixhf5w==\n",
+        :encrypted_ssn => "m9Nx+5aDU5iUaNDXPTZjrIMKvf8LKcVOkA==\n",
         :ssn => "295682407"
       },
       :demographic => {

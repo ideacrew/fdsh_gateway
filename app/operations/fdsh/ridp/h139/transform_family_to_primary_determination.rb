@@ -46,17 +46,26 @@ module Fdsh
 
         # Transform Person params To PrimaryRequest Contract params
         def build_request(person)
+          ssn = decrypt(person.to_h[:person_demographics][:encrypted_ssn])
+          person_hash = person.to_h
           input_hash =
-            person.to_h.merge(
+            person_hash.merge(
               {
                 home_address: person.home_address.to_h,
                 home_phone: person.home_phone.to_h
               }
             )
+          input_hash[:person_demographics][:ssn] = ssn
           ::AcaEntities::Fdsh::Transformers::Ridp::PersonToPrimaryRequest.call(
             input_hash.to_json
           ) { |record| @transform_result = record }
           Success(@transform_result)
+        end
+
+        def decrypt(value)
+          return nil if value.blank?
+
+          AcaEntities::Operations::Encryption::Decrypt.new.call({ value: value }).value!
         end
 
         # Validate PrimaryRequest params against PrimaryRequest Contract

@@ -6,6 +6,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Install OS Packages
+        uses: mstksg/get-package@v1
+        with:
+          apt-get: libsodium23
+          brew: libsodium
       - uses: wbari/start-mongoDB@v0.2
         with:
           mongoDBVersion: '4.2'

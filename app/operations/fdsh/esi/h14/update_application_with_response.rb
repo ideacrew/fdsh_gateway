@@ -60,8 +60,8 @@ module Fdsh
           {
             result: (status == 'verified' ? :eligible : :ineligible),
             source: "FDSH",
-            code: esi_applicant_response.dig(:ResponseMetadata, :ResponseCode),
-            code_description: esi_applicant_response.dig(:ResponseMetadata, :ResponseDescriptionText)
+            code: esi_applicant_response&.dig(:ResponseMetadata, :ResponseCode),
+            code_description: esi_applicant_response&.dig(:ResponseMetadata, :ResponseDescriptionText)
           }
         end
 
@@ -88,18 +88,19 @@ module Fdsh
 
         def esi_response_params(esi_applicant_response)
           {
-            esi_eligibility_indicator: esi_applicant_response.dig(:ApplicantMECInformation, :InsuranceApplicantResponse,
-                                                                  :InsuranceApplicantEligibleEmployerSponsoredInsuranceIndicator),
-            esi_insured_indicator: esi_applicant_response.dig(:ApplicantMECInformation, :InsuranceApplicantResponse,
-                                                              :InsuranceApplicantInsuredIndicator),
-            esi_inconsistency_indicator: esi_applicant_response.dig(:ApplicantMECInformation, :InconsistencyIndicator)
+            esi_eligibility_indicator: esi_applicant_response&.dig(:ApplicantMECInformation, :InsuranceApplicantResponse,
+                                                                   :InsuranceApplicantEligibleEmployerSponsoredInsuranceIndicator),
+            esi_insured_indicator: esi_applicant_response&.dig(:ApplicantMECInformation, :InsuranceApplicantResponse,
+                                                               :InsuranceApplicantInsuredIndicator),
+            esi_inconsistency_indicator: esi_applicant_response&.dig(:ApplicantMECInformation, :InconsistencyIndicator)
           }
         end
 
         def find_response_for_applicant(applicant, esi_response)
           esi_response[:ApplicantResponseSet][:ApplicantResponses].detect do |applicant_response|
             ssn = applicant_response.dig(:ResponsePerson, :PersonSSNIdentification, :IdentificationID)
-            applicant[:identifying_information][:ssn] == ssn
+            encrypted_ssn = AcaEntities::Operations::Encryption::Encrypt.new.call({ value: ssn }).value!
+            applicant[:identifying_information][:encrypted_ssn] == encrypted_ssn
           end
         end
       end
