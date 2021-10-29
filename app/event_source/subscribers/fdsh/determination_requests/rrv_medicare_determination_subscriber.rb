@@ -13,7 +13,7 @@ module Subscribers
         subscribe(:on_magi_medicaid_application_renewal_assistance_eligible) do |delivery_info, _properties, payload|
           # Sequence of steps that are executed as single operation
           values = JSON.parse(payload, :symbolize_names => true)
-          determination_result = Operations::Fdsh::Rrv::Medicare::CreateRequestManifestFile.new.call(values[:applications])
+          determination_result = ::Fdsh::Rrv::Medicare::CreateRequestManifestFile.new.call(values[:applications])
 
           if determination_result.success?
             logger.info("OK: :on_fdsh_rrv_medicare_eligibility_determination_subscriber successful and acked")
