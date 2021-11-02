@@ -11,31 +11,10 @@ module Fdsh
         # @option params [AcaEntities::MagiMedicaid::Application] :Applicattion
         # @return [Dry::Monads::Result]
         def call(applications)
-          validated_applications = yield validate_applications(applications)
-          _updated_transaction = yield store_request(validated_applications)
-          request_entity = yield build_request_entity(validated_applications)
+          _updated_transaction = yield store_request(applications)
+          request_entity = yield build_request_entity(applications)
 
           Success(request_entity)
-        end
-
-        def build_application(application_hash)
-          result = AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_hash)
-          result.success? ? result : Failure(result.failure.errors.to_h)
-        end
-
-        # Validate input object
-        def validate_applications(applications)
-          valid_applications = []
-          applications.each do |application|
-            if application.is_a?(::AcaEntities::MagiMedicaid::Application)
-              valid_applications << application
-            else
-              result = build_application(application)
-              valid_applications << result.value! if parsed_result.success?
-            end
-          end
-
-          Success(valid_applications)
         end
 
         # Transform application params To BuildMedicareRequest Contract params

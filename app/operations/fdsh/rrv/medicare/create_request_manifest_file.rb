@@ -14,8 +14,9 @@ module Fdsh
         include EventSource::Command
 
         def call(applications)
-          @applicants_count = applications.flat_map(&:applicants).count
-          medicare_payload = yield BuildRrvMdcrDeterminationRequest.new.call(applications)
+          validated_applications = yield validate_applications(applications)
+          @applicants_count = validated_applications.flat_map(&:applicants).count
+          medicare_payload = yield BuildRrvMdcrDeterminationRequest.new.call(validated_applications)
           @medicare_file = yield create_medicare_xml_file(medicare_payload)
           manifest_request = yield construct_manifest_request
           validated_manifest_request = yield validate_manifest_request(manifest_request)
@@ -28,6 +29,26 @@ module Fdsh
         end
 
         private
+
+        def build_application(application_hash)
+          result = AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_hash)
+          result.success? ? result : Failure(result.failure.errors.to_h)
+        end
+
+        # Validate input object
+        def validate_applications(applications)
+          valid_applications = []
+          applications.each do |application|
+            if application.is_a?(::AcaEntities::MagiMedicaid::Application)
+              valid_applications << application
+            else
+              result = build_application(application)
+              valid_applications << result.value! if result.success?
+            end
+          end
+
+          Success(valid_applications)
+        end
 
         def create_medicare_xml_file(rrv_medicare_xml)
           folder = "#{Rails.root}/rrv_request_outbound"
