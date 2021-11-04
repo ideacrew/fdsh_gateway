@@ -51,8 +51,8 @@ module Fdsh
           input_hash =
             person_hash.merge(
               {
-                home_address: person.home_address.to_h,
-                home_phone: person.home_phone.to_h
+                home_address: person.home_address.to_h || person.addresses.last.to_h,
+                home_phone: person.home_phone.to_h || person.phones.last.to_h
               }
             )
           input_hash[:person_demographics][:ssn] = ssn
