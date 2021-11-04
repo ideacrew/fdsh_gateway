@@ -22,8 +22,9 @@ module Fdsh
           # TODO: STORE Request
           # _updated_transaction = yield create_or_update_transaction('request', xml_string, params)
           rrv_medicare_xml = yield encode_request_xml(xml_string)
+          applicants_count = rrv_medicare_request.IndividualRequests.count
 
-          Success(rrv_medicare_xml)
+          Success([rrv_medicare_xml, applicants_count])
         end
 
         protected
