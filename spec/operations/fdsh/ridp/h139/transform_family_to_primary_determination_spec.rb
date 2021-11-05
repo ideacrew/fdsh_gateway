@@ -8,6 +8,7 @@ RSpec.describe Fdsh::Ridp::H139::TransformFamilyToPrimaryDetermination, dbclean:
     {
       family_member_hbx_id: '1001',
       first_name: 'first name',
+      middle_name: nil,
       last_name: 'last name',
       person_hbx_id: '1001',
       is_primary_family_member: true
@@ -291,7 +292,7 @@ RSpec.describe Fdsh::Ridp::H139::TransformFamilyToPrimaryDetermination, dbclean:
   let!(:person_name) do
     {
       first_name: 'first name',
-      middle_name: 'middle name',
+      middle_name: nil,
       last_name: 'last name'
     }
   end
