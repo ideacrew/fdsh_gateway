@@ -22,7 +22,7 @@ module Subscribers
           if esi_result.success?
             logger.info("OK: :on_fdsh_mec_eligibility_determination_subscriber successful and acked")
           else
-            logger.error("Error: :on_fdsh_mec_eligibility_determination_subscriber; nacked due to:#{esi_result.inspect}")
+            logger.error("Error: :on_fdsh_mec_eligibility_determination_subscriber; failed due to:#{esi_result.inspect}")
           end
 
           non_esi_result = ::Fdsh::NonEsi::H31::HandleEligibilityDeterminationRequest.new.call({
@@ -33,18 +33,17 @@ module Subscribers
 
           if non_esi_result.success?
             logger.info("OK: :on_fdsh_mec_eligibility_determination_subscriber successful and acked")
-            ack(delivery_info.delivery_tag)
           else
-            logger.error("Error: :on_fdsh_mec_eligibility_determination_subscriber; nacked due to:#{non_esi_result.inspect}")
-            nack(delivery_info.delivery_tag)
+            logger.error("Error: :on_fdsh_mec_eligibility_determination_subscriber; failed due to:#{non_esi_result.inspect}")
           end
 
+          ack(delivery_info.delivery_tag)
         rescue Exception => e
           logger.error(
             "Exception: :on_fdsh_mec_eligibility_determination_subscriber\n Exception: #{e.inspect}" +
             "\n Backtrace:\n" + e.backtrace.join("\n")
           )
-          nack(delivery_info.delivery_tag)
+          ack(delivery_info.delivery_tag)
         end
         # rubocop:enable Lint/RescueException
         # rubocop:enable Style/LineEndConcatenation

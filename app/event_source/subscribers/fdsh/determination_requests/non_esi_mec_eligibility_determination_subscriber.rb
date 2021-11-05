@@ -22,23 +22,17 @@ module Subscribers
                                                                                                      })
 
           if determination_result.success?
-            logger.info(
-              "OK: :on_fdsh_non_esi_mec_eligibility_determination_subscriber successful and acked"
-            )
-            ack(delivery_info.delivery_tag)
+            logger.info("OK: :on_fdsh_non_esi_mec_eligibility_determination_subscriber successful and acked")
           else
-            logger.error(
-              "Error: :on_fdsh_non_esi_mec_eligibility_determination_subscriber; nacked due to:#{determination_result.inspect}"
-            )
-            nack(delivery_info.delivery_tag)
+            logger.error("Error: :on_fdsh_non_esi_mec_eligibility_determination_subscriber; failed due to:#{determination_result.inspect}")
           end
-
+          ack(delivery_info.delivery_tag)
         rescue Exception => e
           logger.error(
             "Exception: :on_fdsh_non_esi_mec_eligibility_determination_subscriber\n Exception: #{e.inspect}" +
             "\n Backtrace:\n" + e.backtrace.join("\n")
           )
-          nack(delivery_info.delivery_tag)
+          ack(delivery_info.delivery_tag)
         end
         # rubocop:enable Lint/RescueException
         # rubocop:enable Style/LineEndConcatenation
