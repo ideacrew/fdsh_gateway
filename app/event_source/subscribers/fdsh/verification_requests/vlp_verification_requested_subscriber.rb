@@ -20,23 +20,17 @@ module Subscribers
                                                                                             })
 
           if verification_result.success?
-            logger.info(
-              "OK: :on_fdsh_verification_requests_vlp_initial_verification_requested successful and acked"
-            )
-            ack(delivery_info.delivery_tag)
+            logger.info("OK: :on_fdsh_verification_requests_vlp_initial_verification_requested successful and acked")
           else
-            logger.error(
-              "Error: :on_fdsh_verification_requests_vlp_initial_verification_requested; nacked due to:#{verification_result.inspect}"
-            )
-            nack(delivery_info.delivery_tag)
+            logger.error("Error: :on_fdsh_verification_requests_vlp_initial_verification_requested; failed due to:#{verification_result.inspect}")
           end
-
+          ack(delivery_info.delivery_tag)
         rescue Exception => e
           logger.error(
             "Exception: :on_fdsh_verification_requests_vlp_initial_verification_requested\n Exception: #{e.inspect}" +
             "\n Backtrace:\n" + e.backtrace.join("\n")
           )
-          nack(delivery_info.delivery_tag)
+          ack(delivery_info.delivery_tag)
         end
         # rubocop:enable Lint/RescueException
         # rubocop:enable Style/LineEndConcatenation
