@@ -9,8 +9,8 @@ module Fdsh
         include EventSource::Command
 
         # @return [Dry::Monads::Result]
-        def call(application, esi_response)
-          updated_application_hash = yield update_application(application, esi_response)
+        def call(application, esi_response, correlation_id)
+          updated_application_hash = yield update_application(application, esi_response, correlation_id)
           updated_application = yield build_application(updated_application_hash)
 
           Success(updated_application)
@@ -18,7 +18,7 @@ module Fdsh
 
         protected
 
-        def check_esi_mec_eligibility(applicant_hash, esi_applicant_response)
+        def check_esi_mec_eligibility(applicant_hash, esi_applicant_response, correlation_id)
           esi_response_hash = esi_response_params(esi_applicant_response)
           applicant = applicant_entity(applicant_hash)
 
@@ -36,32 +36,37 @@ module Fdsh
             return
           end
 
-          # updated_esi_evidence = if (applicant_is_esi_eligible == esi_eligibility_indicator) && (applicant_is_esi_enrolled == esi_insured_indicator)
-          #   update_esi_evidence(esi_applicant_response, esi_evidence.to_h, 'verified')
-          # else
-          #   update_esi_evidence(esi_applicant_response, esi_evidence.to_h, 'outstanding')
-          # end
-          updated_esi_evidence = update_esi_evidence(esi_applicant_response, esi_evidence.to_h, 'outstanding')
-          applicant_hash[:evidences].detect {|e| e[:key] == :esi_mec}.merge!(updated_esi_evidence)
+          status = if (applicant_is_esi_eligible == false && applicant_is_esi_enrolled == false) &&
+                      (esi_eligibility_indicator || esi_insured_indicator)
+                     "outstanding"
+                   else
+                     "attested"
+                   end
+
+          updated_esi_evidence = update_esi_evidence(esi_applicant_response, esi_evidence.to_h, status, correlation_id)
+          applicant_hash[:esi_evidence].merge!(updated_esi_evidence)
         end
 
         def applicant_entity(applicant_hash)
           AcaEntities::MagiMedicaid::Applicant.new(applicant_hash)
         end
 
-        def update_esi_evidence(esi_applicant_response, esi_evidence_hash, status)
-          eligibility_hash = eligibility_result_hash(esi_applicant_response, status)
-          esi_evidence_hash[:eligibility_status] = status
-          esi_evidence_hash[:eligibility_results] = [eligibility_hash]
+        def update_esi_evidence(esi_applicant_response, esi_evidence_hash, status, correlation_id)
+          request_result = request_result_hash(esi_applicant_response, status, correlation_id)
+          esi_evidence_hash[:aasm_state] = status
+          esi_evidence_hash[:request_results] = [request_result]
           esi_evidence_hash
         end
 
-        def eligibility_result_hash(esi_applicant_response, status)
+        def request_result_hash(esi_applicant_response, status, correlation_id)
+          transaction = Transaction.where(correlation_id: "esi_#{correlation_id}").max_by(&:created_at)
           {
-            result: (status == 'verified' ? :eligible : :ineligible),
+            result: status,
             source: "FDSH",
+            source_transaction_id: transaction&.id,
             code: esi_applicant_response&.dig(:ResponseMetadata, :ResponseCode),
-            code_description: esi_applicant_response&.dig(:ResponseMetadata, :ResponseDescriptionText)
+            code_description: esi_applicant_response&.dig(:ResponseMetadata, :ResponseDescriptionText),
+            raw_payload: esi_applicant_response.to_json
           }
         end
 
@@ -70,7 +75,7 @@ module Fdsh
           result.success? ? result : Failure(result.failure.errors.to_h)
         end
 
-        def update_application(application, esi_response)
+        def update_application(application, esi_response, correlation_id)
           application_hash = application.to_h
 
           return Success(application_hash) if esi_response.ResponseMetadata.present?
@@ -80,7 +85,7 @@ module Fdsh
             esi_applicant_response = find_response_for_applicant(applicant_hash, esi_response_hash)
             next unless esi_applicant_response
 
-            check_esi_mec_eligibility(applicant_hash, esi_applicant_response)
+            check_esi_mec_eligibility(applicant_hash, esi_applicant_response, correlation_id)
           end
 
           Success(application_hash)

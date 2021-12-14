@@ -77,17 +77,15 @@ TEST_APPLICATION_1 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -176,17 +174,15 @@ TEST_APPLICATION_2 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -275,17 +271,15 @@ TEST_APPLICATION_3 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -374,17 +368,15 @@ TEST_APPLICATION_4 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -473,17 +465,15 @@ TEST_APPLICATION_5 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -572,17 +562,15 @@ TEST_APPLICATION_6 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -671,17 +659,15 @@ TEST_APPLICATION_7 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -776,17 +762,15 @@ TEST_APPLICATION_8 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -875,17 +859,15 @@ TEST_APPLICATION_9 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -974,17 +956,15 @@ TEST_APPLICATION_10 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -1073,17 +1053,15 @@ TEST_APPLICATION_11 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -1172,17 +1150,15 @@ TEST_APPLICATION_12 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -1271,17 +1247,15 @@ TEST_APPLICATION_13 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -1370,17 +1344,15 @@ TEST_APPLICATION_14 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -1469,17 +1441,15 @@ TEST_APPLICATION_15 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -1568,17 +1538,15 @@ TEST_APPLICATION_16 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
@@ -1667,17 +1635,15 @@ TEST_APPLICATION_17 = {
         :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
       },
       :benefits => [],
-      :evidences => [
-        {
-          :description => nil,
-          :due_on => nil,
-          :eligibility_status => "attested",
-          :external_service => nil,
-          :key => :non_esi_mec,
-          :title => "Non ESI MEC",
-          :updated_by => nil
-        }
-      ]
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
     }
   ],
   :us_state => "DC",
