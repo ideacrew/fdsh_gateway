@@ -4,7 +4,7 @@ module Subscribers
   module Fdsh
     module DeterminationRequests
       # Publish events for FDSH RIDP requests
-      class EvidencesMecEligibilityDeterminatioSubscriber
+      class EvidencesMecEligibilityDeterminationSubscriber
         include ::EventSource::Subscriber[amqp: 'fdsh.evidences']
 
         # rubocop:disable Lint/RescueException
