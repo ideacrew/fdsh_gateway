@@ -215,17 +215,15 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
             :tution_and_fees => 0,
             :other_magi_eligible_income => 0
           },
-          :evidences => [
-            {
-              :description => nil,
-              :due_on => nil,
-              :eligibility_status => "attested",
-              :external_service => nil,
-              :key => :esi_mec,
-              :title => "MEC",
-              :updated_by => nil
-            }
-          ],
+          :esi_evidence => {
+            :description => nil,
+            :due_on => nil,
+            :aasm_state => "attested",
+            :external_service => nil,
+            :key => :esi_mec,
+            :title => "ESI MEC",
+            :updated_by => nil
+          },
           :mitc_relationships => [],
           :mitc_is_required_to_file_taxes => false
         }
@@ -293,7 +291,7 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
   let(:esi_response) {::AcaEntities::Fdsh::Esi::H14::ESIMECResponse.new(response_params)}
 
   before do
-    @result = described_class.new.call(application, esi_response)
+    @result = described_class.new.call(application, esi_response, application.hbx_id)
   end
 
   it "is successful" do
@@ -306,7 +304,6 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
 
   it "evidence should be in outstanding state" do
     applicant = @result.value!.applicants.first
-    evidence = applicant.evidences.first
-    expect(evidence.eligibility_status).to eq 'outstanding'
+    expect(applicant.esi_evidence.aasm_state).to eq 'outstanding'
   end
 end

@@ -189,17 +189,15 @@ RSpec.describe Fdsh::NonEsi::H31::HandleEligibilityDeterminationRequest, "given:
             :tution_and_fees => 0,
             :other_magi_eligible_income => 0
           },
-          :evidences => [
-            {
-              :description => nil,
-              :due_on => nil,
-              :eligibility_status => "attested",
-              :external_service => nil,
-              :key => :esi_mec,
-              :title => "MEC",
-              :updated_by => nil
-            }
-          ],
+          :non_esi_evidence => {
+            :description => nil,
+            :due_on => nil,
+            :aasm_state => "attested",
+            :external_service => nil,
+            :key => :non_esi_mec,
+            :title => "Non ESI MEC",
+            :updated_by => nil
+          },
           :mitc_relationships => [],
           :mitc_is_required_to_file_taxes => false
         }
@@ -353,7 +351,7 @@ RSpec.describe Fdsh::NonEsi::H31::HandleEligibilityDeterminationRequest, "given:
     ).and_return(response_operation_result)
 
     allow(mock_update_application_response_operation).to receive(:call).with(
-      application, response_operation_result.value!
+      application, response_operation_result.value!, correlation_id
     ).and_return(updated_application_with_response_result)
   end
 

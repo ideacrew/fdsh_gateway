@@ -81,7 +81,7 @@ module Fdsh
 
         def generate_batch_zip
           input_files = [File.basename(@medicare_file), File.basename(@manifest_file)]
-          @zip_name = @outbound_folder + "/SBE00ME.DSH.RRVIN.D#{Time.now.strftime('%y%m%d.T%H%M%S%L.T')}.IN.zip"
+          @zip_name = @outbound_folder + "/SBE00ME.DSH.RRVIN.D#{Time.now.strftime('%y%m%d.T%H%M%S%L.P')}.IN.zip"
 
           Zip::File.open(@zip_name, create: true) do |zipfile|
             input_files.each do |filename|

@@ -28,9 +28,9 @@ module Fdsh
               person_ssn = individual_response.PersonSSNIdentification
               next unless person_ssn.present?
               encrypted_ssn = encrypt(person_ssn)
-              transaction = ::Transaction.where(correlation_id: "rrv_mdcr_#{encrypted_ssn}").first
-              store_response(transaction, individual_response)
-              application_entity = fetch_application_from_transaction(transaction.magi_medicaid_application)
+              @transaction = ::Transaction.where(correlation_id: "rrv_mdcr_#{encrypted_ssn}").first
+              store_response(individual_response)
+              application_entity = fetch_application_from_transaction(@transaction.magi_medicaid_application)
               application_hash = determine_medicare_eligibility(individual_response, application_entity)
               publish(application_hash, application_hash[:hbx_id])
             end
@@ -47,7 +47,7 @@ module Fdsh
               next if non_esi_evidence.blank?
               status = determine_medicare_status(individual_response, applicant_entity)
               updated_non_esi_evidence = update_non_esi_evidence(non_esi_evidence, status)
-              applicant_hash[:evidences].detect {|e| e[:key] == :non_esi_mec}.merge!(updated_non_esi_evidence)
+              applicant_hash[:non_esi_evidence].merge!(updated_non_esi_evidence)
             end
             application_hash
           end
@@ -62,14 +62,14 @@ module Fdsh
             AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(parsing_result.value!).value!
           end
 
-          def store_response(transaction, individual_response)
+          def store_response(individual_response)
             activity_hash = {
               correlation_id: "rrv_mdcr_#{encrypt(individual_response.PersonSSNIdentification)}",
               command: "Fdsh::Rrv::Medicare::ProcessRrvMedicareDetermination",
               event_key: "rrv_mdcr_determination_determined",
               message: { response: individual_response.to_h }
             }
-            transaction.activities << Activity.new(activity_hash)
+            @transaction.activities << Activity.new(activity_hash)
           end
 
           def encrypt(value)
@@ -85,8 +85,21 @@ module Fdsh
           end
 
           def update_non_esi_evidence(non_esi_evidence_hash,  status)
-            non_esi_evidence_hash[:eligibility_status] = status
+            request_result = request_result_hash(non_esi_evidence_hash, status)
+            non_esi_evidence_hash[:aasm_state] = status
+            non_esi_evidence_hash[:request_results] = [request_result]
             non_esi_evidence_hash
+          end
+
+          def request_result_hash(non_esi_applicant_response, status)
+            {
+              result: status,
+              source: "FDSH",
+              source_transaction_id: @transaction&.id,
+              code: non_esi_applicant_response&.dig(:ResponseMetadata, :ResponseCode),
+              code_description: non_esi_applicant_response&.dig(:ResponseMetadata, :ResponseDescriptionText),
+              raw_payload: non_esi_applicant_response.to_json
+            }
           end
 
           def determine_medicare_status(individual_response, applicant)

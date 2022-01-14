@@ -12,8 +12,8 @@ module Fdsh
                          { VHPC: 'veterans_administration_health_benefits' }].freeze
 
         # @return [Dry::Monads::Result]
-        def call(application, non_esi_response)
-          updated_application_hash = yield update_application(application, non_esi_response)
+        def call(application, non_esi_response, correlation_id)
+          updated_application_hash = yield update_application(application, non_esi_response, correlation_id)
           updated_application = yield build_application(updated_application_hash)
 
           Success(updated_application)
@@ -21,7 +21,7 @@ module Fdsh
 
         protected
 
-        def check_non_esi_mec_eligibility(applicant_hash, applicant_response)
+        def check_non_esi_mec_eligibility(applicant_hash, applicant_response, correlation_id)
           applicant = applicant_entity(applicant_hash)
           non_esi_evidence = applicant.non_esi_evidence
 
@@ -31,27 +31,30 @@ module Fdsh
               eligibility = org_response&.dig(:MECCoverage, :MECVerificationCode) == 'Y'
               benefits = applicant.health_benefits_for(value)
               status = benefits == false && eligibility == true ? 'outstanding' : 'attested'
-              eligibility_result_hash(org_response, status, key.to_s)
+              request_result_hash(org_response, status, "FDSH #{key}", correlation_id)
             end
           end.flatten!
-          ineligible_status = eligibility_results.any? {|eligibility| eligibility[:result] == :ineligible}
+          ineligible_status = eligibility_results.any? {|eligibility| eligibility[:result] == 'ineligible'}
           status = ineligible_status ? 'outstanding' : 'attested'
           updated_non_esi_evidence = update_non_esi_evidence(applicant_response, non_esi_evidence.to_h, eligibility_results, status)
-          applicant_hash[:evidences].detect {|e| e[:key] == :non_esi_mec}.merge!(updated_non_esi_evidence)
+          applicant_hash[:non_esi_evidence].merge!(updated_non_esi_evidence)
         end
 
-        def update_non_esi_evidence(_applicant_response, esi_evidence_hash, eligibility_results, status)
-          esi_evidence_hash[:eligibility_status] = status
-          esi_evidence_hash[:eligibility_results] = eligibility_results
+        def update_non_esi_evidence(_applicant_response, esi_evidence_hash, request_results, status)
+          esi_evidence_hash[:aasm_state] = status
+          esi_evidence_hash[:request_results] = request_results
           esi_evidence_hash
         end
 
-        def eligibility_result_hash(response, status, source)
+        def request_result_hash(response, status, source, correlation_id)
+          transaction = Transaction.where(correlation_id: "non_esi_#{correlation_id}").max_by(&:created_at)
           {
-            result: (status == 'outstanding') ? :ineligible : :eligible,
+            result: (status == 'outstanding') ? "ineligible" : 'eligible',
             source: source,
+            source_transaction_id: transaction&.id,
             code: response&.dig(:ResponseMetadata, :ResponseCode),
-            code_description: response&.dig(:ResponseMetadata, :ResponseDescriptionText)
+            code_description: response&.dig(:ResponseMetadata, :ResponseDescriptionText),
+            raw_payload: response.to_json
           }
         end
 
@@ -60,13 +63,13 @@ module Fdsh
           result.success? ? result : Failure(result.failure.errors.to_h)
         end
 
-        def failure_response_metadata(application_hash, non_esi_response)
+        def failure_response_metadata(application_hash, non_esi_response, correlation_id)
           application_hash[:applicants].each do |applicant_hash|
             applicant = applicant_entity(applicant_hash)
             non_esi_evidence = applicant.non_esi_evidence.to_h
-            eligibility_hash = eligibility_result_hash(non_esi_response.to_h, 'ineligible', "FDSH NON_ESI")
-            non_esi_evidence[:eligibility_results] = [eligibility_hash]
-            applicant_hash[:evidences].detect {|e| e[:key] == :non_esi_mec}.merge!(non_esi_evidence)
+            request_result = request_result_hash(non_esi_response.to_h, 'ineligible', "FDSH NON_ESI", correlation_id)
+            non_esi_evidence[:request_results] = [request_result]
+            applicant_hash[:non_esi_evidence].merge!(non_esi_evidence)
           end
 
           Success(application_hash)
@@ -76,16 +79,16 @@ module Fdsh
           AcaEntities::MagiMedicaid::Applicant.new(applicant_hash)
         end
 
-        def update_application(application, non_esi_response)
+        def update_application(application, non_esi_response, correlation_id)
           application_hash = application.to_h
-          return failure_response_metadata(application_hash, non_esi_response) if non_esi_response.ResponseMetadata.present?
+          return failure_response_metadata(application_hash, non_esi_response, correlation_id) if non_esi_response.ResponseMetadata.present?
 
           non_esi_response_hash = non_esi_response.to_h
           application_hash[:applicants].each do |applicant_hash|
             non_esi_applicant_response = find_response_for_applicant(applicant_hash, non_esi_response_hash)
             next unless non_esi_applicant_response
 
-            check_non_esi_mec_eligibility(applicant_hash, non_esi_applicant_response)
+            check_non_esi_mec_eligibility(applicant_hash, non_esi_applicant_response, correlation_id)
           end
 
           Success(application_hash)

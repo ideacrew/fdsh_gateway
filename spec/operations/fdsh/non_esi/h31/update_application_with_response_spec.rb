@@ -249,17 +249,15 @@ RSpec.describe Fdsh::NonEsi::H31::UpdateApplicationWithResponse do
             :tution_and_fees => 0,
             :other_magi_eligible_income => 0
           },
-          :evidences => [
-            {
-              :description => nil,
-              :due_on => nil,
-              :eligibility_status => "attested",
-              :external_service => nil,
-              :key => :non_esi_mec,
-              :title => "MEC",
-              :updated_by => nil
-            }
-          ],
+          :non_esi_evidence => {
+            :description => nil,
+            :due_on => nil,
+            :aasm_state => "attested",
+            :external_service => nil,
+            :key => :non_esi_mec,
+            :title => "Non ESI MEC",
+            :updated_by => nil
+          },
           :mitc_relationships => [],
           :mitc_is_required_to_file_taxes => false
         }
@@ -336,7 +334,7 @@ RSpec.describe Fdsh::NonEsi::H31::UpdateApplicationWithResponse do
     let(:non_esi_response) {::AcaEntities::Fdsh::NonEsi::H31::VerifyNonESIMECResponse.new(mini_response_params)}
 
     before do
-      @result1 = described_class.new.call(application, non_esi_response)
+      @result1 = described_class.new.call(application, non_esi_response, application.hbx_id)
     end
 
     it "is successful" do
@@ -349,8 +347,7 @@ RSpec.describe Fdsh::NonEsi::H31::UpdateApplicationWithResponse do
 
     it "evidence should be in attested state" do
       applicant = @result1.value!.applicants.first
-      evidence = applicant.evidences.first
-      expect(evidence.eligibility_status).to eq 'attested'
+      expect(applicant.non_esi_evidence.aasm_state).to eq 'attested'
     end
   end
 
@@ -419,7 +416,7 @@ RSpec.describe Fdsh::NonEsi::H31::UpdateApplicationWithResponse do
     let(:non_esi_response) {::AcaEntities::Fdsh::NonEsi::H31::VerifyNonESIMECResponse.new(max_response_params)}
 
     before do
-      @result2 = described_class.new.call(application, non_esi_response)
+      @result2 = described_class.new.call(application, non_esi_response, application.hbx_id)
     end
 
     it "is successful" do
@@ -432,8 +429,7 @@ RSpec.describe Fdsh::NonEsi::H31::UpdateApplicationWithResponse do
 
     it "evidence should be in outstanding state" do
       applicant = @result2.value!.applicants.first
-      evidence = applicant.evidences.first
-      expect(evidence.eligibility_status).to eq 'outstanding'
+      expect(applicant.non_esi_evidence.aasm_state).to eq 'outstanding'
     end
   end
 end

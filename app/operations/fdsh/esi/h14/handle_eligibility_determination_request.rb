@@ -14,7 +14,7 @@ module Fdsh
           esi_determination_result_soap = yield RequestEsiDetermination.new.call(application, params)
           esi_determination_result = yield ::Soap::RemoveSoapEnvelope.new.call(esi_determination_result_soap.body)
           esi_mec_response = yield ProcessEsiDeterminationResponse.new.call(esi_determination_result, params)
-          modified_application = yield UpdateApplicationWithResponse.new.call(application, esi_mec_response)
+          modified_application = yield UpdateApplicationWithResponse.new.call(application, esi_mec_response, params[:correlation_id])
           event  = yield build_event(params[:correlation_id], modified_application)
           result = yield publish(event)
 
