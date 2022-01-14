@@ -34,7 +34,7 @@ module Fdsh
               request_result_hash(org_response, status, "FDSH #{key}", correlation_id)
             end
           end.flatten!
-          ineligible_status = eligibility_results.any? {|eligibility| eligibility[:result] == :ineligible}
+          ineligible_status = eligibility_results.any? {|eligibility| eligibility[:result] == 'ineligible'}
           status = ineligible_status ? 'outstanding' : 'attested'
           updated_non_esi_evidence = update_non_esi_evidence(applicant_response, non_esi_evidence.to_h, eligibility_results, status)
           applicant_hash[:non_esi_evidence].merge!(updated_non_esi_evidence)
@@ -49,7 +49,7 @@ module Fdsh
         def request_result_hash(response, status, source, correlation_id)
           transaction = Transaction.where(correlation_id: "non_esi_#{correlation_id}").max_by(&:created_at)
           {
-            result: (status == 'outstanding') ? :ineligible : :eligible,
+            result: (status == 'outstanding') ? "ineligible" : 'eligible',
             source: source,
             source_transaction_id: transaction&.id,
             code: response&.dig(:ResponseMetadata, :ResponseCode),
