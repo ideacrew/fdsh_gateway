@@ -22,7 +22,8 @@ module Subscribers
           if esi_result.success?
             logger.info("OK: :on_fdsh_mec_eligibility_determination_subscriber successful and acked")
           else
-            logger.error("Error: :on_fdsh_mec_eligibility_determination_subscriber; failed for application id #{correlation_id} due to:#{esi_result.inspect}")
+            logger.error("Error: :on_fdsh_mec_eligibility_determination_subscriber;" +
+                         "failed for application id #{correlation_id} due to:#{esi_result.inspect}")
           end
 
           non_esi_result = ::Fdsh::NonEsi::H31::HandleEligibilityDeterminationRequest.new.call({
@@ -34,7 +35,8 @@ module Subscribers
           if non_esi_result.success?
             logger.info("OK: :on_fdsh_mec_eligibility_determination_subscriber successful and acked")
           else
-            logger.error("Error: :on_fdsh_mec_eligibility_determination_subscriber; failed for application id #{correlation_id} due to:#{non_esi_result.inspect}")
+            logger.error("Error: :on_fdsh_mec_eligibility_determination_subscriber;" +
+                         "failed for application id #{correlation_id} due to:#{non_esi_result.inspect}")
           end
 
           ack(delivery_info.delivery_tag)
