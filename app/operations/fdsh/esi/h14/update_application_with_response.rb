@@ -63,7 +63,7 @@ module Fdsh
           {
             result: status,
             source: "FDSH",
-            source_transaction_id: transaction&.id,
+            source_transaction_id: transaction&.id.to_s,
             code: esi_applicant_response&.dig(:ResponseMetadata, :ResponseCode),
             code_description: esi_applicant_response&.dig(:ResponseMetadata, :ResponseDescriptionText),
             raw_payload: esi_applicant_response.to_json

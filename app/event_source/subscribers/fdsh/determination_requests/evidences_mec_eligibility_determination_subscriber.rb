@@ -22,13 +22,14 @@ module Subscribers
           if esi_result.success?
             logger.info("OK: :on_esi_determination_requested successful and acked")
           else
-            logger.error("Error: :on_esi_determination_requested; failed due to:#{esi_result.inspect}")
+            logger.error("Error: :on_esi_determination_requested; failed for application id #{correlation_id} due to:#{esi_result.inspect}")
           end
 
           ack(delivery_info.delivery_tag)
         rescue Exception => e
           logger.error(
-            "Exception: :on_evidences_mec_eligibility_determination_subscriber\n Exception: #{e.inspect}" +
+            "Exception: :on_evidences_mec_eligibility_determination_subscriber failed for application id #{correlation_id}\n" +
+            "Exception: #{e.inspect}" +
             "\n Backtrace:\n" + e.backtrace.join("\n")
           )
           ack(delivery_info.delivery_tag)
@@ -46,13 +47,14 @@ module Subscribers
           if non_esi_result.success?
             logger.info("OK: :on_non_esi_determination_requested successful and acked")
           else
-            logger.error("Error: :on_non_esi_determination_requested; failed due to:#{non_esi_result.inspect}")
+            logger.error("Error: :on_non_esi_determination_requested; failed for application id #{correlation_id} due to:#{non_esi_result.inspect}")
           end
 
           ack(delivery_info.delivery_tag)
         rescue Exception => e
           logger.error(
-            "Exception: :on_evidences_mec_eligibility_determination_subscriber\n Exception: #{e.inspect}" +
+            "Exception: :on_evidences_mec_eligibility_determination_subscriber failed for application id #{correlation_id} \n" +
+            "Exception: #{e.inspect} \n" +
             "\n Backtrace:\n" + e.backtrace.join("\n")
           )
           ack(delivery_info.delivery_tag)
