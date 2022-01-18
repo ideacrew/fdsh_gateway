@@ -1,0 +1,128 @@
+############################################
+###             Base image               ###
+############################################
+
+# Taken from .ruby-version
+ARG RUBY_VERSION=2.7.3
+FROM ruby:$RUBY_VERSION-slim-buster as base
+LABEL author="IdeaCrew"
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Taken from Gemfile.lock
+ARG BUNDLER_VERSION=2.2.14
+ENV BUNDLER_VERSION=$BUNDLER_VERSION
+
+ARG NODE_MAJOR=14
+ENV NODE_MAJOR=$NODE_MAJOR
+RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
+
+# Basic packages needed because we're using the slim image
+RUN apt-get update -qq && \
+    apt-get install -yq --no-install-recommends \
+    fontconfig \
+    libffi6 \
+    libxext6 \
+    libxrender1 \
+    libyaml-cpp0.6 \
+    nodejs \
+    openssl \
+    sshpass \
+    unzip \
+    zip \
+    zlibc \
+    && apt-get clean \
+    && rm -rf /var/cache/apt/archives/* \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && truncate -s 0 /var/log/*log
+
+# Configure bundler and PATH, install bundler version
+ENV GEM_HOME=/usr/local/bundle
+ENV BUNDLE_PATH=$GEM_HOME
+ENV BUNDLE_APP_CONFIG=$BUNDLE_PATH
+ENV BUNDLE_BIN=/usr/local/bin
+ENV BUNDLE_JOBS=4
+ENV BUNDLE_RETRY=3
+
+ENV LANG=C.UTF-8
+
+ENV HOME=/fdsh_gateway
+
+ENV PATH=$HOME/bin:$BUNDLE_BIN:$GEM_HOME/gems/bin:$PATH
+
+RUN gem update --system \
+    && rm -f /usr/local/bin/ruby/gems/*/specifications/default/bundler-*.gemspec \
+    && gem install bundler -v $BUNDLER_VERSION
+
+RUN groupadd --gid 1001 nonroot \
+  && useradd --uid 1001 --gid nonroot --shell /bin/bash --create-home nonroot
+
+RUN mkdir $HOME \
+  && chown -R nonroot:nonroot $HOME
+
+# Configure app home directory
+WORKDIR $HOME
+
+COPY .docker/config/sectigo.crt /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
+###############################################################################
+###       Builder. Adds node and Yarn. Not necessary in production.         ###
+###############################################################################
+
+FROM base as builder
+
+RUN apt-get update -qq && \
+    apt-get install -yq --no-install-recommends \
+    # needed to bundle install, but not needed in production
+    build-essential \
+    git \
+    && apt-get clean \
+    && rm -rf /var/cache/apt/archives/* \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && truncate -s 0 /var/log/*log
+
+
+########################################################
+###          Node and Bundle for production          ###
+########################################################
+
+FROM builder as prod_gems_and_assets
+
+COPY --chown=nonroot:nonroot ./Gemfile $HOME/Gemfile
+COPY --chown=nonroot:nonroot ./Gemfile.lock $HOME/Gemfile.lock
+
+ENV RAILS_ENV=production
+
+RUN bundle config set --local without 'development test' \
+  && bundle install
+
+RUN rm -rf $BUNDLE_PATH/*.gem \
+  && find $BUNDLE_PATH/ruby -name "*.c" -delete \
+  && find $BUNDLE_PATH/ruby -name "*.o" -delete \
+  && find $BUNDLE_PATH/ruby -name ".git"  -type d -prune -execdir rm -rf {} +
+
+# https://github.com/rubygems/rubygems/issues/3225
+RUN rm -rf $GEM_HOME/ruby/*/cache
+
+################################################################
+###                     Deployable image                     ###
+################################################################
+
+FROM base as deploy
+
+# Copy prebuilt gems
+COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $BUNDLE_PATH $BUNDLE_PATH
+
+# Copy all app code again (sans gems, node_modules, assets)
+COPY --chown=nonroot:nonroot . $HOME
+
+# Copy environment-based config files
+COPY --chown=nonroot:nonroot ./.docker/config/mongoid.yml $HOME/config
+COPY --chown=nonroot:nonroot ./.docker/config/credentials.yml.enc $HOME/config
+COPY --chown=nonroot:nonroot ./.docker/config/master.key $HOME/config
+COPY --chown=nonroot:nonroot ./.docker/config/production.rb $HOME/config/environments
+
+USER nonroot 
+
+ENV RAILS_ENV=production

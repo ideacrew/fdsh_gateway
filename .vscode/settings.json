@@ -7,5 +7,14 @@
   },
   "[ruby]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "cSpell.words": [
+    "Anchore",
+    "buildx",
+    "codeql",
+    "fdsh",
+    "SARIF",
+    "slackapi",
+    "YELLR"
+  ]
 }
