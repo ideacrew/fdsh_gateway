@@ -51,7 +51,7 @@ module Fdsh
           {
             result: (status == 'outstanding') ? "ineligible" : 'eligible',
             source: source,
-            source_transaction_id: transaction&.id,
+            source_transaction_id: transaction&.id.to_s,
             code: response&.dig(:ResponseMetadata, :ResponseCode),
             code_description: response&.dig(:ResponseMetadata, :ResponseDescriptionText),
             raw_payload: response.to_json
