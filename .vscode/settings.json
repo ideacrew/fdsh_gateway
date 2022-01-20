@@ -9,12 +9,16 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "cSpell.words": [
+    "amqp",
     "Anchore",
     "buildx",
     "codeql",
     "fdsh",
+    "rabbitmq",
+    "rabbitmqctl",
     "SARIF",
     "slackapi",
+    "vhost",
     "YELLR"
   ]
 }
