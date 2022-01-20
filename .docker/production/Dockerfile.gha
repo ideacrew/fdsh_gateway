@@ -17,6 +17,7 @@ ENV BUNDLER_VERSION=$BUNDLER_VERSION
 RUN apt-get update -qq && \
     apt-get install -yq --no-install-recommends \
       fontconfig \
+      libcurl4-openssl-dev \
       libffi6 \
       libsodium23 \
       libxext6 \
@@ -106,6 +107,18 @@ RUN rm -rf $GEM_HOME/ruby/*/cache
 ################################################################
 
 FROM base as deploy
+
+# Will be overwritten in k8s cluster, but needed to run locally
+ENV FDSH_GATEWAY_DB_PORT=27017
+ENV FDSH_GATEWAY_DB_REPLICA_SET_NAME=fdsh-gateway-dev          
+ENV FDSH_GATEWAY_DB_USERNAME=fdsh-gateway
+ENV RABBITMQ_HOST=amqp://localhost          
+ENV RABBITMQ_PASSWORD=guest          
+ENV RABBITMQ_PORT=5672          
+ENV RABBITMQ_URL_EVENT_SOURCE=amqp://localhost:5672   
+ENV RABBITMQ_URL=amqp://localhost:5672          
+ENV RABBITMQ_USERNAME=guest         
+ENV RABBITMQ_VHOST=event_source
 
 # Copy prebuilt gems
 COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $BUNDLE_PATH $BUNDLE_PATH
