@@ -105,9 +105,9 @@ jobs:
           # More: https://github.com/moby/buildkit#--export-cache-options
           # And: https://github.com/docker/buildx#--cache-tonametypetypekeyvalue
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-      
+
       - name: Check encryption
-        run: docker run --network="host" ${{ needs.prep.outputs.taggedImage }} /bin/bash .docker/check-encryption.sh
+        run: docker run --network="host" -e "RABBITMQ_HOST=amqp://172.17.0.1" -e "RABBITMQ_URL_EVENT_SOURCE=amqp://172.17.0.1:5672" ${{ needs.prep.outputs.tag }} /bin/bash .docker/check-encryption.sh
 
       - name: Scan Docker image
         if: github.event_name != 'pull_request'
