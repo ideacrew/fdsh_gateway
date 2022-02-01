@@ -29,6 +29,7 @@ module Fdsh
               next unless person_ssn.present?
               encrypted_ssn = encrypt(person_ssn)
               @transaction = ::Transaction.where(correlation_id: "rrv_mdcr_#{encrypted_ssn}").first
+              next unless @transaction.present?
               store_response(individual_response)
               application_entity = fetch_application_from_transaction(@transaction.magi_medicaid_application)
               application_hash = determine_medicare_eligibility(individual_response, application_entity)
@@ -46,7 +47,7 @@ module Fdsh
               non_esi_evidence = applicant_entity&.non_esi_evidence&.to_h
               next if non_esi_evidence.blank?
               status = determine_medicare_status(individual_response, applicant_entity)
-              updated_non_esi_evidence = update_non_esi_evidence(non_esi_evidence, status)
+              updated_non_esi_evidence = update_non_esi_evidence(non_esi_evidence, status, individual_response)
               applicant_hash[:non_esi_evidence].merge!(updated_non_esi_evidence)
             end
             application_hash
@@ -84,21 +85,21 @@ module Fdsh
             applicant_hash[:identifying_information][:encrypted_ssn] == encrypted_ssn ? applicant_hash : nil
           end
 
-          def update_non_esi_evidence(non_esi_evidence_hash,  status)
-            request_result = request_result_hash(non_esi_evidence_hash, status)
+          def update_non_esi_evidence(non_esi_evidence_hash, status, individual_response)
+            request_result = request_result_hash(individual_response.to_h, status)
             non_esi_evidence_hash[:aasm_state] = status
             non_esi_evidence_hash[:request_results] = [request_result]
             non_esi_evidence_hash
           end
 
-          def request_result_hash(non_esi_applicant_response, status)
+          def request_result_hash(individual_response, status)
             {
               result: status,
               source: "FDSH",
               source_transaction_id: @transaction&.id.to_s,
-              code: non_esi_applicant_response&.dig(:ResponseMetadata, :ResponseCode),
-              code_description: non_esi_applicant_response&.dig(:ResponseMetadata, :ResponseDescriptionText),
-              raw_payload: non_esi_applicant_response.to_json
+              code: individual_response&.dig(:ResponseMetadata, :ResponseCode),
+              code_description: individual_response&.dig(:ResponseMetadata, :ResponseDescriptionText),
+              raw_payload: individual_response.to_json
             }
           end
 
