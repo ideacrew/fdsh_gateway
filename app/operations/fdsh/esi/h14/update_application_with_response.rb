@@ -30,14 +30,8 @@ module Fdsh
           applicant_is_esi_enrolled = applicant.esi_enrolled?
           esi_evidence = applicant.esi_evidence
 
-          return if esi_inconsistency_indicator
-
-          unless (applicant_is_esi_eligible == false && applicant_is_esi_enrolled == false) && (esi_eligibility_indicator || esi_insured_indicator)
-            return
-          end
-
-          status = if (applicant_is_esi_eligible == false && applicant_is_esi_enrolled == false) &&
-                      (esi_eligibility_indicator || esi_insured_indicator)
+          status = if !esi_inconsistency_indicator && (esi_eligibility_indicator || esi_insured_indicator) &&
+                      (applicant_is_esi_eligible == false && applicant_is_esi_enrolled == false)
                      "outstanding"
                    else
                      "attested"

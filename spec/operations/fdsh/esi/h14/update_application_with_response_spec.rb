@@ -287,8 +287,41 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
     }
   end
 
+  let(:response_params_2) do
+    {
+      :ApplicantResponseSet => {
+        :ApplicantResponses => [
+          {
+            :ResponsePerson => {
+              :PersonSSNIdentification => {
+                :IdentificationID => "518124854"
+              }
+            },
+            :ResponseMetadata => {
+              :ResponseCode => "HS0000000",
+              :ResponseDescriptionText => "Applicant is eligible"
+            },
+            :ApplicantMECInformation => {
+              :InsuranceApplicantResponse => {
+                :InsuranceApplicantRequestedCoverage => {
+                  :StartDate => Date.today.beginning_of_year,
+                  :EndDate => Date.today.end_of_year
+                },
+                :InsuranceApplicantEligibleEmployerSponsoredInsuranceIndicator => true,
+                :InsuranceApplicantInsuredIndicator => true
+              },
+              :InconsistencyIndicator => true,
+              :MonthlyPremiumAmount => nil
+            }
+          }
+        ]
+      }
+    }
+  end
+
   let(:application) { AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_params).value! }
   let(:esi_response) {::AcaEntities::Fdsh::Esi::H14::ESIMECResponse.new(response_params)}
+  let(:esi_response_2) {::AcaEntities::Fdsh::Esi::H14::ESIMECResponse.new(response_params_2)}
 
   before do
     @result = described_class.new.call(application, esi_response, application.hbx_id)
@@ -305,5 +338,11 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
   it "evidence should be in outstanding state" do
     applicant = @result.value!.applicants.first
     expect(applicant.esi_evidence.aasm_state).to eq 'outstanding'
+  end
+
+  it "evidence should be in attested state if inconsistancy indicator is true" do
+    @result2 = described_class.new.call(application, esi_response_2, application.hbx_id)
+    applicant = @result2.value!.applicants.first
+    expect(applicant.esi_evidence.aasm_state).to eq 'attested'
   end
 end

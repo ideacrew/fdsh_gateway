@@ -46,7 +46,7 @@ module Fdsh
               applicant_entity = applicant_entity(applicant)
               non_esi_evidence = applicant_entity&.non_esi_evidence&.to_h
               next if non_esi_evidence.blank?
-              status = determine_medicare_status(individual_response, applicant_entity)
+              status = determine_medicare_status(individual_response, applicant_entity, application.aptc_effective_date)
               updated_non_esi_evidence = update_non_esi_evidence(non_esi_evidence, status, individual_response)
               applicant_hash[:non_esi_evidence].merge!(updated_non_esi_evidence)
             end
@@ -103,11 +103,29 @@ module Fdsh
             }
           end
 
-          def determine_medicare_status(individual_response, applicant)
+          def response_in_application_date_range?(start_on, end_on, application_effective_on)
+            # binding.irb
+            if start_on.present? && end_on.present?
+              return true if start_on > application_effective_on
+              return true if end_on < application_effective_on
+              false
+            elsif start_on.present?
+              return true if start_on > application_effective_on
+              false
+            elsif end_on.present?
+              return true if end_on < application_effective_on
+              false
+            else
+              true
+            end
+          end
+
+          def determine_medicare_status(individual_response, applicant, application_effective_on)
             insurance_effective_date = individual_response.Insurances&.first&.InsuranceEffectiveDate
             insurance_end_date = individual_response.Insurances&.first&.InsuranceEndDate
             benefits = applicant.health_benefits_for("medicare")
-            benefits == false && (insurance_effective_date.present? || insurance_end_date.present?) ? "outstanding" : "attested"
+            date_range_satisfied = response_in_application_date_range?(insurance_effective_date, insurance_end_date, application_effective_on)
+            benefits == false && date_range_satisfied ? "attested" : "outstanding"
           end
 
           def publish(application, request_id)
