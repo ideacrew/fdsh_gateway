@@ -3,30 +3,6 @@
 require 'spec_helper'
 require 'medicare_metadata_setup'
 
-# dummy class for creating transactions
-class StoreRequest
-  def store_request(applications)
-    applications.each do |application|
-      application.applicants.each do |applicant|
-        create_or_update_transaction("request", application, applicant)
-      end
-    end
-  end
-
-  def create_or_update_transaction(key, value, applicant)
-    activity_hash = {
-      correlation_id: "rrv_mdcr_#{applicant.identifying_information.encrypted_ssn}",
-      command: "Fdsh::Rrv::Medicare::BuildMedicareRequestXml",
-      event_key: "rrv_mdcr_determination_requested",
-      message: { "#{key}": value.to_h }
-    }
-
-    transaction_hash = { correlation_id: activity_hash[:correlation_id], magi_medicaid_application: value.to_json,
-                         activity: activity_hash }
-    Journal::Transactions::AddActivity.new.call(transaction_hash).value!
-  end
-end
-
 RSpec.describe Fdsh::Rrv::Medicare::Response::ParseRrvMedicareResponse do
 
   after :all do
@@ -42,9 +18,8 @@ RSpec.describe Fdsh::Rrv::Medicare::Response::ParseRrvMedicareResponse do
     AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(payload).value!
   end
 
-  StoreRequest.new.store_request(applications)
-
   subject do
+    create_transaction_store_request(applications)
     described_class.new.call(file_path)
   end
 
