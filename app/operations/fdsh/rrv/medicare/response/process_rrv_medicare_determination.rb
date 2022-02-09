@@ -32,25 +32,36 @@ module Fdsh
               next unless @transaction.present?
               store_response(individual_response)
               application_entity = fetch_application_from_transaction(@transaction.magi_medicaid_application)
-              application_hash = determine_medicare_eligibility(individual_response, application_entity)
-              publish(application_hash, application_hash[:hbx_id])
+              application_hash, applicant = determine_medicare_eligibility(individual_response, application_entity)
+              publish(application_hash, application_hash[:hbx_id], applicant[:person_hbx_id]) if applicant
             end
+          end
+
+          def fetch_applicant(encrypted_ssn, applicant_hash)
+            applicant_hash[:identifying_information][:encrypted_ssn] == encrypted_ssn ? applicant_hash : nil
+          end
+
+          def find_applicant_matching_response(individual_response, application)
+            encrypted_ssn = encrypt(individual_response.PersonSSNIdentification)
+            application[:applicants].detect {|applicant| fetch_applicant(encrypted_ssn, applicant) }
           end
 
           def determine_medicare_eligibility(individual_response, application)
             application_hash = application.to_h
-            application_hash[:applicants].each do |applicant_hash|
-              encrypted_ssn = encrypt(individual_response.PersonSSNIdentification)
-              applicant = fetch_applicant(encrypted_ssn, applicant_hash)
-              next if applicant.blank?
-              applicant_entity = applicant_entity(applicant)
-              non_esi_evidence = applicant_entity&.non_esi_evidence&.to_h
-              next if non_esi_evidence.blank?
-              status = determine_medicare_status(individual_response, applicant_entity, application.aptc_effective_date&.to_date)
-              updated_non_esi_evidence = update_non_esi_evidence(non_esi_evidence, status, individual_response)
-              applicant_hash[:non_esi_evidence].merge!(updated_non_esi_evidence)
-            end
-            application_hash
+            applicant = find_applicant_matching_response(individual_response, application_hash)
+
+            return [application_hash, false] unless applicant
+
+            applicant_entity = applicant_entity(applicant)
+            non_esi_evidence = applicant_entity&.non_esi_evidence&.to_h
+
+            return [application_hash, false] unless non_esi_evidence
+
+            status = determine_medicare_status(individual_response, applicant_entity, application.aptc_effective_date&.to_date)
+            updated_non_esi_evidence = update_non_esi_evidence(non_esi_evidence, status, individual_response)
+            applicant[:non_esi_evidence].merge!(updated_non_esi_evidence)
+
+            [application_hash, applicant]
           end
 
           def fetch_application_from_transaction(application)
@@ -79,10 +90,6 @@ module Fdsh
 
           def applicant_entity(applicant_hash)
             AcaEntities::MagiMedicaid::Applicant.new(applicant_hash)
-          end
-
-          def fetch_applicant(encrypted_ssn, applicant_hash)
-            applicant_hash[:identifying_information][:encrypted_ssn] == encrypted_ssn ? applicant_hash : nil
           end
 
           def update_non_esi_evidence(non_esi_evidence_hash, status, individual_response)
@@ -123,16 +130,16 @@ module Fdsh
             insurance_effective_date = individual_response.Insurances&.first&.InsuranceEffectiveDate&.to_date
             insurance_end_date = individual_response.Insurances&.first&.InsuranceEndDate&.to_date
             benefits = applicant.health_benefits_for("medicare")
-            date_range_satisfied = response_in_application_date_range?(insurance_effective_date, insurance_end_date, application_effective_on)
-
             return 'attested' if benefits
+
+            date_range_satisfied = response_in_application_date_range?(insurance_effective_date, insurance_end_date, application_effective_on)
             date_range_satisfied ? "attested" : "outstanding"
           end
 
-          def publish(application, request_id)
+          def publish(application, request_id, applicant_person_hbx_id)
             payload = application.to_h
             event = event('events.fdsh.renewal_eligibilities.magi_medicaid_application_renewal_eligibilities_medicare_determined',
-                          attributes: payload,
+                          attributes: { payload: payload, applicant_identifier: applicant_person_hbx_id },
                           headers: { correlation_id: request_id }).value!
             event.publish
           end

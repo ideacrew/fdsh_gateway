@@ -3,7 +3,39 @@
 require 'spec_helper'
 require 'medicare_metadata_setup'
 
-RSpec.describe Fdsh::Rrv::Medicare::Response::ProcessRrvMedicareDetermination do
+RSpec.describe Fdsh::Rrv::Medicare::Response::ProcessRrvMedicareDetermination, dbclean: :after_each do
+
+  describe "ProcessRrvMedicareDetermination" do
+    let(:mdcr_payload) do
+      { :IndividualResponses =>
+        [{ :PersonSSNIdentification => "011789802",
+           :Insurances => [{ :InsuranceEffectiveDate => Date.new(2019, 1, 1) }],
+           :OrganizationResponseCode => "0000",
+           :OrganizationResponseCodeText => "Business Transaction Successful" },
+         { :PersonSSNIdentification => "007643003",
+           :Insurances =>
+           [{ :InsuranceEffectiveDate => Date.new(2022, 12, 1),
+              :InsuranceEndDate => Date.new(2022, 12, 31) }],
+           :OrganizationResponseCode => "0000",
+           :OrganizationResponseCodeText => "Business Transaction Successful" }] }
+    end
+
+    let(:medicare_response) { AcaEntities::Fdsh::Rrv::Medicare::EesDshBatchResponseData.new(mdcr_payload) }
+
+    applications = [TEST_APPLICATION_1, TEST_APPLICATION_5].collect do |payload|
+      AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(payload).value!
+    end
+
+    before do
+      create_transaction_store_request(applications)
+    end
+
+    it "should success" do
+      result = described_class.new.call(medicare_response)
+      expect(result).to be_success
+    end
+  end
+
   describe "when applicant doesn't have medicare beenefits" do
     context "when application start date is matched with response date" do
       let(:individual_response_params) do
