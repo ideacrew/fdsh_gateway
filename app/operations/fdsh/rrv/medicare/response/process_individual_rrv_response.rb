@@ -36,7 +36,7 @@ module Fdsh
           end
 
           def create_response_entity(response_values)
-            entity = AcaEntities::Fdsh::Rrv::Medicare::IndividualResponse.ne_valuesw(response_values)
+            entity = AcaEntities::Fdsh::Rrv::Medicare::IndividualResponse.new(response_values.to_h)
 
             Success(entity)
           end
@@ -50,7 +50,7 @@ module Fdsh
             application_entity = fetch_application_from_transaction(@transaction.magi_medicaid_application)
             application_hash, applicant = determine_medicare_eligibility(individual_response, application_entity)
             if applicant
-              publish(application_hash, application_hash[:hbx_id], applicant[:person_hbx_id]) 
+              publish(application_hash, application_hash[:hbx_id], applicant[:person_hbx_id])
               Success(application_hash)
             else
               Failure("Unable to publish event due to applicant not present or non esi evidence missing for rrv_mdcr_#{encrypted_ssn}")

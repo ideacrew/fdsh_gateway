@@ -28,8 +28,9 @@ module Fdsh
               person_ssn = individual_response.PersonSSNIdentification
               next unless person_ssn.present?
 
-              event = event('events.fdsh.rrv_medicaid_response_received',
+              event = event('events.fdsh.rrv_medicaid.individual_response_received',
                             attributes: { payload: individual_response.to_h }).value!
+
               event.publish
             end
           end
