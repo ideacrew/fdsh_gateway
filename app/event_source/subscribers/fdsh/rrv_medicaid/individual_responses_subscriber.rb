@@ -14,14 +14,14 @@ module Subscribers
           result = ::Fdsh::Rrv::Medicare::Response::ProcessIndividualRrvResponse.new.call(values[:payload])
 
           if result.success?
-            logger.info("OK: :on_fdsh_rrv_medicaid_responses successful and acked")
+            logger.info("OK: :on_fdsh_rrv_medicaid_individual_responsess successful and acked")
           else
-            logger.error("Error: :on_fdsh_rrv_medicaid_responses; failed due to:#{result.inspect}")
+            logger.error("Error: :on_fdsh_rrv_medicaid_individual_responsess; failed due to:#{result.inspect}")
           end
           ack(delivery_info.delivery_tag)
         rescue Exception => e
           logger.error(
-            "Exception: :on_fdsh_rrv_medicaid_responses\n Exception: #{e.inspect}" +
+            "Exception: :on_fdsh_rrv_medicaid_individual_responsess\n Exception: #{e.inspect}" +
               "\n Backtrace:\n" + e.backtrace.join("\n")
           )
           ack(delivery_info.delivery_tag)
