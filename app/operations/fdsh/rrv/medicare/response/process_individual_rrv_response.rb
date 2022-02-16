@@ -44,7 +44,7 @@ module Fdsh
           def determine_individual_response(individual_response)
             person_ssn = individual_response.PersonSSNIdentification
             encrypted_ssn = encrypt(person_ssn)
-            @transaction = ::Transaction.where(correlation_id: "rrv_mdcr_#{encrypted_ssn}").first
+            @transaction = ::Transaction.where(correlation_id: "rrv_mdcr_#{encrypted_ssn}").max_by(&:created_at)
             return Failure("Unable to find transaction with correlation_id: rrv_mdcr_#{encrypted_ssn}") unless @transaction.present?
             store_response(individual_response)
             application_entity = fetch_application_from_transaction(@transaction.magi_medicaid_application)
