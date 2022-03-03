@@ -41,8 +41,8 @@ EventSource.configure do |config|
       http.soap do |soap|
         soap.user_name = ENV['RIDP_SERVICE_USERNAME'] || 'guest'
         soap.password = ENV['RIDP_SERVICE_PASSWORD'] || 'guest'
-        soap.password_encoding = :digest
-        soap.use_timestamp = true
+        soap.password_encoding = ENV['RIDP_PASSWORD_ENCODING'] || :digest
+        soap.use_timestamp = ENV['RIDP_USE_TIMESTAMP'] || true
         soap.timestamp_ttl = 60.seconds
       end
     end
