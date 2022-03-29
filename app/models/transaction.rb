@@ -20,4 +20,38 @@ class Transaction
   index({ 'activity.command': 1, created_at: 1 })
 
   default_scope -> { order(:'activity.created_at'.desc) }
+
+  def magi_medicaid_application_hash
+    return {} unless magi_medicaid_application
+    JSON.parse(magi_medicaid_application, symbolize_names: true)
+  end
+
+  def application_id
+    magi_medicaid_application_hash[:hbx_id]
+  end
+
+  def applicants
+    magi_medicaid_application_hash[:applicants] || []
+  end
+
+  def primary_applicant
+    applicants.detect{ |applicant| applicant[:is_primary_applicant] } || {}
+  end
+
+  def primary_hbx_id
+    primary_applicant[:person_hbx_id]
+  end
+  
+  def fpl
+    
+  end
+
+  def assistance_year
+    magi_medicaid_application_hash[:assistance_year]
+  end
+
+  def fpl_year
+    return unless assistance_year
+    assistance_year - 1
+  end
 end
