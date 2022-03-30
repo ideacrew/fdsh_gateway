@@ -5,6 +5,6 @@ Rails.application.routes.draw do
 
   root 'transactions#index'
 
-  resources :transactions, only: [:show] 
+  resources :transactions, only: [:show]
 
 end

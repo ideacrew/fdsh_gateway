@@ -35,15 +35,11 @@ class Transaction
   end
 
   def primary_applicant
-    applicants.detect{ |applicant| applicant[:is_primary_applicant] } || {}
+    applicants.detect { |applicant| applicant[:is_primary_applicant] } || {}
   end
 
   def primary_hbx_id
     primary_applicant[:person_hbx_id]
-  end
-  
-  def fpl
-    
   end
 
   def assistance_year
