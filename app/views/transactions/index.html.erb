@@ -1,0 +1,19 @@
+<h1>FDSH Gateway</h1>
+
+<table>
+  <thead>
+    <th>Application ID</th>
+    <th>HBX ID</th>
+    <th>FPL Year</th>
+    <th>Response Code</th>
+    <th>Status</th>
+    <th>Updated</th>
+  </thead>
+  <tbody>
+  <% @transactions.each do |transaction| %>
+    <% transaction.activities.each do |activity| %>
+      <%= render partial: "activity_row", locals: { transaction: transaction, activity: activity } %>
+    <% end %>
+  <% end %>
+  </tbody>
+</table>
