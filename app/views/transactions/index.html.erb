@@ -1,18 +1,21 @@
 <%= content_for :current_page do %>
-<span>Transactions</span>
+  <span>Transactions</span>
 <% end %>
 <h1>FDSH Gateway</h1>
 <form class="table-search">
-  <label>Search</label><br>
-  <input type="search" name="table_search" id="table_search" onkeyup="searchTable(this)" onsearch="searchTable(this)" data-tableid="activity_table" placeholder="HBX ID or FDSH Request ID">
+  <label>Search</label>
+  <input type="search" name="search" id="table_search" placeholder="HBX ID or FDSH Request ID">
 </form>
+<% if @search && !@results.any? %>
+  <p>There are are no results for the term <strong><%= @search %></strong>. Try a different search term or <%= link_to "see all transactions", "/" %>.</p>
+<% end %>
 
 <table id="activity_table">
   <thead>
     <th>Application ID</th>
     <th>HBX ID</th>
     <th>FPL Year</th>
-    <th>Response Code</th>
+    <th>Activity</th>
     <th>Status</th>
     <th>Updated</th>
   </thead>
@@ -25,5 +28,16 @@
 <%= paginate @transactions %>
 
 <script type="text/javascript">
+  function addRowHandlers(table_id) {
+    var rows = document.getElementById(table_id).rows;
+    for (i = 0; i < rows.length; i++) {
+      rows[i].onclick = function(){ return function(){
+        this.classList.add("active")
+      };}(rows[i]);
+    }
+  }
+  function hideButton(e) {
+    e.closest("tr").previousElementSibling.classList.remove("active");
+  }
   window.onload = addRowHandlers("activity_table");
 </script>
