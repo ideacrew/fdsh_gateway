@@ -6,6 +6,11 @@ require 'rails_helper'
 RSpec.describe TransactionsController, type: :controller, dbclean: :after_each do
 
   let(:transaction) { Transaction.create({ correlation_id: "id123" })}
+  let(:user) { FactoryBot.create(:user) }
+
+  before :each do
+    sign_in user
+  end
 
   describe 'GET index' do
     it 'returns success' do
