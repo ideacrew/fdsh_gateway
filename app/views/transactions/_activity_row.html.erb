@@ -1,8 +1,14 @@
-<tr>
+<tr id="row_<%= activity.id %>">
   <td><%= transaction.application_id %></td>
   <td><%= transaction.primary_hbx_id %></td>
   <td><%= transaction.fpl_year %></td>
-  <td><%= activity.message %></td>
+  <td><%= activity.event_key_label %></td>
   <td><%= activity.status %></td>
-  <td><%= activity.updated_at %></td>
+  <td><%= link_to activity.updated_at, transaction_path(transaction, anchor: "activty_#{activity.id}") %></td>
+</tr>
+<tr class="details">
+ <td colspan="6" id="details_<%= activity.id %>">
+ 	<button onclick="hideButton(this)">Hide payload</button>
+ 	<%= raw(ap(activity.message)) if activity.message %>
+ </td>
 </tr>

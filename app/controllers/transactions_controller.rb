@@ -4,7 +4,7 @@
 class TransactionsController < ApplicationController
 
   def index
-    @transactions = Transaction.all
+    @transactions = Kaminari.paginate_array(Transaction.where(:activities.nin => [nil, []]).map {|t| t.activities.map{|a| {a: a, t: t}}}.flatten).page params[:page]
   end
 
   def show

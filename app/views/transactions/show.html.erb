@@ -1,3 +1,29 @@
-<h1><%= @transaction.id %></h1>
-<p><%= @transaction.attributes %></p>
-<p><%= @transaction.activities %></p>
+<%= content_for :current_page do %>
+<span><a href="/">Transactions</a></span><span>Detail</span>
+<% end %>
+<h1>Transaction Detail</h1>
+<table>
+  <thead>
+  	<tr>
+  		<th>Application ID</th>
+  		<th>Person ID</th>
+  		<th>% FPL</th>
+  	</tr>
+  </thead>
+  <tbody>
+    <tr>
+    	<td><%= @transaction&.application_id %></td>
+    	<td><%= @transaction&.primary_hbx_id %></td>
+    	<td><%= @transaction&.fpl_year %></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<% @transaction.activities.each do |activity| %>
+<section id="activity_<%= activity.id %>">
+	<h2 > <%= activity.event_key.humanize.upcase %> <%= activity.updated_at %></h2>
+	<h3><%= activity.status %></h3>
+	<%= raw(ap(activity.message)) if activity.message %>
+</section>
+<% end %>

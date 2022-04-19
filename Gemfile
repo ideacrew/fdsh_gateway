@@ -6,6 +6,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '2.7.3'
 
 gem 'aca_entities', git:  'https://github.com/ideacrew/aca_entities.git', branch: 'trunk'
+gem 'gateway_styles',  path: "../gateway_styles"
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
 
@@ -49,6 +50,12 @@ gem 'rubyzip'
 
 # For user accounts
 gem 'devise'
+
+# To prettify json payloads
+gem 'awesome_print'
+# Pagination
+gem 'kaminari-mongoid'
+gem 'kaminari-actionview'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

@@ -6,16 +6,29 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= stylesheet_link_tag 'application', media: 'all' %>
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application' %>
   </head>
 
   <body>
-    <% if notice %>
-      <%= notice %>
-    <% end %>
-    <% if alert %>
-      <%= alert %>
-    <% end %>
-    <%= yield %>
+    <%= render 'gateway_styles/nav', , locals: { transaction: transaction[:t], activity: transaction[:a] } %>
+    <main class="layout-container">
+      <% if notice %>
+        <div class="alert alert-primary" role="alert">
+          <%= notice %>
+        </div>
+      <% end %>
+      <% if alert %>
+        <div class="alert alert-warning" role="alert">
+          <%= alert %>
+        </div>
+      <% end %>
+      <div class="layout-container">
+        <nav class="breadcrumbs">
+          <span>Gateway</span><span>DC</span><span>FDSH</span><span><%= yield :current_page %></span>
+        </nav>
+      </div>
+      <%= yield %>
+    </main>
   </body>
 </html>

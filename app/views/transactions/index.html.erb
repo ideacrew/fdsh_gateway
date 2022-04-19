@@ -1,6 +1,13 @@
+<%= content_for :current_page do %>
+<span>Transactions</span>
+<% end %>
 <h1>FDSH Gateway</h1>
+<form class="table-search">
+  <label>Search</label><br>
+  <input type="search" name="table_search" id="table_search" onkeyup="searchTable(this)" onsearch="searchTable(this)" data-tableid="activity_table" placeholder="HBX ID or FDSH Request ID">
+</form>
 
-<table>
+<table id="activity_table">
   <thead>
     <th>Application ID</th>
     <th>HBX ID</th>
@@ -11,9 +18,12 @@
   </thead>
   <tbody>
   <% @transactions.each do |transaction| %>
-    <% transaction.activities.each do |activity| %>
-      <%= render partial: "activity_row", locals: { transaction: transaction, activity: activity } %>
-    <% end %>
+      <%= render partial: "activity_row", locals: { transaction: transaction[:t], activity: transaction[:a] } %>
   <% end %>
   </tbody>
 </table>
+<%= paginate @transactions %>
+
+<script type="text/javascript">
+  window.onload = addRowHandlers("activity_table");
+</script>
