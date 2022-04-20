@@ -19,7 +19,5 @@
     "url": "https://github.com/ideacrew/fdsh_gateway/issues"
   },
   "homepage": "https://github.com/ideacrew/fdsh_gateway#readme",
-  "devDependencies": {
-    "@rails/webpacker": "^5.4.3"
-  }
+  "devDependencies": {}
 }
