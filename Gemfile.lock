@@ -41,8 +41,10 @@ GIT
       resque-bus (~> 0.7.0)
       typhoeus (~> 1.4.0)
 
-PATH
-  remote: ../gateway_styles
+GIT
+  remote: https://github.com/ideacrew/gateway-styles.git
+  revision: 1e99f1630edaa939d8ba450cde064263858a89ee
+  branch: trunk
   specs:
     gateway_styles (0.1.0)
 
@@ -112,8 +114,8 @@ GEM
       public_suffix (>= 2.0.2, < 5.0)
     amq-protocol (2.3.2)
     ast (2.4.2)
-    bcrypt (3.1.17)
     awesome_print (1.9.2)
+    bcrypt (3.1.17)
     bindex (0.8.1)
     bootsnap (1.8.1)
       msgpack (~> 1.0)
