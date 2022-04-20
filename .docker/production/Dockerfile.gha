@@ -13,9 +13,23 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG BUNDLER_VERSION=2.2.14
 ENV BUNDLER_VERSION=$BUNDLER_VERSION
 
-# Basic packages needed because we're using the slim image
+ARG NODE_MAJOR=14
+ENV NODE_MAJOR=$NODE_MAJOR
+
 RUN apt-get update -qq && \
     apt-get install -yq --no-install-recommends \
+      curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && truncate -s 0 /var/log/*log
+
+# Add NodeJS to sources list
+RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
+
+# Basic packages needed because we're using the slim image
+RUN apt-get update \
+    && apt-get -yq dist-upgrade \
+    && apt-get install -y \
       fontconfig \
       libcurl4-openssl-dev \
       libffi6 \
@@ -23,13 +37,13 @@ RUN apt-get update -qq && \
       libxext6 \
       libxrender1 \
       libyaml-cpp0.6 \
+      nodejs \
       openssl \
       sshpass \
       unzip \
       zip \
       zlibc \
     && apt-get clean \
-    && rm -rf /var/cache/apt/archives/* \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && truncate -s 0 /var/log/*log
 
@@ -63,21 +77,31 @@ WORKDIR $HOME
 COPY .docker/config/sectigo.crt /usr/local/share/ca-certificates/
 RUN update-ca-certificates
 
+ARG SECRET_KEY_BASE_DEFAULT=c8d2b9b204fbac78081a88a2c29b28cfeb82e6ccd3664b3948b813463b5917b315dbbd3040e8dffcb5b68df427099db0ce03e59e2432dfe5d272923b00755b82
+ENV SECRET_KEY_BASE=$SECRET_KEY_BASE_DEFAULT
+
 ###############################################################################
 ###       Builder. Adds node and Yarn. Not necessary in production.         ###
 ###############################################################################
 
 FROM base as builder
 
-RUN apt-get update -qq && \
-    apt-get install -yq --no-install-recommends \
-    # needed to bundle install, but not needed in production
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Add Yarn to the sources list
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+
+# Install Nodejs & Yarn
+RUN apt-get update -qq \
+  && apt-get install -yq --no-install-recommends \
     build-essential \
     git \
-    && apt-get clean \
-    && rm -rf /var/cache/apt/archives/* \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && truncate -s 0 /var/log/*log
+    libpq-dev \
+    yarn \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && truncate -s 0 /var/log/*log
 
 
 ########################################################
@@ -86,21 +110,43 @@ RUN apt-get update -qq && \
 
 FROM builder as prod_gems_and_assets
 
+ENV RAILS_ENV=production
+
+ARG HOSTNAME=localhost
+
+# Defaults set for local builds, overwritten in GHA
+ENV FDSH_GATEWAY_DB_HOST=${HOSTNAME}
+ENV FDSH_GATEWAY_DB_PORT=27017
+ENV FDSH_GATEWAY_DB_NAME=fdsh_gateway_production
+ENV RABBITMQ_URL=amqp://${HOSTNAME}:5672
+ENV RABBITMQ_URL_EVENT_SOURCE=amqp://${HOSTNAME}
+ENV RABBITMQ_HOST=amqp://${HOSTNAME}
+
+# Need all gemfiles and lockfiles
+COPY --chown=nonroot:nonroot package.json $HOME/
+COPY --chown=nonroot:nonroot yarn.lock $HOME/
+RUN yarn install \
+  && (rm -rf /tmp/* || true)
+
 COPY --chown=nonroot:nonroot ./Gemfile $HOME/Gemfile
 COPY --chown=nonroot:nonroot ./Gemfile.lock $HOME/Gemfile.lock
-
-ENV RAILS_ENV=production
 
 RUN bundle config set --local without 'development test' \
   && bundle install
 
-RUN rm -rf $BUNDLE_PATH/*.gem \
+COPY --chown=nonroot:nonroot . $HOME
+
+RUN bundle exec rails assets:precompile \
+  && yarn cache clean \
+  && (rm -rf /tmp/* || true) \
+  # Cleanup
+  && rm -rf $BUNDLE_PATH/*.gem \
   && find $BUNDLE_PATH/ruby -name "*.c" -delete \
   && find $BUNDLE_PATH/ruby -name "*.o" -delete \
   && find $BUNDLE_PATH/ruby -name ".git"  -type d -prune -execdir rm -rf {} +
 
 # https://github.com/rubygems/rubygems/issues/3225
-RUN rm -rf $GEM_HOME/ruby/*/cache
+RUN rm -rf $GEM_HOME/bundle/ruby/*/cache
 
 ################################################################
 ###                     Deployable image                     ###
@@ -122,6 +168,9 @@ COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $BUNDLE_PATH $BUNDLE_PA
 
 # Copy all app code again (sans gems, node_modules, assets)
 COPY --chown=nonroot:nonroot . $HOME
+
+# Copy prebuilt assets
+COPY --chown=$USERNAME:$USERNAME --from=prod_gems_and_assets $HOME/public $HOME/public
 
 # Copy environment-based config files
 COPY --chown=nonroot:nonroot ./.docker/config/mongoid.yml $HOME/config
