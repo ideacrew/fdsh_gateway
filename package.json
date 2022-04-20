@@ -1,0 +1,25 @@
+{
+  "name": "fdsh_gateway",
+  "version": "1.0.0",
+  "description": "This README would normally document whatever steps are necessary to get the application up and running.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ideacrew/fdsh_gateway.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ideacrew/fdsh_gateway/issues"
+  },
+  "homepage": "https://github.com/ideacrew/fdsh_gateway#readme",
+  "devDependencies": {
+    "@rails/webpacker": "^5.4.3"
+  }
+}
