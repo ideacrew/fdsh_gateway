@@ -9,6 +9,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "cSpell.words": [
+    "actioncable",
     "amqp",
     "Anchore",
     "buildx",
@@ -18,6 +19,7 @@
     "rabbitmqctl",
     "SARIF",
     "slackapi",
+    "turbolinks",
     "vhost",
     "YELLR"
   ]

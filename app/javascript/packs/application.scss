@@ -1,9 +1,5 @@
 // inside app/frontend/packs/application.scss
 // Just a quick ugly style to see if our CSS works
 h1 {
-    text-decoration: underline;
+  text-decoration: underline;
 }
-
-// Import Bootstrap v5
-@import "~bootstrap/scss/bootstrap";
-@import "../stylesheets/signin.scss";

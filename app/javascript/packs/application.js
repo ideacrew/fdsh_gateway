@@ -5,8 +5,6 @@
 
 import Rails from "@rails/ujs";
 import Turbolinks from "turbolinks";
-import "channels";
-import "../js/bootstrap_js_files";
 
 Rails.start();
 Turbolinks.start();
