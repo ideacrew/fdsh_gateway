@@ -15,6 +15,7 @@ class Transaction
   accepts_nested_attributes_for :activities
 
   index({ correlation_id: 1 }, { unique: true })
+  index({ 'activity.created_at': 1, created_at: 1 })
   index({ 'activity.event_key': 1, created_at: 1 })
   index({ 'activity.status': 1, created_at: 1 })
   index({ 'activity.command': 1, created_at: 1 })
