@@ -6,16 +6,54 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= stylesheet_link_tag 'application', media: 'all' %>
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
   </head>
 
   <body>
-    <% if notice %>
-      <%= notice %>
-    <% end %>
-    <% if alert %>
-      <%= alert %>
-    <% end %>
-    <%= yield %>
+
+    <header>
+      <div class="layout-container " style="position: relative">
+        <div class="flex-container accordion">
+          <a href="/"><div id="logo_container">
+            <div id="logo"></div> Gateway<sup>2</sup>
+          </div></a>
+          <input type="checkbox" id="chck1">
+          <label id="account" for="chck1"></label>
+          <div class="accordion_panel-content">
+            <div class="account_actions">
+              <ul>
+                <% if user_signed_in? %>
+                  <li class='nav-item'><%= link_to 'Edit account', edit_user_registration_path, class: 'nav-link' %></li>
+                  <li class='nav-item'><%= link_to 'Sign out', destroy_user_session_path, :method=>'delete', class: 'nav-link' %></li>
+                <% else %>
+                  <li class='nav-item'><%= link_to 'Sign in', new_user_session_path, class: 'nav-link' %></li>
+                  <li class='nav-item'><%= link_to 'Sign up', new_user_registration_path, class: 'nav-link' %></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout-container">
+
+      <% if notice %>
+        <div class="alert alert-primary" role="alert">
+          <%= notice %>
+        </div>
+      <% end %>
+      <% if alert %>
+        <div class="alert alert-warning" role="alert">
+          <%= alert %>
+        </div>
+      <% end %>
+      <div class="layout-container">
+        <nav class="breadcrumbs">
+          <span>Gateway</span><span>FDSH</span><span><%= yield :current_page %></span>
+        </nav>
+      </div>
+      <%= yield %>
+    </main>
   </body>
 </html>
