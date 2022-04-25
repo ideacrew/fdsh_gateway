@@ -7,7 +7,7 @@ class TransactionsController < ApplicationController
     if params.key?(:search)
       search_id = params.fetch(:search)
       @search = search_id unless search_id.blank?
-      @results = Transaction.where(:activities.nin => [nil, []], correlation_id: search_id)
+      @results = Transaction.where(:activities.nin => [nil, []], correlation_id: /#{search_id}/)
       redirect_to @results.first if @results&.length == 1
     end
     @transactions = if @search

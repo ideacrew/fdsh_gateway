@@ -23,8 +23,17 @@ class Transaction
   default_scope -> { order(:'activity.created_at'.desc) }
 
   def magi_medicaid_application_hash
-    return {} unless magi_medicaid_application
-    JSON.parse(magi_medicaid_application, symbolize_names: true)
+    if magi_medicaid_application
+      JSON.parse(magi_medicaid_application, symbolize_names: true)
+    elsif application_activity
+      application_activity
+    else
+      {}
+    end
+  end
+
+  def application_activity
+    activities.detect(&:application_payload)&.application_payload
   end
 
   def application_id
