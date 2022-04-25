@@ -24,22 +24,22 @@ class Activity
     payload[:application]
   end
 
-  def is_request?
+  def request?
     return unless message
     message["request"]
   end
 
-  def is_response?
+  def response?
     return unless message
     message["response"]
   end
 
   def decrypted_message
-  	return unless message
-  	if is_request?
-  	  pretty_xml(message["request"])
-  	elsif is_response?
-  	  pretty_xml(message["response"])
+    return unless message
+    if request?
+      pretty_xml(message["request"])
+    elsif response?
+      pretty_xml(message["response"])
     else
       message
     end
@@ -51,7 +51,7 @@ class Activity
   end
 
   def xp(xml_text)
-    xsl =<<XSL
+    xsl = <<XSL
     <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:output method="xml" encoding="UTF-8" indent="yes"/>
     <xsl:strip-space elements="*"/>
@@ -73,6 +73,5 @@ XSL
   def decrypt(value)
     AcaEntities::Operations::Encryption::Decrypt.new.call({ value: value }).value!
   end
-
 
 end
