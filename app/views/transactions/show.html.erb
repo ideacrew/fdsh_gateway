@@ -26,6 +26,7 @@
 	<h3><%= activity.status %></h3>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	<% if activity.decrypted_message %>
 =======
 	<% if activity.is_response? || activity.is_request? %>
@@ -33,6 +34,9 @@
 =======
 	<% if activity.response? || activity.request? %>
 >>>>>>> 18bbcb8 (rubocop)
+=======
+	<% if activity.response.present? || activity.request.present? %>
+>>>>>>> 2ce84c3 (request response methods)
 		<pre><%= activity.decrypted_message %></pre>
 	<% else %>
 	  <%= raw(ap(activity.message)) if activity.message %>
