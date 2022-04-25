@@ -24,22 +24,22 @@ class Activity
     payload[:application]
   end
 
-  def response_code
-    return "no message" unless message
-    # return  "no response" unless message["response_metadata"]
-    JSON.parse(message.to_json).keys
-  end
-
   def decrypted_message
     return unless message
+    return if message.empty?
     decrypted = decrypt(message.first[1])
-    return unless decrypted
-    pretty_xml(decrypted)
+    return message unless decrypted
+    xml_string?(decrypted) ? pretty_xml(decrypted) : decrypted
   end
 
   def pretty_xml(xml_text)
     xml = JSON.parse(xml_text)
+    return xml_text unless xml
     xp(xml)
+  end
+
+  def xml_formatted_message?
+    xml_string?(decrypted_message)
   end
 
   private
@@ -56,10 +56,15 @@ class Activity
 XSL
 
     doc = Nokogiri::XML(xml_text)
+    return xml_text unless doc.errors.blank?
     xslt = Nokogiri::XSLT(xsl)
     out = xslt.transform(doc)
 
     out.to_xml
+  end
+
+  def xml_string?(possible_xml)
+    possible_xml.to_s.include?("xmlns")
   end
 
   def decrypt(value)
