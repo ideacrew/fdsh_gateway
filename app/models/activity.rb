@@ -24,6 +24,12 @@ class Activity
     payload[:application]
   end
 
+  def response_code
+    return "no message" unless message
+    # return  "no response" unless message["response_metadata"]
+    JSON.parse(message.to_json).keys
+  end
+
   def decrypted_message
     return unless message
     decrypted = decrypt(message.first[1])
