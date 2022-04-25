@@ -18,6 +18,12 @@ class Activity
     event_key.humanize.upcase
   end
 
+  def application_payload
+    return {} unless message
+    payload = JSON.parse(message.to_json, symbolize_names: true)
+    payload[:application]
+  end
+
   def response_code
     return "no message" unless message
     # return  "no response" unless message["response_metadata"]

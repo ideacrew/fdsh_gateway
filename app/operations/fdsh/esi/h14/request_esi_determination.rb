@@ -33,7 +33,7 @@ module Fdsh
             message: { "#{key}": key == 'request' ? encrypt(value.to_json) : value }
           }
 
-          transaction_hash = { correlation_id: activity_hash[:correlation_id], activity: activity_hash }
+          transaction_hash = { correlation_id: activity_hash[:correlation_id], activity: activity_hash, magi_medicaid_application: value.to_json }
           Try do
             Journal::Transactions::AddActivity.new.call(transaction_hash)
           end
