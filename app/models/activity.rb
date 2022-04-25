@@ -24,22 +24,22 @@ class Activity
     payload[:application]
   end
 
-  def request?
+  def request
     return unless message
     message["request"]
   end
 
-  def response?
+  def response
     return unless message
     message["response"]
   end
 
   def decrypted_message
     return unless message
-    if request?
-      pretty_xml(message["request"])
-    elsif response?
-      pretty_xml(message["response"])
+    if request
+      pretty_xml(request)
+    elsif response
+      pretty_xml(response)
     else
       message
     end
