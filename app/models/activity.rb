@@ -24,31 +24,19 @@ class Activity
     payload[:application]
   end
 
-  def request
-    return unless message
-    message["request"]
-  end
-
-  def response
-    return unless message
-    message["response"]
-  end
-
   def decrypted_message
     return unless message
-    if request
-      pretty_xml(request)
-    elsif response
-      pretty_xml(response)
-    else
-      message
-    end
+    decrypted = decrypt(message.first[1])
+    return unless decrypted
+    pretty_xml(decrypted)
   end
 
   def pretty_xml(xml_text)
-    xml = JSON.parse(decrypt(xml_text))
+    xml = JSON.parse(xml_text)
     xp(xml)
   end
+
+  private
 
   def xp(xml_text)
     xsl = <<XSL
@@ -68,10 +56,10 @@ XSL
     out.to_xml
   end
 
-  private
-
   def decrypt(value)
     AcaEntities::Operations::Encryption::Decrypt.new.call({ value: value }).value!
+  rescue StandardError => e # rubocop:disable Lint/UselessAssignment
+    nil
   end
 
 end
