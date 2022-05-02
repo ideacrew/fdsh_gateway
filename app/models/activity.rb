@@ -29,13 +29,8 @@ class Activity
     return if message.empty?
     decrypted = decrypt(message.first[1])
     return message unless decrypted
-    xml_string?(decrypted) ? pretty_xml(decrypted) : decrypted
-  end
-
-  def pretty_xml(xml_text)
-    xml = JSON.parse(xml_text)
-    return xml_text unless xml
-    xp(xml)
+    parsed_message = JSON.parse(decrypted)
+    xml_string?(parsed_message) ? xp(parsed_message) : parsed_message
   end
 
   def xml_formatted_message?
