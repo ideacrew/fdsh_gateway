@@ -25,7 +25,7 @@
   <h2 > <%= activity.event_key_label %> <%= activity.updated_at %></h2>
   <h3><%= activity.status %></h3>
   <% if activity&.decrypted_message %>
-    <pre><%= activity.xml_formatted_message? ? activity.decrypted_message : raw(ap(activity.decrypted_message)) %></pre>
+    <pre><%= activity.xml_formatted_message? ? activity.decrypted_message : raw(ap(activity.decrypted_message, index: false)) %></pre>
   <% end %>
 </section>
 <% end %>

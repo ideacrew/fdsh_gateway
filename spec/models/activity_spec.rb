@@ -64,7 +64,7 @@ RSpec.describe Activity, type: :model, dbclean: :after_each do
       expect(@activity1.xml_formatted_message?).to eq true
     end
 
-    it 'should decrypt the first activity into a hash' do
+    it 'should decrypt the second activity into a hash' do
       expect(@activity2.xml_formatted_message?).to eq false
     end
 
