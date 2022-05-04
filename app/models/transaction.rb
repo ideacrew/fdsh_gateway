@@ -10,11 +10,15 @@ class Transaction
 
   field :correlation_id, as: :request_id, type: String
   field :magi_medicaid_application, type: String
+  field :application_id, type: String
+  field :primary_hbx_id, type: String
 
   embeds_many :activities, cascade_callbacks: true
   accepts_nested_attributes_for :activities
 
   index({ correlation_id: 1 }, { unique: true })
+  index({ application_id: 1 })
+  index({ primary_hbx_id: 1 })
   index({ 'activity.created_at': 1, created_at: 1 })
   index({ 'activity.event_key': 1, created_at: 1 })
   index({ 'activity.status': 1, created_at: 1 })
