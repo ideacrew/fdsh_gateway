@@ -40,20 +40,12 @@ class Transaction
     activities.detect(&:application_payload)&.application_payload
   end
 
-  def application_id
-    magi_medicaid_application_hash[:hbx_id]
-  end
-
   def applicants
     magi_medicaid_application_hash[:applicants] || []
   end
 
   def primary_applicant
     applicants.detect { |applicant| applicant[:is_primary_applicant] } || {}
-  end
-
-  def primary_hbx_id
-    primary_applicant[:person_hbx_id]
   end
 
   def assistance_year

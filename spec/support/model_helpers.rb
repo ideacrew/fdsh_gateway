@@ -18,8 +18,15 @@ module ModelHelpers
       message: { "#{key}": value.to_h }
     }
 
-    transaction_hash = { correlation_id: activity_hash[:correlation_id], magi_medicaid_application: value.to_json,
-                         activity: activity_hash }
+    application = value.to_h # in case value is an AcaEntities entity
+    primary_hbx_id = application[:applicants].detect {|a| a[:is_primary_applicant]}&.dig(:person_hbx_id)
+    transaction_hash = {
+      correlation_id: activity_hash[:correlation_id],
+      activity: activity_hash,
+      magi_medicaid_application: value.to_json,
+      application_id: application[:hbx_id],
+      primary_hbx_id: primary_hbx_id
+    }
     Journal::Transactions::AddActivity.new.call(transaction_hash).value!
   end
 end

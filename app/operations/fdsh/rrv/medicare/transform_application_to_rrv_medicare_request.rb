@@ -39,8 +39,15 @@ module Fdsh
             message: { "#{key}": value.to_h }
           }
 
-          transaction_hash = { correlation_id: activity_hash[:correlation_id], magi_medicaid_application: value.to_json,
-                               activity: activity_hash }
+          application_id = value.hbx_id
+          primary_hbx_id = value.applicants.detect(&:is_primary_applicant)&.person_hbx_id
+          transaction_hash = {
+            correlation_id: activity_hash[:correlation_id],
+            activity: activity_hash,
+            magi_medicaid_application: value.to_json,
+            application_id: application_id,
+            primary_hbx_id: primary_hbx_id
+          }
           Try do
             Journal::Transactions::AddActivity.new.call(transaction_hash)
           end
