@@ -3,8 +3,8 @@
 <% end %>
 <h1>FDSH Gateway</h1>
 <form class="table-search">
-  <label>Search</label>
-  <input type="search" name="search" id="table_search" placeholder="HBX ID or FDSH Request ID">
+  <label>Search</label>  
+  <input type="search" name="search" id="table_search" placeholder="Request ID, HBX ID or Application ID">
 </form>
 <% if @search && !@results.any? %>
   <p>There are are no results for the term <strong><%= @search %></strong>. Try a different search term or <%= link_to "see all transactions", "/" %>.</p>
