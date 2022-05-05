@@ -10,11 +10,15 @@ class Transaction
 
   field :correlation_id, as: :request_id, type: String
   field :magi_medicaid_application, type: String
+  field :application_id, type: String
+  field :primary_hbx_id, type: String
 
   embeds_many :activities, cascade_callbacks: true
   accepts_nested_attributes_for :activities
 
   index({ correlation_id: 1 }, { unique: true })
+  index({ application_id: 1 })
+  index({ primary_hbx_id: 1 })
   index({ 'activity.created_at': 1, created_at: 1 })
   index({ 'activity.event_key': 1, created_at: 1 })
   index({ 'activity.status': 1, created_at: 1 })
@@ -36,20 +40,12 @@ class Transaction
     activities.detect(&:application_payload)&.application_payload
   end
 
-  def application_id
-    magi_medicaid_application_hash[:hbx_id]
-  end
-
   def applicants
     magi_medicaid_application_hash[:applicants] || []
   end
 
   def primary_applicant
     applicants.detect { |applicant| applicant[:is_primary_applicant] } || {}
-  end
-
-  def primary_hbx_id
-    primary_applicant[:person_hbx_id]
   end
 
   def assistance_year

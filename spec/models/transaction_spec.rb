@@ -24,9 +24,12 @@ RSpec.describe Transaction, type: :model, dbclean: :after_each do
 
   context 'with a magi medicaid application and request activity' do
     let(:values) do
+      primary_applicant = mm_application[:applicants].detect { |applicant| applicant[:is_primary_applicant] }
       {
         correlation_id: "id123",
-        magi_medicaid_application: mm_application.to_json
+        magi_medicaid_application: mm_application.to_json,
+        application_id: mm_application[:hbx_id],
+        primary_hbx_id: primary_applicant[:person_hbx_id]
       }
     end
     let(:mm_application) { TEST_APPLICATION_1 }

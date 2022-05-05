@@ -44,9 +44,11 @@ RSpec.describe Journal::Transactions::AddActivity do
       # rubocop:disable Layout/FirstArrayElementIndentation
       expect(result.value!.keys).to eq %i[
            activities
+           application_id
            correlation_id
            created_at
            magi_medicaid_application
+           primary_hbx_id
            updated_at
          ]
 

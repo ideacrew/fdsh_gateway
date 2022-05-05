@@ -31,14 +31,15 @@ module Journal
             Journal::TransactionContract.new.call(
               correlation_id: params[:correlation_id],
               magi_medicaid_application: params[:magi_medicaid_application],
-              activities: [result.to_h]
+              activities: [result.to_h],
+              application_id: params[:application_id],
+              primary_hbx_id: params[:primary_hbx_id]
             )
           else
             result
           end
         end
       end
-
       # rubocop:enable Style/MultilineBlockChain
 
       def find_or_create_transaction(values)
