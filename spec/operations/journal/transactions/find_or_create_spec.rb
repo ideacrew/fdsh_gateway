@@ -10,7 +10,7 @@ RSpec.describe Journal::Transactions::FindOrCreate do
   let(:request_event_attributes) { RequestEventAttributes }
 
   context 'Operation is called without params' do
-    let(:errors) { {:correlation_id=>["is missing", "must be a string"]} }
+    let(:errors) { { :correlation_id => ["is missing", "must be a string"] } }
     it 'should fail validation' do
       expect(described_class.new.call({}).success?).to be_falsey
       expect(described_class.new.call({}).failure.errors.to_h).to eq errors
@@ -20,12 +20,12 @@ RSpec.describe Journal::Transactions::FindOrCreate do
   context 'Operation is called using a :correlation_id with no matching database record' do
     let(:correlation_id) { 'brand_new_id' }
     let(:result) { described_class.new.call(correlation_id: correlation_id) }
-    
+
     before do
-        expect(Transaction.count).to eq 0        
+      expect(Transaction.count).to eq 0
     end
-   
-    it 'should create a new Transaction record' do      
+
+    it 'should create a new Transaction record' do
       expect(result.success?).to eq true
       expect(Transaction.first.correlation_id).to eq 'brand_new_id'
     end
