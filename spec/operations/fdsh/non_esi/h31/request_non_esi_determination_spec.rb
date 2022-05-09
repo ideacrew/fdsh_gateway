@@ -2,7 +2,11 @@
 
 require 'spec_helper'
 
-RSpec.describe Fdsh::NonEsi::H31::RequestNonEsiDetermination do
+RSpec.describe Fdsh::NonEsi::H31::RequestNonEsiDetermination, dbclean: :after_each do
+
+  before :all do
+    DatabaseCleaner.clean
+  end
 
   let(:application_params) do
     {

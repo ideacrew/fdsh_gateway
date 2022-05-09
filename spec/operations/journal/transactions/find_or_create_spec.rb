@@ -4,6 +4,11 @@ require 'rails_helper'
 require_relative '../shared_setup'
 
 RSpec.describe Journal::Transactions::FindOrCreate do
+
+  before :all do
+    DatabaseCleaner.clean
+  end
+
   let(:request_command) { 'request_fdsh_ifsv_determination' }
   let(:request_event_key) { 'VLPService' }
   let(:correlation_id) { '120012300' }
