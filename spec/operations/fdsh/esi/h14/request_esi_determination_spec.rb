@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Fdsh::Esi::H14::RequestEsiDetermination, "given valid params" do
+RSpec.describe Fdsh::Esi::H14::RequestEsiDetermination do
 
   let(:application_params) do
     {
@@ -299,11 +299,12 @@ RSpec.describe Fdsh::Esi::H14::RequestEsiDetermination, "given valid params" do
   end
 
   it 'should save the application id on the transaction' do
-    expect(transaction.application_id).not_to eq nil
+    expect(transaction.application_id).to eq application_params[:hbx_id]
   end
 
-  it 'should save the primary hbx id on the transaction field' do
-    expect(transaction.primary_hbx_id).not_to eq nil
+  it 'should save the primary hbx id on the transaction' do
+    primary_applicant = application_params[:applicants].detect {|applicant| applicant[:is_primary_applicant]}
+    expect(transaction.primary_hbx_id).to eq primary_applicant[:person_hbx_id]
   end
 
   it 'should create an application activity on the transaction' do
