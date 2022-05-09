@@ -20,8 +20,7 @@ class Activity
 
   def application_payload
     return {} unless message
-    payload = JSON.parse(message.to_json, symbolize_names: true)
-    payload[:application]
+    JSON.generate(message)
   end
 
   def decrypted_message
