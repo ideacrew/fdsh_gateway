@@ -33,18 +33,18 @@ module Fdsh
             message: { "#{key}": key == 'request' ? encrypt(value.to_json) : value }
           }
 
-          if key == 'application'
-            application_id = value[:hbx_id]
-            primary_hbx_id = value[:applicants].detect {|applicant| applicant[:is_primary_applicant]}&.dig(:person_hbx_id)
-          end
-
           transaction_hash = {
             correlation_id: activity_hash[:correlation_id],
-            activity: activity_hash,
-            magi_medicaid_application: value.to_json,
-            application_id: application_id,
-            primary_hbx_id: primary_hbx_id
+            activity: activity_hash
           }
+
+          if key == 'application'
+            application_string = value.to_json
+            application_id = value[:hbx_id]
+            primary_hbx_id = value[:applicants].detect {|applicant| applicant[:is_primary_applicant]}&.dig(:person_hbx_id)
+            transaction_hash.merge!(magi_medicaid_application: application_string, application_id: application_id, primary_hbx_id: primary_hbx_id)
+          end
+
           Try do
             Journal::Transactions::AddActivity.new.call(transaction_hash)
           end

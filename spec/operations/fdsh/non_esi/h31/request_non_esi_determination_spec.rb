@@ -2,7 +2,11 @@
 
 require 'spec_helper'
 
-RSpec.describe Fdsh::NonEsi::H31::RequestNonEsiDetermination do
+RSpec.describe Fdsh::NonEsi::H31::RequestNonEsiDetermination, dbclean: :after_each do
+
+  before :all do
+    DatabaseCleaner.clean
+  end
 
   let(:application_params) do
     {
@@ -267,6 +271,8 @@ RSpec.describe Fdsh::NonEsi::H31::RequestNonEsiDetermination do
     AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_params).value!
   end
 
+  let(:transaction) { Transaction.first }
+
   before do
     stub_request(:post, "https://impl.hub.cms.gov/Imp1/VerifyNonEsiMecService")
       .with(
@@ -285,7 +291,36 @@ RSpec.describe Fdsh::NonEsi::H31::RequestNonEsiDetermination do
     described_class.new.call(application, params)
   end
 
-  it "success" do
+  it 'should result in success' do
     expect(subject.success?).to be_truthy
+  end
+
+  it 'should create exactly one new Transaction' do
+    expect(Transaction.count).to eq 1
+  end
+
+  it 'should save the application on the transaction' do
+    expect(transaction.magi_medicaid_application).to eq JSON.generate(application.to_h)
+  end
+
+  it 'should save the application id on the transaction' do
+    expect(transaction.application_id).to eq application_params[:hbx_id]
+  end
+
+  it 'should save the primary hbx id on the transaction' do
+    primary_applicant = application_params[:applicants].detect {|applicant| applicant[:is_primary_applicant]}
+    expect(transaction.primary_hbx_id).to eq primary_applicant[:person_hbx_id]
+  end
+
+  it 'should create an application activity on the transaction' do
+    application_activity = transaction.activities.select {|activity| activity.message.keys[0] == 'application' }
+    expect(application_activity.count).to eq 1
+    expect(application_activity.present?).to be_truthy
+  end
+
+  it 'should create a request activity on the transaction' do
+    request_activity = transaction.activities.select {|activity| activity.message.keys[0] == 'request' }
+    expect(request_activity.count).to eq 1
+    expect(request_activity.present?).to be_truthy
   end
 end
