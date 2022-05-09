@@ -11,15 +11,10 @@ class TransactionsController < ApplicationController
                                 { primary_hbx_id: /#{search_id}/ }).and(:activities.nin => [nil, []])
       redirect_to @results.first if @results&.length == 1
     end
-    @transactions = if @search
-                      Kaminari.paginate_array(@results.map {|t| t.activities.map {|a| { a: a, t: t }}}.flatten).page params[:page]
-                    else
-                      Kaminari.paginate_array(Transaction.where(:activities.nin => [nil, []]).map do |t|
-                                                t.activities.map do |a|
-                                                  { a: a, t: t }
-                                                end
-                                              end.flatten).page params[:page]
-                    end
+
+    arr = @search ? @results : Transaction.where(:activities.nin => [nil, []])
+    sorted_arr = arr.map {|t| t.activities.map {|a| { a: a, t: t }}}.flatten.sort_by {|activity| activity[:a].updated_at}.reverse!
+    @transactions = Kaminari.paginate_array(sorted_arr).page params[:page]
   end
 
   def show
