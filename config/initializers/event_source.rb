@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'faraday'
 
 EventSource.configure do |config|
   config.protocols = %w[amqp http]
@@ -27,23 +28,29 @@ EventSource.configure do |config|
 
     server.http do |http|
       http.ref = 'https://impl.hub.cms.gov/Imp1'
-      http.url =
-        ENV['RIDP_INITIAL_SERVICE_URL'] || 'https://impl.hub.cms.gov/Imp1'
+      http.url = ENV['RIDP_INITIAL_SERVICE_URL'] || 'https://impl.hub.cms.gov/Imp1'
+
       http.client_certificate do |client_cert|
-        client_cert.client_certificate =
-          ENV['RIDP_CLIENT_CERT_PATH'] ||
-          File.join(File.dirname(__FILE__), '..', 'ridp_test_cert.pem')
-        client_cert.client_key =
-          ENV['RIDP_CLIENT_KEY_PATH'] ||
-          File.join(File.dirname(__FILE__), '..', 'ridp_test_key.key')
+        client_cert.client_certificate = ENV['RIDP_CLIENT_CERT_PATH'] || File.join(File.dirname(__FILE__), '..', 'ridp_test_cert.pem')
+        client_cert.client_key = ENV['RIDP_CLIENT_KEY_PATH'] || File.join(File.dirname(__FILE__), '..', 'ridp_test_key.key')
       end
+
       http.default_content_type = 'application/soap+xml'
+
       http.soap do |soap|
         soap.user_name = ENV['RIDP_SERVICE_USERNAME'] || 'guest'
         soap.password = ENV['RIDP_SERVICE_PASSWORD'] || 'guest'
         soap.password_encoding = ENV['RIDP_PASSWORD_ENCODING'] || :digest
         soap.use_timestamp = ENV['RIDP_USE_TIMESTAMP'] || true
         soap.timestamp_ttl = 60.seconds
+      end
+
+      http.delayed_queue do |queue|
+        queue.retry_delay = 4 * 3600 * 1000
+        queue.retry_limit = 3
+        queue.retry_exceptions = [StandardError, SystemStackError, Faraday::TimeoutError].freeze
+        # queue.event_name = 'events.delayed_queue.message_retry_requested'
+        # queue.publisher = 'Operations::Fdsh::RidpRepingService'
       end
     end
   end
