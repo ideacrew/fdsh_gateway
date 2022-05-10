@@ -9,6 +9,6 @@
 <tr class="details">
  <td colspan="6" id="details_<%= activity.id %>">
  	<button onclick="hideButton(this)">Hide payload</button>
- 	<%= raw(ap(activity.message)) if activity.message %>
+  <%= raw(ap(activity.message, index: false)) if activity.message %>
  </td>
 </tr>
