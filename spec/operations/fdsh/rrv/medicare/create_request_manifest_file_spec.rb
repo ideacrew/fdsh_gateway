@@ -28,6 +28,5 @@ RSpec.describe Fdsh::Rrv::Medicare::CreateRequestManifestFile do
 
   it "success" do
     expect(subject.success?).to be_truthy
-    binding.irb
   end
 end
