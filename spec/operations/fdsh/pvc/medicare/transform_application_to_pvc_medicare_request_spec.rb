@@ -4,8 +4,9 @@ require 'spec_helper'
 require 'medicare_metadata_setup'
 
 RSpec.describe Fdsh::Pvc::Medicare::Request::TransformApplicationToPvcMedicareRequest do
+  include Dry::Monads[:result]
 
-  before :all do
+  before :each do
     DatabaseCleaner.clean
   end
 
@@ -37,10 +38,10 @@ RSpec.describe Fdsh::Pvc::Medicare::Request::TransformApplicationToPvcMedicareRe
       expect(subject.success?).to be_truthy
     end
 
-    it 'should create a record of the transaction with request activity' do
+    it 'should create a record of the transactions with request activity' do
       subject
-      expect(transactions.count).to eq(1)
-      expect(transactions.first.activities.count).to eq(1)
+      expect(transactions.count).to eq(17)
+      expect(transactions.map{|t| t.activities.count}.detect {|c| c != 1}).to be_nil
     end
   end
 end

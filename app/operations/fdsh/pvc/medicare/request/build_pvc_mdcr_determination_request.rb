@@ -14,7 +14,7 @@ module Fdsh
 
           # PublishEventStruct = Struct.new(:name, :payload, :headers)
           #
-          # PUBLISH_EVENT = "tbd_pvc_event"
+          # PUBLISH_EVENT = "on_periodic_verification_confirmation"
 
           # @return [Dry::Monads::Result]
           def call(applications)

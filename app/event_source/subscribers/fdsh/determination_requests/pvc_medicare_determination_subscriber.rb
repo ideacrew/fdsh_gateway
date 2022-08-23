@@ -10,21 +10,20 @@ module Subscribers
         # rubocop:disable Lint/RescueException
         # rubocop:disable Style/LineEndConcatenation
         # rubocop:disable Style/StringConcatenation
-        subscribe(:tbd_pvc_event) do |delivery_info, _properties, payload|
-          # on_periodic_verification_confirmation <- possible new event name
+        subscribe(:on_periodic_verification_confirmation) do |delivery_info, _properties, payload|
           # Sequence of steps that are executed as single operation
           values = JSON.parse(payload, :symbolize_names => true)
           determination_result = ::Fdsh::Pvc::Medicare::Request::CreateRequestManifestFile.new.call(values[:applications])
 
           if determination_result.success?
-            logger.info("OK: :tbd_pvc_event successful and acked")
+            logger.info("OK: :on_periodic_verification_confirmation successful and acked")
           else
-            logger.error("Error: :tbd_pvc_event; failed due to:#{determination_result.inspect}")
+            logger.error("Error: :on_periodic_verification_confirmation; failed due to:#{determination_result.inspect}")
           end
           ack(delivery_info.delivery_tag)
         rescue Exception => e
           logger.error(
-            "Exception: :tbd_pvc_event\n Exception: #{e.inspect}" +
+            "Exception: :on_periodic_verification_confirmation\n Exception: #{e.inspect}" +
               "\n Backtrace:\n" + e.backtrace.join("\n")
           )
           ack(delivery_info.delivery_tag)

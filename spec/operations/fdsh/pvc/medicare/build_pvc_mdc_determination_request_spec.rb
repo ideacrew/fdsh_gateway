@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'medicare_metadata_setup'
 
-RSpec.describe Fdsh::Pvc::Medicare::BuildPvcMdcrDeterminationRequest do
+RSpec.describe Fdsh::Pvc::Medicare::Request::BuildPvcMdcrDeterminationRequest do
 
   before :all do
     DatabaseCleaner.clean
@@ -28,7 +28,7 @@ RSpec.describe Fdsh::Pvc::Medicare::BuildPvcMdcrDeterminationRequest do
     it 'should return an array containing the xml request and the applicant count' do
       result = subject.value!
       expect(result).to be_a(Array)
-      expect(result.first.value!).to include("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+      expect(result.first).to include("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
       expect(result.last).to eq(17)
     end
   end
