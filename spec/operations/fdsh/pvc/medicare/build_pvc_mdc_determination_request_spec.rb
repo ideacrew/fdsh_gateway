@@ -20,9 +20,16 @@ RSpec.describe Fdsh::Pvc::Medicare::BuildPvcMdcrDeterminationRequest do
     described_class.new.call(applications)
   end
 
-  it "success" do
-    expect(subject.success?).to be_truthy
-    expect(Transaction.all.count).to eq 17
-  end
+  context 'success' do
+    it 'should return a success monad' do
+      expect(subject.success?).to be_truthy
+    end
 
+    it 'should return an array containing the xml request and the applicant count' do
+      result = subject.value!
+      expect(result).to be_a(Array)
+      expect(result.first.value!).to include("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+      expect(result.last).to eq(17)
+    end
+  end
 end

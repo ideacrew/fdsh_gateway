@@ -21,6 +21,7 @@ RSpec.describe Fdsh::Rrv::Medicare::BuildRrvMdcrDeterminationRequest do
   end
 
   it "success" do
+    binding.irb
     expect(subject.success?).to be_truthy
     expect(Transaction.all.count).to eq 17
   end

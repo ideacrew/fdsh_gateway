@@ -26,7 +26,15 @@ RSpec.describe Fdsh::Pvc::Medicare::CreateRequestManifestFile do
     described_class.new.call(applications)
   end
 
-  it "success" do
-    expect(subject.success?).to be_truthy
+  context 'success' do
+    it 'should return a success monad' do
+      expect(subject.success?).to be_truthy
+    end
+
+    it 'should create a zip file in the pvc_request_outbound folder' do
+      file_path = "#{Rails.root}/pvc_request_outbound"
+      subject
+      expect(Dir.glob(file_path + '/*')).to eq(["#{file_path}/SBE00ME.DSH.PVCIN.D#{Time.now.strftime('%y%m%d.T%H%M%S%L.P')}.IN"])
+    end
   end
 end
