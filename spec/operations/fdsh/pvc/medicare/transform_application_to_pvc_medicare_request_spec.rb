@@ -41,7 +41,7 @@ RSpec.describe Fdsh::Pvc::Medicare::Request::TransformApplicationToPvcMedicareRe
     it 'should create a record of the transactions with request activity' do
       subject
       expect(transactions.count).to eq(17)
-      expect(transactions.map{|t| t.activities.count}.detect {|c| c != 1}).to be_nil
+      expect(transactions.map {|t| t.activities.count}.detect {|c| c != 1}).to be_nil
     end
   end
 end

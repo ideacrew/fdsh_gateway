@@ -8,7 +8,7 @@ RSpec.describe Fdsh::Pvc::Medicare::Request::CreateRequestManifestFile do
   before :each do
     DatabaseCleaner.clean
     @file_path = "#{Rails.root}/pvc_request_outbound"
-    expect(Dir.glob(@file_path + '/*').count).to eq(0)
+    expect(Dir.glob("#{@file_path}/*").count).to eq(0)
   end
 
   after :each do
@@ -35,7 +35,7 @@ RSpec.describe Fdsh::Pvc::Medicare::Request::CreateRequestManifestFile do
 
     it 'should create a zip file in the pvc_request_outbound folder' do
       subject
-      expect(Dir.glob(@file_path + '/*').count).to eq(1)
+      expect(Dir.glob("#{@file_path}/*").count).to eq(1)
     end
   end
 end
