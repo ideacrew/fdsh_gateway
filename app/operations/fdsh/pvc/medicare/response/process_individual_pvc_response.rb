@@ -156,7 +156,7 @@ module Fdsh
 
           def publish(application, request_id, applicant_person_hbx_id)
             payload = application.to_h
-            event = event('events.fdsh.renewal_eligibilities.magi_medicaid_application_renewal_eligibilities_medicare_determined',
+            event = event('events.fdsh.pvc.periodic_verification_confirmation_determined',
                           attributes: { payload: payload, applicant_identifier: applicant_person_hbx_id },
                           headers: { correlation_id: request_id }).value!
             event.publish
