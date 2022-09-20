@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 # Spec for Queries::TransactionsIndexPageQuery
-RSpec.describe Queries::TransactionsIndexPageQuery do
+RSpec.describe Queries::TransactionsIndexPageQuery, db_clean: :after_each do
 
   let(:transactions) { FactoryBot.create_list(:transaction, 30, :with_activity) }
   let(:query) { Queries::TransactionsIndexPageQuery.new }
