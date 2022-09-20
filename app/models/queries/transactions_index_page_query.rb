@@ -45,7 +45,7 @@ module Queries
 
     def facet_stage
       { '$facet' => {
-        'metadata' => [{ '$count' => 'total' }, { '$addFields' => { page: @page } }],
+        'metadata' => [{ '$count' => 'total' }],
         'data' => [{ '$skip' => skip_val }, { '$limit' => @default_per_page }]
       } }
     end

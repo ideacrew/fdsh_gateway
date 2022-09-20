@@ -1,5 +1,5 @@
 <% activity_id = transaction.dig('activities', '_id') %>
-<% application = transaction.dig('magi_medicaid_application') ? transaction.dig('magi_medicaid_application') : application_from_activity(transaction.dig('activities'))%>
+<% application = transaction.dig('magi_medicaid_application') ? transaction.dig('magi_medicaid_application') : application_from_activity(transaction.dig('correlation_id'))%>
 <tr id="row_<%= activity_id %>">
   <td><%= transaction.dig('application_id') %></td>
   <td><%= transaction.dig('primary_hbx_id') %></td>

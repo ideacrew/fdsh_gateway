@@ -3,15 +3,17 @@
 # Shared helpers for the application.
 module ApplicationHelper
   def fpl_year(application)
-    return unless application
-    application_hash = JSON.parse(application, symbolize_names: true)
-    application_hash[:assistance_year] - 1
+    return unless application.present?
+    application_hash = JSON.parse(application)
+    assistance_year = application_hash&.dig('assistance_year')
+    assistance_year - 1 if assistance_year
   end
 
-  def application_from_activity(activity)
-    return {} unless activity['message']
-    payload = JSON.parse(activity['message'].to_json, symbolize_names: true)
-    payload[:application]
+  def application_from_activity(correlation_id)
+    transaction = Transaction.where(correlation_id: correlation_id)
+    return "{}" unless transaction.present?
+
+    transaction.first.activities.detect(&:application_payload)&.application_payload.to_json
   end
 
   def decrypt_message(message)
