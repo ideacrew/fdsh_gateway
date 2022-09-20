@@ -21,11 +21,11 @@
   </thead>
   <tbody>
   <% @transactions.each do |transaction| %>
-      <%= render partial: "activity_row", locals: { transaction: transaction[:t], activity: transaction[:a] } %>
+      <%= render partial: "activity_row", locals: { transaction: transaction } %>
   <% end %>
   </tbody>
 </table>
-<%= paginate @transactions %>
+<%= paginate @transactions, total_count: @total_count %>
 
 <script type="text/javascript">
   function addRowHandlers(table_id) {

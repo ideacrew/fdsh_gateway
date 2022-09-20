@@ -12,9 +12,10 @@ class TransactionsController < ApplicationController
       redirect_to @results.first if @results&.length == 1
     end
 
-    arr = @search ? @results : Transaction.where(:activities.nin => [nil, []])
-    sorted_arr = arr.map {|t| t.activities.map {|a| { a: a, t: t }}}.flatten.sort_by {|activity| activity[:a].updated_at}.reverse!
-    @transactions = Kaminari.paginate_array(sorted_arr).page params[:page]
+    page_no = params[:page] ? params[:page].to_i : 1
+    query_results = Queries::TransactionsIndexPageQuery.new.call(@search, page: page_no).first
+    total_count = query_results&.dig('metadata')&.first&.dig('total')&.to_i
+    @transactions = Kaminari.paginate_array(query_results['data'], total_count: total_count).page(params[:page])
   end
 
   def show
