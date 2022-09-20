@@ -35,7 +35,7 @@ RSpec.describe Queries::TransactionsIndexPageQuery, db_clean: :after_each do
 
     it 'should match id strings with special regex characters' do
       special_id = 'id_.1+2*3?4^5$6(7)8[9]a{b}c|d\e'
-      Transaction.last.update(correlation_id: special_id)
+      transactions.last.update(correlation_id: special_id)
       result = query.call(special_id, page: 1).first['data']
       expect(result.count).to eq 1
     end
