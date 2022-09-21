@@ -1,16 +1,19 @@
-<tr id="row_<%= activity.id %>">
-  <td><%= transaction.application_id %></td>
-  <td><%= transaction.primary_hbx_id %></td>
-  <td><%= transaction.fpl_year %></td>
-  <td><%= activity.event_key_label %></td>
-  <td><%= activity.status %></td>
-  <td><%= link_to activity.updated_at, transaction_path(transaction, anchor: "activty_#{activity.id}") %></td>
+<% activity_id = transaction.dig('activities', '_id') %>
+<% application = transaction.dig('magi_medicaid_application') ? transaction.dig('magi_medicaid_application') : application_from_activity(transaction.dig('correlation_id'))%>
+<tr id="row_<%= activity_id %>">
+  <td><%= transaction.dig('application_id') %></td>
+  <td><%= transaction.dig('primary_hbx_id') %></td>
+  <td><%= fpl_year(application) %></td>
+  <td><%= transaction.dig('activities', 'event_key')&.humanize&.upcase %></td>
+  <td><%= transaction.dig('activities', 'status') %></td>
+  <td><%= link_to transaction.dig('activities', 'updated_at'), transaction_path(Transaction.find(transaction['_id']), anchor: "activty_#{activity_id}") %></td>
 </tr>
 <tr class="details">
- <td colspan="6" id="details_<%= activity.id %>">
+ <td colspan="6" id="details_<%= activity_id %>">
  	<button onclick="hideButton(this)">Hide payload</button>
-  <% if activity&.decrypted_message %>
-    <pre><%= activity.xml_formatted_message? ? activity.decrypted_message : raw(ap(activity.decrypted_message)) %></pre>
+  <% decrypted_message = decrypt_message(transaction.dig('activities', 'message')) %>
+  <% if decrypted_message %>
+    <pre><%= xml_formatted_message?(decrypted_message) ? decrypted_message : raw(ap(decrypted_message)) %></pre>
   <% end %>
  </td>
 </tr>
