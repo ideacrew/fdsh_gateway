@@ -21,7 +21,7 @@ module Queries
     end
 
     def query
-      stages = [match_stage, unwind_stage, sort_stage, facet_stage]
+      stages = [match_stage, sort_stage, unwind_stage, facet_stage]
       Transaction.collection.aggregate(stages)
     end
 

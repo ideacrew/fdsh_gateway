@@ -26,11 +26,11 @@ RSpec.describe Queries::TransactionsIndexPageQuery, db_clean: :after_each do
     expect(result.count).to eq @default_per_page
   end
 
-  it 'should sort results newest to oldest based on updated_at field' do
+  it 'should sort results newest to oldest based on activity updated_at field' do
     transactions
     result = query.call(page: 1).first['data']
     result.each_with_index do |record, index|
-      expect(record['updated_at']).to be > result[index + 1]['updated_at'] unless index == result.size - 1
+      expect(record['activities']['updated_at']).to be > result[index + 1]['activities']['updated_at'] unless index == result.size - 1
     end
   end
 
