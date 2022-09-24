@@ -21,7 +21,7 @@ module Queries
     end
 
     def query
-      stages = [match_stage, sort_stage, unwind_stage, facet_stage]
+      stages = [match_stage, sort_stage, facet_stage]
       Transaction.collection.aggregate(stages)
     end
 
@@ -40,14 +40,38 @@ module Queries
     end
 
     def sort_stage
-      { '$sort' => { 'activities.updated_at' => -1 } }
+      { '$sort' => { 'activity.updated_at' => -1, 'correlation_id' => 1 } }
     end
 
     def facet_stage
       { '$facet' => {
         'metadata' => [{ '$count' => 'total' }],
-        'data' => [{ '$skip' => skip_val }, { '$limit' => @default_per_page }]
+        'data' => [skip_stage, project_stage, unwind_stage, limit_stage, facet_sort_stage]
       } }
+    end
+
+    def skip_stage
+      { '$skip' => skip_val }
+    end
+
+    def project_stage
+      { '$project' => { 'activities' => filter_stage } }
+    end
+
+    def filter_stage
+      { '$filter' => {
+        'input' => '$activities',
+        'as' => 'activity',
+        'cond' => { '$eq' => ["$$activity.updated_at", { '$max' => "$activities.updated_at" }] }
+      } }
+    end
+
+    def limit_stage
+      { '$limit' => @default_per_page }
+    end
+
+    def facet_sort_stage
+      { '$sort' => { 'activities.updated_at' => -1, 'correlation_id' => 1 } }
     end
   end
 end
