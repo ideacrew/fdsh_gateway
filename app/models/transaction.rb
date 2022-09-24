@@ -20,6 +20,7 @@ class Transaction
   index({ application_id: 1 })
   index({ primary_hbx_id: 1 })
   index({ 'activity.created_at': 1, created_at: 1 })
+  index({ 'activity.updated_at': 1, created_at: 1 })
   index({ 'activity.event_key': 1, created_at: 1 })
   index({ 'activity.status': 1, created_at: 1 })
   index({ 'activity.command': 1, created_at: 1 })
