@@ -17,7 +17,6 @@ module Queries
 
     def search_criteria
       escaped_id = /#{Regexp.escape(@search_id)}/ # escape special characters in encrypted strings
-      # escaped_id = /#{@search_id}/ # escape special characters in encrypted strings
       { '$or' => [{ correlation_id: escaped_id }, { application_id: escaped_id }, { primary_hbx_id: escaped_id }] }
     end
 
