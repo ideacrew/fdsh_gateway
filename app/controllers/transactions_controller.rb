@@ -11,11 +11,15 @@ class TransactionsController < ApplicationController
                                 { primary_hbx_id: /#{search_id}/ }).and(:activities.nin => [nil, []])
       redirect_to @results.first if @results&.length == 1
     end
-
     page_no = params[:page] ? params[:page].to_i : 1
-    query_results = Queries::TransactionsIndexPageQuery.new.call(@search, page: page_no).first
-    total_count = query_results&.dig('metadata')&.first&.dig('total')&.to_i
-    @transactions = Kaminari.paginate_array(query_results['data'], total_count: total_count).page(params[:page])
+    query_results = Queries::TransactionsIndexPageQuery.new.call(@search, page: page_no)
+    grand_total = if @search.blank?
+                    Transaction.collection.aggregate([{ '$unwind' => '$activities' }, { '$count' => 'grand_total' }]).first&.dig("grand_total")
+                  else
+                    query_results&.count
+                  end
+    puts "grand_total: #{grand_total}"
+    @transactions = Kaminari.paginate_array(query_results.to_a, total_count: grand_total).page(params[:page])
   end
 
   def show
