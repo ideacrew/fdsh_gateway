@@ -6,7 +6,7 @@
   <td><%= fpl_year(application) %></td>
   <td><%= transaction.dig('activities', 'event_key')&.humanize&.upcase %></td>
   <td><%= transaction.dig('activities', 'status') %></td>
-  <td><%= link_to transaction.dig('activities', 'updated_at'), transaction_path(Transaction.find(transaction['_id']), anchor: "activty_#{activity_id}") %></td>
+  <td><%= link_to transaction.dig('activities', 'updated_at'), transaction_path(transaction['_id'], anchor: "activty_#{activity_id}") %></td>
 </tr>
 <tr class="details">
  <td colspan="6" id="details_<%= activity_id %>">
