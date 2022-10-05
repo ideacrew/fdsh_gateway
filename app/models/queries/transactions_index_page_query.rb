@@ -8,7 +8,13 @@ module Queries
       @page = page
       @search_id = search_id
       @default_per_page = Kaminari.config.default_per_page
-      query
+      { results: query, count: transaction_counter }
+    end
+
+    def transaction_counter
+      count_aggregate = [unwind_stage, count_stage]
+      count_aggregate.prepend(match_stage) unless @search_id.blank?
+      Transaction.collection.aggregate(count_aggregate).first&.dig("grand_total")
     end
 
     def skip_val
@@ -22,22 +28,20 @@ module Queries
 
     def query
       stages = [unwind_stage, sort_stage, skip_stage, limit_stage]
-      stages << match_stage unless @search_id.blank?
+      stages.prepend(match_stage) unless @search_id.blank?
       Transaction.collection.aggregate(stages).allow_disk_use(true)
     end
 
-    def activities_present
-      { 'activities' => { '$nin' => [nil, []] } }
+    def count_stage
+      { '$count' => 'grand_total' }
     end
 
     def match_stage
-      match_criteria = activities_present
-      match_criteria.merge!(search_criteria)
-      { '$match' => match_criteria }
+      { '$match' => search_criteria }
     end
 
     def unwind_stage
-      { '$unwind' => '$activities' }
+      { '$unwind' => { "path" => "$activities", "preserveNullAndEmptyArrays" => true } }
     end
 
     def sort_stage
