@@ -18,7 +18,6 @@ class TransactionsController < ApplicationController
                   else
                     query_results&.count
                   end
-    puts "grand_total: #{grand_total}"
     @transactions = Kaminari.paginate_array(query_results.to_a, total_count: grand_total).page(params[:page])
   end
 
