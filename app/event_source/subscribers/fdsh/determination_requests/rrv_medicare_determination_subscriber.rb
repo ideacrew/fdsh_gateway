@@ -11,10 +11,6 @@ module Subscribers
         # rubocop:disable Style/LineEndConcatenation
         # rubocop:disable Style/StringConcatenation
         subscribe(:on_magi_medicaid_application_renewal_assistance_eligible) do |delivery_info, _properties, payload|
-          subscriber_logger = Logger.new(
-            "#{Rails.root}/log/on_magi_medicaid_application_renewal_assistance_eligible_events_#{TimeKeeper.date_of_record.strftime('%Y_%m_%d')}.log"
-          )
-
           # Sequence of steps that are executed as single operation
           values = JSON.parse(payload, :symbolize_names => true)
 
@@ -30,7 +26,7 @@ module Subscribers
             logger.error("Error: :on_fdsh_rrv_medicare_eligibility_determination_subscriber; failed due to:#{determination_result.inspect}")
           end
           ack(delivery_info.delivery_tag)
-        rescue Exception => e
+        rescue StandardError, SystemStackError => e
           subscriber_logger.info(
             "Exception: :on_fdsh_rrv_medicare_eligibility_determination_subscriber\n Exception: #{e.inspect}" +
               "\n Backtrace:\n" + e.backtrace.join("\n")
@@ -44,6 +40,15 @@ module Subscribers
         # rubocop:enable Lint/RescueException
         # rubocop:enable Style/LineEndConcatenation
         # rubocop:enable Style/StringConcatenation
+
+        private
+
+        def subscriber_logger
+          return @subscriber_logger if defined? @subscriber_logger
+          @subscriber_logger = Logger.new(
+            "#{Rails.root}/log/on_magi_medicaid_application_renewal_assistance_eligible_events_#{Time.now.strftime('%Y_%m_%d')}.log"
+          )
+        end
       end
     end
   end
