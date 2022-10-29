@@ -16,7 +16,7 @@ class Transaction
   embeds_many :activities, cascade_callbacks: true
   accepts_nested_attributes_for :activities
 
-  index({ correlation_id: 1 }, { unique: true })
+  index({ correlation_id: 1 })
   index({ application_id: 1 })
   index({ primary_hbx_id: 1 })
   index({ 'activity.created_at': 1, created_at: 1 })
