@@ -9,6 +9,12 @@ module Journal
     # @return [String]
     attribute :CorrelationId, Types::String.meta(omittable: false)
 
+    # @!attribute [r] CorrelationId
+    # Hbx Assigned ID of the application that activity belongs to
+    # assocaated with this event
+    # @return [String]
+    attribute :application_hbx_id, Types::String.meta(omittable: true)
+
     # @!attribute [r] event_key
     # The name of this event
     # @return [String]
@@ -28,5 +34,11 @@ module Journal
     # A status value result associaated with processing the event
     # @return [String]
     attribute :status, Types::String.meta(omittable: true)
+
+    # @!attribute [r] assistance_year
+    # Assistance year of the application
+    # @return [Integer]
+    attribute :assistance_year, Types::Integer.meta(omittable: true)
   end
 end
+

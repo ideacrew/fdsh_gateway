@@ -17,6 +17,8 @@ module Journal
       required(:event_key).filled(:string)
       optional(:message).maybe(:hash)
       optional(:status).maybe(:string)
+      optional(:assistance_year).maybe(:integer)
+      optional(:application_hbx_id).maybe(:string)
     end
   end
 end
