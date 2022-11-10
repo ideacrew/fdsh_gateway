@@ -13,18 +13,27 @@ module Fdsh
           include Dry::Monads[:result, :do, :try]
           include EventSource::Command
 
-          def call(transaction_file, applicants_count, outbound_folder)
-            manifest_request           = yield construct_manifest_request(transaction_file, applicants_count)
+          def call(params)
+            values                     = yield validate(params)
+            manifest_request           = yield construct_manifest_request(values)
             validated_manifest_request = yield validate_manifest_request(manifest_request)
             manifest_entity            = yield transform_request_to_entity(validated_manifest_request)
             xml_string                 = yield encode_xml_and_schema_validate(manifest_entity)
             rrv_manifest_medicare_xml  = yield encode_manifest_request_xml(xml_string)
-            manifest_file              = yield create_manifest_file(rrv_manifest_medicare_xml, outbound_folder)
+            manifest_file              = yield create_manifest_file(rrv_manifest_medicare_xml, values[:outbound_folder])
 
             Success(manifest_file)
           end
 
           private
+
+          def validate(params)
+            return Failure('transaction file missing') unless params[:transaction_file]
+            return Failure('applicants count missing') unless params[:applicants_count]
+            return Failure('outbound folder missing') unless params[:outbound_folder]
+    
+            Success(params)
+          end
 
           def validate_manifest_request(manifest_request)
             result = AcaEntities::Fdsh::Rrv::H79::BatchHandlingServiceRequestContract.new.call(manifest_request)
@@ -50,9 +59,9 @@ module Fdsh
             end
           end
 
-          def construct_manifest_request(transaction_file, applicants_count)
-            @transaction_file = transaction_file
-            @applicants_count = applicants_count
+          def construct_manifest_request(values)
+            @transaction_file = values[:transaction_file]
+            @applicants_count = values[:applicants_count]
 
             manifest_request = {
               BatchMetadata: construct_batch_metadata,
