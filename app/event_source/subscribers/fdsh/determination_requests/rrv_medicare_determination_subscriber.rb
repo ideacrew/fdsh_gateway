@@ -5,12 +5,12 @@ module Subscribers
     module DeterminationRequests
       # Publish events for FDSH RRV requests
       class RrvMedicareDeterminationSubscriber
-        include ::EventSource::Subscriber[amqp: 'enroll.fdsh_verifications.rrv']
+        include ::EventSource::Subscriber[amqp: 'enroll.ivl_market.families.iap_applications.rrvs.non_esi_evidences']
 
         # rubocop:disable Lint/RescueException
         # rubocop:disable Style/LineEndConcatenation
         # rubocop:disable Style/StringConcatenation
-        subscribe(:on_magi_medicaid_application_renewal_assistance_eligible) do |delivery_info, _properties, payload|
+        subscribe(:on_determination_requested) do |delivery_info, _properties, payload|
           # Sequence of steps that are executed as single operation
           values = JSON.parse(payload, :symbolize_names => true)
           determination_result = ::Fdsh::Rrv::Medicare::Request::StoreApplicationRrvRequest.new.call({ application_hash: values[:application] })
