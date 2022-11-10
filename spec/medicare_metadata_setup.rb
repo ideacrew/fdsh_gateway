@@ -2,8 +2,8 @@
 
 TEST_APPLICATION_1 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -24,7 +24,7 @@ TEST_APPLICATION_1 = {
       },
       :demographic => {
         :gender => "Male",
-        :dob => Date.new(1944, 11, 0o4),
+        :dob => Date.new(1944, 11, 4),
         :is_veteran_or_active_military => true
       },
       :attestation => {
@@ -99,8 +99,8 @@ TEST_APPLICATION_1 = {
 
 TEST_APPLICATION_2 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -196,8 +196,8 @@ TEST_APPLICATION_2 = {
 
 TEST_APPLICATION_3 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -293,8 +293,8 @@ TEST_APPLICATION_3 = {
 
 TEST_APPLICATION_4 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -390,8 +390,8 @@ TEST_APPLICATION_4 = {
 
 TEST_APPLICATION_5 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -487,8 +487,8 @@ TEST_APPLICATION_5 = {
 
 TEST_APPLICATION_6 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -584,8 +584,8 @@ TEST_APPLICATION_6 = {
 
 TEST_APPLICATION_7 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -681,8 +681,8 @@ TEST_APPLICATION_7 = {
 
 TEST_APPLICATION_8 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -784,8 +784,8 @@ TEST_APPLICATION_8 = {
 
 TEST_APPLICATION_9 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -881,8 +881,8 @@ TEST_APPLICATION_9 = {
 
 TEST_APPLICATION_10 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -978,8 +978,8 @@ TEST_APPLICATION_10 = {
 
 TEST_APPLICATION_11 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -1075,8 +1075,8 @@ TEST_APPLICATION_11 = {
 
 TEST_APPLICATION_12 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -1172,8 +1172,8 @@ TEST_APPLICATION_12 = {
 
 TEST_APPLICATION_13 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -1269,8 +1269,8 @@ TEST_APPLICATION_13 = {
 
 TEST_APPLICATION_14 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -1366,8 +1366,8 @@ TEST_APPLICATION_14 = {
 
 TEST_APPLICATION_15 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -1463,8 +1463,8 @@ TEST_APPLICATION_15 = {
 
 TEST_APPLICATION_16 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -1560,8 +1560,8 @@ TEST_APPLICATION_16 = {
 
 TEST_APPLICATION_17 = {
   :family_reference => { :hbx_id => "10205" },
-  :assistance_year => 2021,
-  :aptc_effective_date => Date.new(2021, 10, 0o1),
+  :assistance_year => 2022,
+  :aptc_effective_date => Date.new(2022, 10, 1),
   :years_to_renew => nil,
   :renewal_consent_through_year => 5,
   :is_ridp_verified => true,
@@ -1654,5 +1654,15 @@ TEST_APPLICATION_17 = {
     :send_open_enrollment_notices => false
   }
 }.freeze
+
+# (1..17).each do |index|
+#   puts "processing #{index}"
+#   result = Fdsh::Rrv::Medicare::Request::StoreApplicationRrvRequest.new.call("TEST_APPLICATION_#{index}".constantize)
+#   if result.success?
+#     puts "stored successfully"
+#   else
+#     p "failed due to #{result.failures}"
+#   end
+# end
 
 

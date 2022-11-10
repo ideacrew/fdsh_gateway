@@ -25,6 +25,10 @@ class Transaction
   index({ 'activity.status': 1, created_at: 1 })
   index({ 'activity.command': 1, created_at: 1 })
   index({ 'activity.updated_at': -1, correlation_id: 1 })
+  index({ 'activity.updated_at': -1, correlation_id: 1 })
+  index({ 'activity.assistance_year': 1 })
+  index({ 'activity.application_hbx_id': 1 })
+  index({ "activity.event_key" => 1, "activity.assistance_year" => 1 }, { name: "activity_event_key_assistance_year" })
 
   default_scope -> { order(:'activity.created_at'.desc) }
 

@@ -12,6 +12,8 @@ class Activity
   field :event_key, type: String
   field :message, type: Hash
   field :status, type: StringifiedSymbol
+  field :assistance_year, type: Integer
+  field :application_hbx_id, type: String
 
   def event_key_label
     return unless event_key
