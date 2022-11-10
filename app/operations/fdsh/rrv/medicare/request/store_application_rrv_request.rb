@@ -11,8 +11,9 @@ module Fdsh
 
             # @option params [Hash] :Applicattion
             # @return [Dry::Monads::Result] AcaEntities::MagiMedicaid::Application
-            def call(application_hash)
-              application = yield validate_application(application_hash)
+            def call(params)
+              values               = yield validate(params)
+              application          = yield validate_application(values)
               _updated_transaction = yield store_request(application)
 
               Success(application)
@@ -20,8 +21,13 @@ module Fdsh
 
             private
 
-            def validate_application(application_hash)
-              result = AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_hash)
+            def validate(params)
+              return Failure('application is missing') unless params[:application_hash]
+              Success(params)
+            end
+
+            def validate_application(values)
+              result = AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(values[:application_hash])
               result.success? ? result : Failure(result.failure.errors.to_h)
             end
 

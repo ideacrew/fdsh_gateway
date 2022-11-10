@@ -17,7 +17,7 @@ module Fdsh
             manifest_file = yield create_manifest_file(values)
             generate_batch_zip(values, manifest_file)
 
-            Success(transaction_file)
+            Success(values[:outbound_folder])
           end
 
           private

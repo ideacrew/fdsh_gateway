@@ -1,11 +1,5 @@
 # frozen_string_literal: true
 
-# Fdsh::Rrv::Medicare::RrvBatchRequestDirector.new.call({
-#   assistance_year: 2022,
-#   transactions_per_file: 3,
-#   outbound_folder_name: 'rrv_outbound_files'
-# })
-
 module Fdsh
   module Rrv
     module Medicare
@@ -14,6 +8,7 @@ module Fdsh
         include EventSource::Command
 
         RRV_EVENT_KEY = "rrv_mdcr_determination_requested"
+        PROCESSING_BATCH_SIZE = 1
 
         def call(params)
           values          = yield validate(params)
@@ -45,13 +40,13 @@ module Fdsh
           Success(transactions)
         end
 
-        def batch_request_for(offset, values, batch_size)
+        def batch_request_for(offset, values)
           Transaction.where(:activities => {
             :$elemMatch => {
               event_key: RRV_EVENT_KEY,
               assistance_year: values[:assistance_year]
             }
-          }).order('created_at ASC').skip(offset).limit(batch_size)
+          }).order('created_at ASC').skip(offset).limit(PROCESSING_BATCH_SIZE)
         end
 
         def create_outbound_folder(values)
@@ -62,7 +57,7 @@ module Fdsh
         end
 
         def create_transaction_xml(application_params, outbound_folder)
-          Fdsh::Rrv::Medicare::Request::CreateTransactionFile.new.call([application_params])
+          Fdsh::Rrv::Medicare::Request::CreateTransactionFile.new.call({application_payload: [application_params]})
         end
 
         def open_transaction_file(outbound_folder)      
@@ -92,14 +87,13 @@ module Fdsh
         end
 
         def create_batch_requests(transactions, values, outbound_folder)
-          batch_size = 100
           batch_offset = 0
           query_offset = 0
 
           open_transaction_file(outbound_folder)
 
           while transactions.count > query_offset
-            batch_request_for(query_offset, values, batch_size).no_timeout.each do |transaction|
+            batch_request_for(query_offset, values).no_timeout.each do |transaction|
               application_params = JSON.parse(transaction.activities.where({
                 event_key: RRV_EVENT_KEY,
                 assistance_year: values[:assistance_year]
@@ -120,8 +114,8 @@ module Fdsh
               end
             end
 
-            query_offset += batch_size
-            batch_offset += batch_size
+            query_offset += PROCESSING_BATCH_SIZE
+            batch_offset += PROCESSING_BATCH_SIZE
             p "Processed #{query_offset} transactions."
 
             if batch_offset >= values[:transactions_per_file]

@@ -8,8 +8,9 @@ module Fdsh
           include Dry::Monads[:result, :do, :try]
           include EventSource::Command
 
-          def call(application_payloads)
-            applications         = yield build_applications(application_payloads)
+          def call(params)
+            values               = yield validate(params)
+            applications         = yield build_applications(values)
             rrv_medicare_request = yield build_request_entity(applications)
             xml_string           = yield encode_xml_and_schema_validate(rrv_medicare_request)
             rrv_medicare_xml     = yield encode_request_xml(xml_string)
@@ -20,8 +21,13 @@ module Fdsh
 
           private
 
-          def build_applications(application_payloads)
-            applications = application_payloads.collect do |application_hash|
+          def validate(params)
+            return Failure('application payload is missing') unless params[:application_payload]
+            Success(params)
+          end
+
+          def build_applications(values)
+            applications = values[:application_payload].collect do |application_hash|
               # try hash with indifferent access?
               result = AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_hash.deep_symbolize_keys)
               result.value! if result.success?
