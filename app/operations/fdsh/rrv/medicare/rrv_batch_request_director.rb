@@ -116,7 +116,8 @@ module Fdsh
           open_transaction_file(outbound_folder)
 
           while transactions.count > query_offset
-            batch_request_for(query_offset, values).no_timeout.each do |transaction|
+            batched_requests = batch_request_for(query_offset, values)
+            batched_requests.no_timeout.each do |transaction|
               process_for_transaction_xml(transaction, values, outbound_folder)
             end
 
@@ -124,7 +125,7 @@ module Fdsh
             batch_offset += PROCESSING_BATCH_SIZE
             p "Processed #{query_offset} transactions."
 
-            next unless batch_offset >= values[:transactions_per_file]
+            next unless (batch_offset >= values[:transactions_per_file]) || (batched_requests.count < PROCESSING_BATCH_SIZE)
             batch_offset = 0
             close_transaction_file(outbound_folder)
             create_batch_file(outbound_folder)
@@ -137,3 +138,4 @@ module Fdsh
     end
   end
 end
+
