@@ -8,6 +8,7 @@ module Fdsh
   module Rrv
     module Medicare
       module Request
+        # This class creates a batch request zip with transaction xml and manifest.
         class CreateBatchRequestFile
           include Dry::Monads[:result, :do, :try]
           include EventSource::Command
@@ -26,7 +27,7 @@ module Fdsh
             return Failure('transaction file missing') unless params[:transaction_file]
             return Failure('applicants count missing') unless params[:applicants_count]
             return Failure('outbound folder missing') unless params[:outbound_folder]
-    
+
             Success(params)
           end
 

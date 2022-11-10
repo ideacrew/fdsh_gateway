@@ -4,6 +4,7 @@ module Fdsh
   module Rrv
     module Medicare
       module Request
+        # This class takes an application payload hash as input and returns transaction xml and applicant count.
         class CreateTransactionFile
           include Dry::Monads[:result, :do, :try]
           include EventSource::Command
@@ -63,5 +64,3 @@ module Fdsh
     end
   end
 end
-
-  

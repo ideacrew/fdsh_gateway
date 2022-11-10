@@ -31,7 +31,7 @@ module Fdsh
             return Failure('transaction file missing') unless params[:transaction_file]
             return Failure('applicants count missing') unless params[:applicants_count]
             return Failure('outbound folder missing') unless params[:outbound_folder]
-    
+
             Success(params)
           end
 
