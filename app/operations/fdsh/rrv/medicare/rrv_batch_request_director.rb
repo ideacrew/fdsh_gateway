@@ -26,6 +26,7 @@ module Fdsh
           return Failure('assistance year missing') unless params[:assistance_year]
           return Failure('transactions per file missing') unless params[:transactions_per_file]
           return Failure('outbound folder name missing') unless params[:outbound_folder_name]
+          @batch_size = params[:batch_size] if params[:batch_size]
 
           Success(params)
         end
@@ -36,9 +37,13 @@ module Fdsh
                                                event_key: RRV_EVENT_KEY,
                                                assistance_year: values[:assistance_year]
                                              }
-                                           }).order('created_at ASC')
+                                           })
 
           Success(transactions)
+        end
+
+        def processing_batch_size
+          @batch_size || PROCESSING_BATCH_SIZE
         end
 
         def batch_request_for(offset, values)
@@ -47,7 +52,7 @@ module Fdsh
                                 event_key: RRV_EVENT_KEY,
                                 assistance_year: values[:assistance_year]
                               }
-                            }).order('created_at ASC').skip(offset).limit(PROCESSING_BATCH_SIZE)
+                            }).skip(offset).limit(processing_batch_size)
         end
 
         def create_outbound_folder(values)
@@ -121,11 +126,15 @@ module Fdsh
               process_for_transaction_xml(transaction, values, outbound_folder)
             end
 
-            query_offset += PROCESSING_BATCH_SIZE
-            batch_offset += PROCESSING_BATCH_SIZE
+            query_offset += processing_batch_size
+            batch_offset += processing_batch_size
             p "Processed #{query_offset} transactions."
 
-            next unless (batch_offset >= values[:transactions_per_file]) || (batched_requests.count < PROCESSING_BATCH_SIZE)
+            # rubocop:disable Layout/LineLength
+            unless (batch_offset >= values[:transactions_per_file]) || (batched_requests.count < processing_batch_size) || (transactions.count <= query_offset)
+              next
+            end
+            # rubocop:enable Layout/LineLength
             batch_offset = 0
             close_transaction_file(outbound_folder)
             create_batch_file(outbound_folder)
