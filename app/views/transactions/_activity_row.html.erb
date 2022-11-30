@@ -1,18 +1,16 @@
-<% ar = activity_row %>
-
-<tr id="row_<%= ar._id %>">
-  <td><%= ar.application_id %></td>
-  <td><%= ar.primary_hbx_id %></td>
-  <td><%= ar.fpl_year %></td>
-  <td><%= ar.activity_name %></td>
-  <td><%= ar.status %></td>
-  <td><%= link_to ar.updated_at, transaction_path(ar.transaction_id, anchor: "activity_#{ar._id}") %></td>
+<tr id="row_<%= activity_row._id %>">
+  <td><%= activity_row.application_id %></td>
+  <td><%= activity_row.primary_hbx_id %></td>
+  <td><%= activity_row.fpl_year %></td>
+  <td><%= activity_row.activity_name %></td>
+  <td><%= activity_row.status %></td>
+  <td><%= link_to activity_row.updated_at, transaction_path(activity_row.transaction_id, anchor: "activity_#{activity_row._id}") %></td>
 </tr>
 
 <tr class="details">
- <td colspan="6" id="details_<%= ar._id %>">
+ <td colspan="6" id="details_<%= activity_row._id %>">
  	<button onclick="hideButton(this)">Hide payload</button>
-  <% decrypted_message = decrypt_message(ar.message) %>
+  <% decrypted_message = decrypt_message(activity_row.message) %>
   <% if decrypted_message %>
     <pre><%= xml_formatted_message?(decrypted_message) ? decrypted_message : raw(ap(decrypted_message)) %></pre>
   <% end %>
