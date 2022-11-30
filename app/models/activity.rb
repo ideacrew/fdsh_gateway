@@ -15,7 +15,7 @@ class Activity
   field :assistance_year, type: Integer
   field :application_hbx_id, type: String
 
-  after_save :create_activity_row 
+  after_save :create_activity_row
 
   def event_key_label
     return unless event_key

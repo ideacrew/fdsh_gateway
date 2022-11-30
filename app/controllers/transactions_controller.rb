@@ -9,7 +9,7 @@ class TransactionsController < ApplicationController
     query_results = Queries::TransactionsIndexPageQuery.new.call(@search, page: page_no)
     @results = query_results[:results]
     redirect_to transaction_path(@results.first[:_id]) if query_results[:count] == 1
-    # @transactions = Kaminari.paginate_array(query_results[:results].to_a, total_count: query_results[:count]).page(params[:page])
+
     @activity_rows = ActivityRow.page params[:page]
   end
 
