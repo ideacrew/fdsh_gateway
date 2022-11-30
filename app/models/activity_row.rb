@@ -4,7 +4,6 @@
 class ActivityRow
   include Mongoid::Document
   include Mongoid::Timestamps
-  include MongoidSupport::AssociationProxies
 
   # transaction attributes
   field :transaction_id, type: String
