@@ -7,8 +7,8 @@
   <td><%= ar.activity_name %></td>
   <td><%= ar.status %></td>
   <td><%= link_to ar.updated_at, transaction_path(ar.transaction_id, anchor: "activity_#{ar._id}") %></td>
-
 </tr>
+
 <tr class="details">
  <td colspan="6" id="details_<%= ar._id %>">
  	<button onclick="hideButton(this)">Hide payload</button>

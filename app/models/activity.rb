@@ -15,6 +15,8 @@ class Activity
   field :assistance_year, type: Integer
   field :application_hbx_id, type: String
 
+  after_save :create_activity_row 
+
   def event_key_label
     return unless event_key
     event_key.humanize.upcase
@@ -40,6 +42,20 @@ class Activity
   end
 
   private
+
+  def create_activity_row
+    row = {
+      transaction_id: transaction._id,
+      application_id: transaction.application_id,
+      primary_hbx_id: transaction.primary_hbx_id,
+      fpl_year: transaction.fpl_year,
+      correlation_id: correlation_id,
+      activity_name: event_key_label,
+      status: status,
+      message: message
+    }
+    ::ActivityRow.create(row)
+  end
 
   def xp(xml_text)
     xsl = <<XSL
