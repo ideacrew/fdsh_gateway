@@ -3,7 +3,7 @@
 <% end %>
 <h1>FDSH Gateway</h1>
 <form class="table-search">
-  <label>Search</label>  
+  <label>Search</label>
   <input type="search" name="search" id="table_search" placeholder="Request ID, HBX ID or Application ID">
 </form>
 <% if @search && !@results.any? %>
@@ -20,12 +20,12 @@
     <th>Updated</th>
   </thead>
   <tbody>
-  <% @transactions.each do |transaction| %>
-      <%= render partial: "activity_row", locals: { transaction: transaction } %>
+  <% @activity_rows.each do |ar| %>
+      <%= render partial: "activity_row", locals: { activity_row: ar } %>
   <% end %>
   </tbody>
 </table>
-<%= paginate @transactions, total_count: @total_count %>
+<%= paginate @activity_rows, total_count: @total_count %>
 
 <script type="text/javascript">
   function addRowHandlers(table_id) {
