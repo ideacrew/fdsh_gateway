@@ -14,8 +14,11 @@ module Fdsh
           include Dry::Monads[:result, :do, :try]
           include EventSource::Command
 
+<<<<<<< HEAD
           WORK_PATH="pvc_medicare_response"
 
+=======
+>>>>>>> 19b86e77af9e33eccc59f391730b252d576b17bd
           def call(file_path)
             unzip_medicare_response(file_path)
             processed_manifest_xml = yield parse_manifest_response_xml
