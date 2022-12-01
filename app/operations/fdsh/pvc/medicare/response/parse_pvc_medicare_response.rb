@@ -14,6 +14,8 @@ module Fdsh
           include Dry::Monads[:result, :do, :try]
           include EventSource::Command
 
+          WORK_PATH="pvc_medicare_response"
+
           def call(file_path)
             unzip_medicare_response(file_path)
             processed_manifest_xml = yield parse_manifest_response_xml
@@ -35,7 +37,7 @@ module Fdsh
             path = File.join(file_path)
             Zip::File.open(path) do |zip_file|
               zip_file.each do |f|
-                f_path = File.join("#{Rails.root}/", f.name)
+                f_path = File.join("#{Rails.root}/#{WORK_PATH}", f.name)
                 FileUtils.mkdir_p(File.dirname(f_path))
                 zip_file.extract(f, f_path) unless File.exist?(f_path)
               end
@@ -43,13 +45,13 @@ module Fdsh
           end
 
           def parse_manifest_response_xml
-            manifest_response_xml = File.read("#{Rails.root}/manifest.xml")
+            manifest_response_xml = File.read("#{Rails.root}/#{WORK_PATH}/manifest.xml")
             valid_xml = remove_xml_node(manifest_response_xml)
             Success(AcaEntities::Serializers::Xml::Fdsh::Pvc::H43::Response::BatchHandlingServiceResponse.parse(valid_xml, :single => true))
           end
 
           def parse_medicare_response_xml
-            file_name = Dir.glob('MDCR_Response_*.xml').first
+            file_name = Dir.glob("#{WORK_PATH}/MDCR_Response_*.xml").first
             pvc_response_xml = File.read(file_name)
             valid_xml = remove_xml_node(pvc_response_xml)
             Success(AcaEntities::Serializers::Xml::Fdsh::Pvc::Medicare::EesDshBatchResponseData.parse(valid_xml, :single => true))
@@ -63,9 +65,9 @@ module Fdsh
 
           def verify_checksum(manifest_xml)
             checksum = manifest_xml.Attachments.first.DocumentBinary.ChecksumAugmentation
-            file_name = Dir.glob('MDCR_Response_*.xml').first
+            file_name = Dir.glob("#{WORK_PATH}/MDCR_Response_*.xml").first
             pvc_response_xml_checksum = generate_checksum_hexdigest(File.join(file_name))
-            checksum.SHA256HashValueText == pvc_response_xml_checksum ? Success(true) : Failure("Checksum did not match")
+            checksum.SHA256HashValueText == pvc_response_xml_checksum ? Success(true) : Failure("Checksum did not match #{checksum.SHA256HashValueText}-manifest vs #{pvc_response_xml_checksum}-calculated")
           end
 
           def generate_checksum_hexdigest(file_path)
@@ -74,7 +76,7 @@ module Fdsh
           end
 
           def remove_unziped_dir
-            FileUtils.rm_rf("#{Rails.root}/pvc_medicare_response")
+            FileUtils.rm_rf("#{Rails.root}/#{WORK_PATH}")
           end
         end
       end

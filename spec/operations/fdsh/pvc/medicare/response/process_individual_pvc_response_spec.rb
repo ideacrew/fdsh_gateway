@@ -20,7 +20,7 @@ RSpec.describe Fdsh::Pvc::Medicare::Response::ProcessIndividualPvcResponse, dbcl
     end
 
     before do
-      create_transaction_store_request(applications)
+      create_transaction_store_request_pvc(applications)
     end
 
     it "should success" do
