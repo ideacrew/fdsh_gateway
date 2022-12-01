@@ -16,13 +16,13 @@ module ModelHelpers
     applications.each do |application|
       application.applicants.each do |applicant|
         activity_hash = method(hash_resolver).call("request", application, applicant)
-        create_or_update_transaction("request", application, applicant, activity_hash)
+        create_or_update_transaction(application, activity_hash)
       end
     end
   end
 
   def rrv_hash(key, value, applicant)
-    activity_hash = {
+    {
       correlation_id: "rrv_mdcr_#{applicant.identifying_information.encrypted_ssn}",
       command: "Fdsh::Rrv::Medicare::BuildMedicareRequestXml",
       event_key: "rrv_mdcr_determination_requested",
@@ -31,7 +31,7 @@ module ModelHelpers
   end
 
   def pvc_hash(key, value, applicant)
-    activity_hash = {
+    {
       correlation_id: "pvc_mdcr_#{applicant.identifying_information.encrypted_ssn}",
       command: "Fdsh::Pvc::Medicare::BuildMedicareRequestXml",
       event_key: "pvc_mdcr_determination_requested",
@@ -39,7 +39,7 @@ module ModelHelpers
     }
   end
 
-  def create_or_update_transaction(key, value, applicant, activity_hash)
+  def create_or_update_transaction(value, activity_hash)
     application = value.to_h # in case value is an AcaEntities entity
     primary_hbx_id = application[:applicants].detect {|a| a[:is_primary_applicant]}&.dig(:person_hbx_id)
     transaction_hash = {
