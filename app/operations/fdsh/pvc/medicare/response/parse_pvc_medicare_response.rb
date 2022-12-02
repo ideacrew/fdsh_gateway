@@ -14,11 +14,8 @@ module Fdsh
           include Dry::Monads[:result, :do, :try]
           include EventSource::Command
 
-<<<<<<< HEAD
-          WORK_PATH="pvc_medicare_response"
+          WORK_PATH = "pvc_medicare_response"
 
-=======
->>>>>>> 19b86e77af9e33eccc59f391730b252d576b17bd
           def call(file_path)
             unzip_medicare_response(file_path)
             processed_manifest_xml = yield parse_manifest_response_xml
@@ -70,7 +67,11 @@ module Fdsh
             checksum = manifest_xml.Attachments.first.DocumentBinary.ChecksumAugmentation
             file_name = Dir.glob("#{WORK_PATH}/MDCR_Response_*.xml").first
             pvc_response_xml_checksum = generate_checksum_hexdigest(File.join(file_name))
-            checksum.SHA256HashValueText == pvc_response_xml_checksum ? Success(true) : Failure("Checksum did not match #{checksum.SHA256HashValueText}-manifest vs #{pvc_response_xml_checksum}-calculated")
+            if checksum.SHA256HashValueText == pvc_response_xml_checksum
+              Success(true)
+            else
+              Failure("Checksum mismatch #{checksum.SHA256HashValueText}-manifest / #{pvc_response_xml_checksum}-calculated")
+            end
           end
 
           def generate_checksum_hexdigest(file_path)
