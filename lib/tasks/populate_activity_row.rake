@@ -8,7 +8,7 @@ namespace :update do
   task :populate_activity_row => :environment do
     count = 0
     Transaction.no_timeout.each do |t|
-      t.activities.each do |a|
+      t.activities.no_timeout.each do |a|
         row = {
           transaction_id: t._id,
           application_id: t.application_id,
