@@ -6,6 +6,7 @@
 namespace :update do
   desc "Populate activity row collection with historical data from transaction/activity collections"
   task :populate_activity_row => :environment do
+    puts "Start Time: #{Time.now}"
     count = 0
     Transaction.no_timeout.each do |t|
       t.activities.no_timeout.each do |a|
@@ -24,6 +25,7 @@ namespace :update do
         puts "Activity_row created for activity: #{a.correlation_id.strip} on transaction: #{t._id}"
       end
     end
+    puts "End Time: #{Time.now}"
     puts "======================================"
     puts "Total: #{count} activity_rows created."
     puts "======================================"
