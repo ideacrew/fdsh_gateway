@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"enroll_test.history_trackers"}],"uuid":"6e40c2daaf7a4458be6fd8b32f1620f4","collectionName":"history_trackers","type":"collection"}

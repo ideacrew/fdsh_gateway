@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"medicaid_gateway_test.medicaid_applications"}],"uuid":"8e7c94eb387c4b62aa67cf370a92461a","collectionName":"medicaid_applications","type":"collection"}

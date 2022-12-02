@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"fti_development.history_trackers"}],"uuid":"f5cac7c862f14de69b791d7334f9fe3c","collectionName":"history_trackers","type":"collection"}

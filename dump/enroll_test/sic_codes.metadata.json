@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"enroll_test.sic_codes"}],"uuid":"b0c9f9a048bf47f2b42d778138d2744c","collectionName":"sic_codes","type":"collection"}

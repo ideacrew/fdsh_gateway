@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"enroll_development.sponsored_benefits_organizations_organizations"}],"uuid":"a3b56c14be7d464e832e5fcbeb697f68","collectionName":"sponsored_benefits_organizations_organizations","type":"collection"}

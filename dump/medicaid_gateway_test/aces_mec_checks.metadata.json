@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"medicaid_gateway_test.aces_mec_checks"}],"uuid":"cb1ccfbc600e49258c6990db5650465d","collectionName":"aces_mec_checks","type":"collection"}

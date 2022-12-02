@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"medicaid_gateway_development.aces_transfers"}],"uuid":"424c00efb3cc47a7b9abf12750226c62","collectionName":"aces_transfers","type":"collection"}

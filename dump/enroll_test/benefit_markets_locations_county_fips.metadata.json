@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"enroll_test.benefit_markets_locations_county_fips"}],"uuid":"ae47b93a39254b0fb61d6b7f5d02554a","collectionName":"benefit_markets_locations_county_fips","type":"collection"}

@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"fdsh_gateway_test.activity_rows"}],"uuid":"2125183345924ca5a8b7878f54074117","collectionName":"activity_rows","type":"collection"}
