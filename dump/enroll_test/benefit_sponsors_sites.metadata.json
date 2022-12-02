@@ -1,1 +1,0 @@
-{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"enroll_test.benefit_sponsors_sites"}],"uuid":"41bafcb2423f4327943eb97c79a7b3c1","collectionName":"benefit_sponsors_sites","type":"collection"}

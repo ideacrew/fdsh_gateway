@@ -1,1 +1,0 @@
-{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"enroll_test.benefit_markets_timespans_date_periods"}],"uuid":"8fd53d75902043f5b2af0e439ef00148","collectionName":"benefit_markets_timespans_date_periods","type":"collection"}

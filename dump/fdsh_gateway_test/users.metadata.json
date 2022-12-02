@@ -1,1 +1,0 @@
-{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"fdsh_gateway_test.users"}],"uuid":"66e1c08c168e473886fbb76ed8e1caeb","collectionName":"users","type":"collection"}

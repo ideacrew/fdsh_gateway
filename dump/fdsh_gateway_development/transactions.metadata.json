@@ -1,1 +1,0 @@
-{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"fdsh_gateway_development.transactions"}],"uuid":"2a4272cd64e24015989f2cbfd92dc524","collectionName":"transactions","type":"collection"}

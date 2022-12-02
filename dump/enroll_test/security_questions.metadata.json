@@ -1,1 +1,0 @@
-{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"enroll_test.security_questions"}],"uuid":"621bafd0a1504a2387ae7cb4f34acf62","collectionName":"security_questions","type":"collection"}

@@ -1,1 +1,0 @@
-{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"dummy_test.benefit_markets_locations_county_zips"}],"uuid":"fc55da7b24a9452c88edbdab1514894b","collectionName":"benefit_markets_locations_county_zips","type":"collection"}

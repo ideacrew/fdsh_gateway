@@ -1,1 +1,0 @@
-{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"enroll_development.financial_assistance_locations_addresses"}],"uuid":"5afccef55b0b414cb379c7d1930a8660","collectionName":"financial_assistance_locations_addresses","type":"collection"}
