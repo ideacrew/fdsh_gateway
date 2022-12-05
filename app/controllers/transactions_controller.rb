@@ -4,13 +4,17 @@
 class TransactionsController < ApplicationController
 
   def index
-    @search = params.fetch(:search) unless params[:search].blank?
-    page_no = params[:page] ? params[:page].to_i : 1
-    query_results = Queries::TransactionsIndexPageQuery.new.call(@search, page: page_no)
-    @results = query_results[:results]
-    redirect_to transaction_path(@results.first[:_id]) if query_results[:count] == 1
+    if params.key?(:search)
+      search_value = params.fetch(:search)
+      @search = search_value unless search_value.blank?
+      @search_results = ActivityRow.or({ primary_hbx_id: search_value }, { application_id: search_value })
+    end
 
-    @activity_rows = ActivityRow.page params[:page]
+    arr = @search ? @search_results : ActivityRow.all
+
+    sorted_arr = arr.sort_by(&:updated_at).reverse!
+
+    @activity_rows = Kaminari.paginate_array(sorted_arr).page params[:page]
   end
 
   def show
