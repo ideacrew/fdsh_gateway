@@ -7,7 +7,7 @@ class ActivityRowController < ApplicationController
     if params.key?(:search)
       search_value = params.fetch(:search)
       @search = search_value unless search_value.blank?
-      @search_results = ActivityRow.or({ primary_hbx_id: search_value }, { application_id: search_value })
+      @search_results = ActivityRow.or({ correlation_id: search_value }, { primary_hbx_id: search_value }, { application_id: search_value })
     end
     results = @search ? @search_results : ActivityRow.all
     @activity_rows = results.page params[:page]
