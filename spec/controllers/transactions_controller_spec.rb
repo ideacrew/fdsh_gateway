@@ -12,13 +12,6 @@ RSpec.describe TransactionsController, type: :controller, dbclean: :after_each d
     sign_in user
   end
 
-  describe 'GET index' do
-    it 'returns success' do
-      get :index
-      expect(response).to have_http_status(:success)
-    end
-  end
-
   describe 'GET show' do
     it 'returns success' do
       get :show, params: { id: transaction.id }
