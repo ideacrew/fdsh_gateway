@@ -1,14 +1,12 @@
 <%= content_for :current_page do %>
   <span><a href="/">Transactions</a></span>
 <% end %>
+
 <h1>FDSH Gateway</h1>
 <form class="table-search">
   <label>Search</label>
   <input type="search" name="search" id="table_search" placeholder="Request ID, HBX ID or Application ID">
 </form>
-<% if @search && !@results.any? %>
-  <p>There are are no results for the term <strong><%= @search %></strong>. Try a different search term or <%= link_to "see all transactions", "/" %>.</p>
-<% end %>
 
 <table id="activity_table">
   <thead>
@@ -20,12 +18,18 @@
     <th>Updated</th>
   </thead>
   <tbody>
-  <% @activity_rows.each do |ar| %>
-      <%= render partial: "activity_row", locals: { activity_row: ar } %>
-  <% end %>
+    <% @activity_rows&.each do |ar| %>
+        <%= render partial: "activity_row", locals: { activity_row: ar } %>
+    <% end %>
   </tbody>
 </table>
-<%= paginate @activity_rows, total_count: @total_count %>
+
+<%= paginate @activity_rows %>
+
+<% if @search && @search_results.count == 0 %>
+  <p>There are are no results for the term <strong><%= @search %></strong>.
+  Try a different search term or <%= link_to "see all transactions", "/" %>.</p>
+<% end %>
 
 <script type="text/javascript">
   function addRowHandlers(table_id) {

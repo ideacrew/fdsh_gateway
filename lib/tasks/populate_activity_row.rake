@@ -6,7 +6,8 @@
 namespace :update do
   desc "Populate activity row collection with historical data from transaction/activity collections"
   task :populate_activity_row => :environment do
-    puts "Start Time: #{Time.now}"
+    start_time = Process.clock_gettime(Process::CLOCK_REALTIME)
+    puts "Start Time: #{Time.at(start_time)}"
     count = 0
     Transaction.no_timeout.each do |t|
       t.activities.no_timeout.each do |a|
@@ -25,7 +26,12 @@ namespace :update do
         puts "Activity_row created for activity: #{a.correlation_id.strip} on transaction: #{t._id}"
       end
     end
-    puts "End Time: #{Time.now}"
+    end_time = Process.clock_gettime(Process::CLOCK_REALTIME)
+    total_run_time = end_time - start_time
+    puts "======================================"
+    puts "Start Time: #{Time.at(start_time)}"
+    puts "End Time: #{Time.at(end_time)}"
+    puts "Total Run Time: #{ActiveSupport::Duration.build(total_run_time).inspect}"
     puts "======================================"
     puts "Total: #{count} activity_rows created."
     puts "======================================"

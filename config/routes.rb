@@ -4,7 +4,7 @@ Rails.application.routes.draw do
 
   devise_for :users
 
-  root 'transactions#index'
+  root 'activity_row#index'
 
   resources :transactions, only: [:show]
 
