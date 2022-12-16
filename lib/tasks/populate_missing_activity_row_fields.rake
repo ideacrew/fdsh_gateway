@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Report: Rake task to Populate activity_row collection with historical data
-# format: RAILS_ENV=production bundle exec rake update:populate_activity_row
+# format: bundle exec rake update:populate_missing_activity_row_fields
 
 namespace :update do
   desc "Populate activity row collection with missing data that was calculated in view"
@@ -18,9 +18,17 @@ namespace :update do
       params = {}
       params[:application_id] = app if row.application_id.blank? && app.present?
       params[:primary_hbx_id] = hbx if row.primary_hbx_id.blank? && hbx.present?
-      row.update(params) if params.present?
-      count += 1
-      puts "ActivityRow #{row.correlation_id.strip} updated with #{params}"
+      if params.present?
+        result = row.update(params)
+        if result
+          count += 1
+          puts "ActivityRow #{row.correlation_id.strip} updated with #{params}"
+        else
+          puts "ActivityRow #{row.correlation_id.strip} FAILED to update with #{params}"
+        end
+      else
+        puts "Application ID and primary HBX ID NOT FOUND for correlation_id #{t.correlation_id.strip}"
+      end
     end
 
     end_time = Process.clock_gettime(Process::CLOCK_REALTIME)

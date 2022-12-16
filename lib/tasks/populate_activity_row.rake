@@ -11,7 +11,7 @@ namespace :update do
     count = 0
     Transaction.no_timeout.each do |t|
       t.activities.no_timeout.each do |a|
-        row = {
+        row_params = {
           transaction_id: t._id,
           application_id: t.application_id,
           primary_hbx_id: t.primary_hbx_id,
@@ -21,9 +21,25 @@ namespace :update do
           status: a.status,
           message: a.message
         }
-        ::ActivityRow.create(row)
-        count += 1
-        puts "Activity_row created for activity: #{a.correlation_id.strip} on transaction: #{t._id}"
+        next if ActivityRow.where(row_params).first
+
+        activity_row = ::ActivityRow.new do |ar|
+          ar.transaction_id = t._id
+          ar.application_id = t.application_id
+          ar.primary_hbx_id = t.primary_hbx_id
+          ar.fpl_year = t.fpl_year
+          ar.correlation_id = a.correlation_id
+          ar.activity_name = a.event_key_label
+          ar.status = a.status
+          ar.message = a.message
+        end
+        result = activity_row.save
+        if result
+          count += 1
+          puts "Activity_row created for activity: #{a.correlation_id.strip} on transaction: #{t._id}"
+        else
+          puts "Activity_row FAILED to create for activity: #{a.correlation_id.strip} on transaction: #{t._id}"
+        end
       end
     end
     end_time = Process.clock_gettime(Process::CLOCK_REALTIME)
