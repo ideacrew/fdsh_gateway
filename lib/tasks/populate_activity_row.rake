@@ -19,7 +19,9 @@ namespace :update do
           correlation_id: a.correlation_id,
           activity_name: a.event_key_label,
           status: a.status,
-          message: a.message
+          message: a.message,
+          created_at: a.created_at,
+          updated_at: a.updated_at
         }
         next if ActivityRow.where(row_params).first
 
@@ -32,6 +34,8 @@ namespace :update do
           ar.activity_name = a.event_key_label
           ar.status = a.status
           ar.message = a.message
+          ar.created_at = a.created_at
+          ar.updated_at = a.updated_at
         end
         result = activity_row.save
         if result
