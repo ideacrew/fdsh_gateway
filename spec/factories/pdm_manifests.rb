@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :pdm_manifest do
     batch_id { "MyString" }
@@ -6,6 +8,5 @@ FactoryBot.define do
     response_id { "MyString" }
     type { "pvc" }
     count { 100 }
-  
   end
 end

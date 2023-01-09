@@ -3,8 +3,8 @@
 require 'dry/monads'
 require 'dry/monads/do'
 
-  module Pdm
-    module Manifest
+module Pdm
+  module Manifest
     # Upsert a Transaction with associated Activity.
     # The operation will first search for a record matching :correlation_id
     # parameter and update it with the :activity parameter.  If a match
@@ -38,13 +38,13 @@ require 'dry/monads/do'
         Try() do
           ::PdmManifest.where(type: values[:type],
                               assistance_year: values[:assistance_year],
-                              batch_id: values[:batch_id]) 
+                              batch_id: values[:batch_id])
         end.bind do |result|
           if result.empty?
             Success(::PdmManifest.new(values))
           else
             manifest = result.first
-            manifest.update(params)
+            manifest.update(values)
             Success(manifest)
             # transaction = result.first
             # activities = values[:activities] || []
