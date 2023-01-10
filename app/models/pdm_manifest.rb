@@ -10,6 +10,7 @@ class PdmManifest
   field :type, type: String
   field :assistance_year, type: Integer
   field :count, type: Integer
+  field :file_generated, type: Boolean
   index({ batch_id: 1 })
   index({ type: 1 })
   index({ assistance_year: 1 })

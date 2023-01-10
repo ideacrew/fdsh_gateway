@@ -7,7 +7,7 @@ RSpec.describe Pdm::Manifest::FindOrCreate do
   before :all do
     DatabaseCleaner.clean
   end
-  let!(:params) {{ :assistance_year => 1000, :type => "something" }}
+  let!(:params) {{ :assistance_year => 1000, :type => "something", :file_generated => false }}
 
   context 'Operation is called without params' do
     let(:errors) { { :assistance_year => ["is missing"], :type => ["is missing"] } }
@@ -31,12 +31,19 @@ RSpec.describe Pdm::Manifest::FindOrCreate do
     end
   end
 
-  context 'Operation is called using a year and type with matching database record' do
-    it 'should create a new Transaction record' do
+  context 'Operation is called using a year and type with other records' do
+    it 'should not create a new Transaction record' do
       first = described_class.new.call(params)
       second = described_class.new.call(params)
       expect(first).to eq second
     end
+
+    it 'should create a new Transaction record' do
+      finshed = described_class.new.call(params.merge({:file_generated => true}))
+      not_finished = described_class.new.call(params)
+      expect(not_finished).not_to eq finshed
+    end
+
   end
 
 end

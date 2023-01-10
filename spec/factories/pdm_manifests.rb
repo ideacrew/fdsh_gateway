@@ -8,5 +8,6 @@ FactoryBot.define do
     response_id { "MyString" }
     type { "pvc" }
     count { 100 }
+    file_generated { false }
   end
 end

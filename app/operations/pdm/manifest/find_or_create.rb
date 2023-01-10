@@ -38,7 +38,7 @@ module Pdm
         Try() do
           ::PdmManifest.where(type: values[:type],
                               assistance_year: values[:assistance_year],
-                              batch_id: values[:batch_id])
+                              file_generated: values[:file_generated])
         end.bind do |result|
           if result.empty?
             Success(::PdmManifest.new(values))
