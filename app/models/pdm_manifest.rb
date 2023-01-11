@@ -15,4 +15,6 @@ class PdmManifest
   index({ type: 1 })
   index({ assistance_year: 1 })
 
+  embeds_many :pdm_requests
+
 end
