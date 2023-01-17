@@ -46,13 +46,6 @@ module Pdm
             manifest = result.first
             manifest.update(values)
             Success(manifest)
-            # transaction = result.first
-            # activities = values[:activities] || []
-            # activities.each do |activity_hash|
-            #   activity = ::Activity.new(activity_hash)
-            #   transaction.activities << activity
-            # end
-            # Success(transaction)
           end
         end
       end
