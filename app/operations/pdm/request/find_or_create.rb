@@ -44,7 +44,7 @@ module Pdm
         manifest_search = ::PdmManifest.where(type: manifest_params[:type],
                               assistance_year: manifest_params[:assistance_year],
                               file_generated: file_generated)
-        manifest = if manifest_search.empty?
+        manifest = if manifest_search.blank?
                      ::PdmManifest.new(manifest_params.merge({file_generated: file_generated}))
                    else
                     manifest_search.first
@@ -64,11 +64,6 @@ module Pdm
         end
 
         Success(result)
-
-        # store applicant payload as JSON string
-        # request[:request_payload] = request[:request_payload].to_json
-        # manifest.pdm_requests << ::PdmRequest.new(request)
-        # Success(manifest)
       end
 
       # rubocop:enable Style/MultilineBlockChain
