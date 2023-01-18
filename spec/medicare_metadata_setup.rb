@@ -1655,6 +1655,86 @@ TEST_APPLICATION_17 = {
   }
 }.freeze
 
+APPLICANT_1 = 
+  {
+      :name => {
+        :first_name => "HELEN",
+        :middle_name => nil,
+        :last_name => "DECOSTA",
+        :name_sfx => nil,
+        :name_pfx => nil
+      },
+      :identifying_information => {
+        :has_ssn => "0",
+        :encrypted_ssn => "ChFxBJQIwg1oCW94ZV+rCYEEsP8FI8lOkg==\n",
+        :ssn => "078668805"
+      },
+      :demographic => {
+        :gender => "Male",
+        :dob => Date.new(1980, 0o2, 9),
+        :is_veteran_or_active_military => true
+      },
+      :attestation => {
+        :is_incarcerated => false,
+        :is_self_attested_disabled => false,
+        :is_self_attested_blind => false,
+        :is_self_attested_long_term_care => false
+      },
+      :is_primary_applicant => true,
+      :citizenship_immigration_status_information => {
+        :citizen_status => "us_citizen",
+        :is_lawful_presence_self_attested => false,
+        :is_resident_post_092296 => false
+      },
+      :is_applying_coverage => true,
+      :is_consent_applicant => false,
+      :vlp_document => nil,
+      :family_member_reference => { :family_member_hbx_id => "98765432" },
+      :person_hbx_id => "98765432",
+      :is_required_to_file_taxes => false,
+      :tax_filer_kind => "non_filer",
+      :pregnancy_information => {
+        :is_pregnant => false,
+        :is_enrolled_on_medicaid => false,
+        :is_post_partum_period => false,
+        :expected_children_count => nil,
+        :pregnancy_due_on => nil,
+        :pregnancy_end_on => nil
+      },
+      :is_subject_to_five_year_bar => false,
+      :is_five_year_bar_met => false,
+      :is_forty_quarters => false,
+      :is_ssn_applied => false,
+      :non_ssn_apply_reason => nil,
+      :moved_on_or_after_welfare_reformed_law => false,
+      :is_currently_enrolled_in_health_plan => false,
+      :has_daily_living_help => false,
+      :need_help_paying_bills => false,
+      :has_job_income => false,
+      :has_self_employment_income => false,
+      :has_unemployment_income => false,
+      :has_other_income => false,
+      :has_deductions => false,
+      :has_enrolled_health_coverage => false,
+      :has_eligible_health_coverage => false,
+      :age_of_applicant => 33,
+      :is_homeless => false,
+      :benchmark_premium => {
+        :health_only_lcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }],
+        :health_only_slcsp_premiums => [{ :member_identifier => "98765432", :monthly_premium => 310.5 }]
+      },
+      :benefits => [],
+      :non_esi_evidence => {
+        :description => nil,
+        :due_on => nil,
+        :aasm_state => "attested",
+        :external_service => nil,
+        :key => :non_esi_mec,
+        :title => "Non ESI MEC",
+        :updated_by => nil
+      }
+    }
+
 # (1..17).each do |index|
 #   puts "processing #{index}"
 #   result = Fdsh::Rrv::Medicare::Request::StoreApplicationRrvRequest.new.call("TEST_APPLICATION_#{index}".constantize)
