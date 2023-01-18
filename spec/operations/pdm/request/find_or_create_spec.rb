@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-# require_relative '../shared_setup'
 
 RSpec.describe Pdm::Request::FindOrCreate do
-  #  let(:user) { FactoryBot.create(:user) }
   let!(:params_request) {{ :subject_id => "1000", :command => "medicare" }}
   let!(:params_request2) {{ :subject_id => "312312", :command => "medicare" }}
   let!(:prev_manifest) {FactoryBot.create(:pdm_manifest)}
