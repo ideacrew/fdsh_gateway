@@ -19,10 +19,10 @@ module Pdm
       # @option opts [Hash] :manifest
       # @option opts [Boolean] :file_generated
       # @return [Dry::Monads::Result]
-      def call(request, manifest, file_generated=false)
-        values = yield validate_params({request: request, manifest: manifest})
+      def call(request, manifest, file_generated: false)
+        _validated_params = yield validate_params({ request: request, manifest: manifest })
         instance = yield find_or_create_request(request, manifest, file_generated)
-        result = yield persist(instance)
+        _result = yield persist(instance)
         Success(instance)
       end
 
@@ -32,41 +32,36 @@ module Pdm
         errors = []
         result_manifest = ::AcaEntities::Pdm::Contracts::ManifestContract.new.call(params[:manifest])
         result_request = ::AcaEntities::Pdm::Contracts::RequestContract.new.call(params[:request])
-        # result_applicant = ::AcaEntities::MagiMedicaid::Contracts::ApplicantContract.new.call(params[:request][:request_payload])
         errors << result_manifest.errors if result_manifest.errors.present?
         errors << result_request.errors if result_request.errors.present?
-        # errors << result_applicant.errors if result_applicant.errors.present?
         errors.empty? ? Success(params) : Failure(errors)
       end
 
-      # rubocop:disable Style/MultilineBlockChain
       def find_or_create_request(request, manifest_params, file_generated)
         manifest_search = ::PdmManifest.where(type: manifest_params[:type],
-                              assistance_year: manifest_params[:assistance_year],
-                              file_generated: file_generated)
+                                              assistance_year: manifest_params[:assistance_year],
+                                              file_generated: file_generated)
         manifest = if manifest_search.blank?
-                     ::PdmManifest.new(manifest_params.merge({file_generated: file_generated}))
+                     ::PdmManifest.new(manifest_params.merge({ file_generated: file_generated }))
                    else
-                    manifest_search.first
+                     manifest_search.first
                    end
         manifest.update(manifest_params)
-        
+
         request_search = manifest.pdm_requests.where(:subject_id => request[:subject_id],
-                                          :request_type => request[:request_type], 
-                                          :document_identifier => request[:document_identifier]) 
-        
+                                                     :request_type => request[:request_type],
+                                                     :document_identifier => request[:document_identifier])
+
         result = if request_search.present?
-          request_search.first.update(request)
-          request_search.first
-        else
-          manifest.pdm_requests << ::PdmRequest.new(request)
-          manifest.pdm_requests.last
-        end
+                   request_search.first.update(request)
+                   request_search.first
+                 else
+                   manifest.pdm_requests << ::PdmRequest.new(request)
+                   manifest.pdm_requests.last
+                 end
 
         Success(result)
       end
-
-      # rubocop:enable Style/MultilineBlockChain
 
       def persist(instance)
         if instance.save
