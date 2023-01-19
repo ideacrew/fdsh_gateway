@@ -16,12 +16,6 @@ module Fdsh
 
           def call(assistance_year, batch_size)
             manifest = yield find_manifest(assistance_year)
-
-            # page =0 
-            # while(true)
-            #   paginator(page, assistance_year, batch_size)
-            #   page+=1
-            # end 
             pages = manifest.pdm_requests.count.fdiv(batch_size).ceil
             pages.times do |page|
               meta = paginator(manifest, page, assistance_year, batch_size).value!
@@ -32,28 +26,12 @@ module Fdsh
             manifest.generated_count = manifest.pdm_requests.count
             manifest.file_generated = true
             manifest.save
-            # # requests = yield find_requests()------
-            # request_entity = yield build_request_entity(manifest)
-            # medicare_payload = yield BuildPvcMdcrDeterminationRequest.new.call(request_entity)
-
-            # ##### re-enter original flow
-            # @medicare_file = yield create_medicare_xml_file(medicare_payload)
-            # manifest_request = yield construct_manifest_request
-            # validated_manifest_request = yield validate_manifest_request(manifest_request)
-            # manifest_entity = yield transform_request_to_entity(validated_manifest_request)
-            # xml_string = yield encode_xml_and_schema_validate(manifest_entity)
-            # pvc_manifest_medicare_xml = yield encode_manifest_request_xml(xml_string)
-            # @manifest_file = yield create_manifest_file(pvc_manifest_medicare_xml)
-            # generate_batch_zip
             Success("Zip(s) generated succesfully")
           end
 
-          def paginator(manifest, page, assistance_year, batch_size)
-
+          def paginator(manifest, page, _assistance_year, batch_size)
             request_entity = yield build_request_entity(manifest, page * batch_size, batch_size)
             medicare_payload = yield BuildPvcMdcrDeterminationRequest.new.call(request_entity)
-
-            ##### re-enter original flow
             @medicare_file = yield create_medicare_xml_file(medicare_payload)
             manifest_request = yield construct_manifest_request
             validated_manifest_request = yield validate_manifest_request(manifest_request)
@@ -62,53 +40,31 @@ module Fdsh
             pvc_manifest_medicare_xml = yield encode_manifest_request_xml(xml_string)
             @manifest_file = yield create_manifest_file(pvc_manifest_medicare_xml)
             zip = yield generate_batch_zip
-            Success({file_name: zip, batch_id: manifest_request[:BatchMetadata][:BatchID]})
+            Success({ file_name: zip, batch_id: manifest_request[:BatchMetadata][:BatchID] })
           end
 
           def find_manifest(assistance_year)
             manifest = PdmManifest.where(assistance_year: assistance_year, type: "pvc_manifest_type", file_generated: false)
-            # puts " this is the manifest #{manifest}"
             return Failure("No manifest found for assistance year: #{assistance_year}, type: pvc_manifest_type") if manifest.blank?
 
             Success(manifest.first)
           end
 
-          # def call(applications)
-          #   validated_applications = yield validate_applications(applications)
-          #   medicare_payload, @applicants_count = yield BuildPvcMdcrDeterminationRequest.new.call(validated_applications)
-          #   @medicare_file = yield create_medicare_xml_file(medicare_payload)
-          #   manifest_request = yield construct_manifest_request
-          #   validated_manifest_request = yield validate_manifest_request(manifest_request)
-          #   manifest_entity = yield transform_request_to_entity(validated_manifest_request)
-          #   xml_string = yield encode_xml_and_schema_validate(manifest_entity)
-          #   pvc_manifest_medicare_xml = yield encode_manifest_request_xml(xml_string)
-          #   @manifest_file = yield create_manifest_file(pvc_manifest_medicare_xml)
-          #   generate_batch_zip
-          #   Success("Zip generated succesfully")
-          # end
-
           private
 
-          # Transform application params To BuildMedicareRequest Contract params
           def build_request_entity(manifest, skip, limit)
-            # request_entities = manifest.pdm_requests.each_with_object([]) do |request, collect|
             request_entities = manifest.pdm_requests.skip(skip).limit(limit).each_with_object([]) do |request, collect|
-
-              # validate/initialize applicant from request payload
-              # puts request.request_payload
               applicant_params = JSON.parse(request.request_payload)
               result = validate_applicant(applicant_params)
               return result unless result.success?
-
               applicant = result.value!
               next if can_skip_applicant?(applicant)
-              # call aca_entities to build applicant request entity
               collect << ::AcaEntities::Fdsh::Pvc::Medicare::Operations::BuildMedicareRequest.new.call(applicant, manifest.assistance_year).value!
             end
             individual_requests = { IndividualRequests: request_entities }
             result = validate_payload(individual_requests)
             return Failure("Invalid Non ESI request due to #{result.errors.to_h}") unless result.success?
-            
+
             @applicants_count = request_entities.count
             esi_mec_request_entity(result.value!)
           end
@@ -136,25 +92,6 @@ module Fdsh
           def esi_mec_request_entity(payload)
             Success(AcaEntities::Fdsh::Pvc::Medicare::EesDshBatchRequestData.new(payload.to_h))
           end
-          # def build_application(application_hash)
-          #   result = AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_hash)
-          #   result.success? ? result : Failure(result.failure.errors.to_h)
-          # end
-
-          # # Validate input object
-          # def validate_applications(applications)
-          #   valid_applications = []
-          #   applications.each do |application|
-          #     if application.is_a?(::AcaEntities::MagiMedicaid::Application)
-          #       valid_applications << application
-          #     else
-          #       result = build_application(application)
-          #       valid_applications << result.value! if result.success?
-          #     end
-          #   end
-
-          #   Success(valid_applications)
-          # end
 
           def create_medicare_xml_file(pvc_medicare_xml)
             folder = "#{Rails.root}/pvc_request_outbound"
