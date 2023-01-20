@@ -21,7 +21,6 @@ RSpec.describe Fdsh::Pvc::Medicare::Request::PvcDirector do
   let!(:params_request) {{ :subject_id => "1000", :command => "medicare", :request_payload => APPLICANT_1.to_json }}
 
   subject do
-    # Pdm::Request::FindOrCreate(params_request, params_manifest)
     Pdm::Request::FindOrCreate.new.call(params_request, params_manifest)
     described_class.new.call(1000, 10)
   end

@@ -18,12 +18,9 @@ module Fdsh
 
           # @return [Dry::Monads::Result]
           def call(request_entity)
-            # pvc_medicare_request = yield Fdsh::Pvc::Medicare::Request::TransformApplicationToPvcMedicareRequest.new.call(applications)
             xml_string = yield encode_xml_and_schema_validate(request_entity)
             pvc_medicare_xml = yield encode_request_xml(xml_string)
-            # applicants_count = pvc_medicare_request.IndividualRequests.count
 
-            # Success([pvc_medicare_xml, applicants_count])
             Success(pvc_medicare_xml)
           end
 

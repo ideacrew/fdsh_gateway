@@ -2,9 +2,6 @@
 
 require 'dry/monads'
 require 'dry/monads/do'
-# require 'aca_entities/pdm'
-# require 'digest'
-# require 'zip'
 
 module Fdsh
   module Pvc
@@ -26,7 +23,6 @@ module Fdsh
             errors << 'applicant missing' unless params[:applicant]
             errors << 'manifest missing' unless params[:manifest]
             errors << 'application hbx id missing' unless params[:application_hbx_id]
-            # errors << 'family_id missing' unless params[:person]
             result_manifest = ::AcaEntities::Pdm::Contracts::ManifestContract.new.call(params[:manifest])
             result_applicant = ::AcaEntities::MagiMedicaid::Contracts::ApplicantContract.new.call(params[:applicant])
 

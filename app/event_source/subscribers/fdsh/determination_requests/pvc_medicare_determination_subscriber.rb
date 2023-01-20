@@ -13,7 +13,6 @@ module Subscribers
         subscribe(:on_periodic_verification_confirmation) do |delivery_info, _properties, payload|
           # Sequence of steps that are executed as single operation
           values = JSON.parse(payload, :symbolize_names => true)
-          # determination_result = ::Fdsh::Pvc::Medicare::Request::CreateRequestManifestFile.new.call(values[:applications])
 
           result = ::Fdsh::Pvc::Medicare::Request::StoreRequest.new.call(values)
 

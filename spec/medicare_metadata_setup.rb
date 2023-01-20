@@ -1734,15 +1734,3 @@ APPLICANT_1 =
       :updated_by => nil
     }
   }.freeze
-
-# (1..17).each do |index|
-#   puts "processing #{index}"
-#   result = Fdsh::Rrv::Medicare::Request::StoreApplicationRrvRequest.new.call("TEST_APPLICATION_#{index}".constantize)
-#   if result.success?
-#     puts "stored successfully"
-#   else
-#     p "failed due to #{result.failures}"
-#   end
-# end
-
-
