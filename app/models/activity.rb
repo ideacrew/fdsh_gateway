@@ -14,6 +14,7 @@ class Activity
   field :status, type: StringifiedSymbol
   field :assistance_year, type: Integer
   field :application_hbx_id, type: String
+  field :tax_year, type: String
 
   after_save :create_activity_row
 

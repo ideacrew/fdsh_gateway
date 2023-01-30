@@ -19,6 +19,7 @@ module Journal
       optional(:status).maybe(:string)
       optional(:assistance_year).maybe(:integer)
       optional(:application_hbx_id).maybe(:string)
+      optional(:tax_year).maybe(:string)
     end
   end
 end

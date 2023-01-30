@@ -17,6 +17,8 @@ module Journal
       optional(:activities).array(Journal::ActivityContract.params)
       optional(:application_id).maybe(:string)
       optional(:primary_hbx_id).maybe(:string)
+      optional(:cv3_family).maybe(:string)
+      optiona(:family_hbx_id).maybe(:string)
     end
   end
 end
