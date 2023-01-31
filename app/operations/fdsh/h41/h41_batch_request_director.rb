@@ -24,8 +24,6 @@ module Fdsh
       private
 
       def validate(params)
-        # return Failure('tax year missing') unless params[:tax_year]
-        return Failure('transactions per file missing') unless params[:transactions_per_file]
         return Failure('outbound folder name missing') unless params[:outbound_folder_name]
         return Failure('start date missing') unless params[:start_date]
         return Failure('end date name missing') unless params[:end_date]
@@ -71,9 +69,10 @@ module Fdsh
       def close_transaction_file(outbound_folder)
         xml_string = @xml_builder.to_xml(:indent => 2, :encoding => 'UTF-8')
         file_name = outbound_folder + "/EOY_Request_0000#{@counter}_#{Time.now.gmtime.strftime('%Y%m%dT%H%M%S%LZ')}.xml"
-        @transaction_file = File.open(file_name, "w")
-        @transaction_file.write(xml_string.to_s)
-        @transaction_file.close
+        transaction_file = File.open(file_name, "w")
+        transaction_file.write(xml_string.to_s)
+        transaction_file.close
+        @xml_builder = nil
       end
 
       def create_batch_file(outbound_folder)
@@ -89,7 +88,6 @@ module Fdsh
       end
 
       def create_batch_requests(transactions, values, outbound_folder)
-        batch_offset = 0
         query_offset = 0
         @counter = 0
 
@@ -103,15 +101,8 @@ module Fdsh
           end
 
           query_offset += processing_batch_size
-          batch_offset += processing_batch_size
           p "Processed #{query_offset} transactions."
 
-          # rubocop:disable Layout/LineLength
-          unless (batch_offset >= values[:transactions_per_file]) || (batched_requests.count < processing_batch_size) || (transactions.count <= query_offset)
-            next
-          end
-          # rubocop:enable Layout/LineLength
-          batch_offset = 0
           close_transaction_file(outbound_folder)
           open_transaction_file(outbound_folder)
         end
