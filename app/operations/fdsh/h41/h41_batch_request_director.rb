@@ -9,13 +9,14 @@ module Fdsh
         include EventSource::Command
 
         H41_EVENT_KEY = "h41_payload_requested"
-        PROCESSING_BATCH_SIZE = 100
+        PROCESSING_BATCH_SIZE = 5000
 
         def call(params)
           values          = yield validate(params)
-          transactions    = yield query_h41_requests(values)
+          transactions    = yield query_h41_transactions(values)
           outbound_folder = yield create_outbound_folder(values)
           outbound_folder = yield create_batch_requests(transactions, values, outbound_folder)
+          batch_files     = yield create_batch_file(outbound_folder)
 
           Success(outbound_folder)
         end
@@ -23,7 +24,7 @@ module Fdsh
         private
 
         def validate(params)
-          return Failure('tax year missing') unless params[:tax_year]
+          # return Failure('tax year missing') unless params[:tax_year]
           return Failure('transactions per file missing') unless params[:transactions_per_file]
           return Failure('outbound folder name missing') unless params[:outbound_folder_name]
           return Failure('start date missing') unless params[:start_date]
@@ -34,15 +35,8 @@ module Fdsh
           Success(params)
         end
 
-        def query_h41_requests(values)
-          transactions = Transaction.where(:activities => {
-            :$elemMatch => {
-              event_key: H41_EVENT_KEY,
-              tax_year: values[:tax_year],
-              created_at: { :'$gte' => values[:start_date],
-                            :'$lt' => values[:end_date] }
-            }
-          })
+        def query_h41_transactions(values)
+          transactions = H41Transaction.where(created_at: {:'$gte' => values[:start_date], :'$lt' => values[:end_date]})
 
           Success(transactions)
         end
@@ -52,15 +46,7 @@ module Fdsh
         end
 
         def batch_request_for(offset, values)
-          Transaction.where(:activities => {
-            :$elemMatch => {
-              event_key: H41_EVENT_KEY,
-              tax_year: values[:tax_year],
-              created_at: { :'$gte' => values[:start_date],
-                            :'$lt' => values[:end_date] }
-
-            }
-          }).skip(offset).limit(processing_batch_size)
+          H41Transaction.where(created_at: {:'$gte' => values[:start_date], :'$lt' => values[:end_date]}).skip(offset).limit(processing_batch_size)
         end
 
         def create_outbound_folder(values)
@@ -70,68 +56,46 @@ module Fdsh
           Success(outbound_folder)
         end
 
-
-        def create_transaction_xml(family_params, _outbound_folder)
-          Fdsh::H41::Request::CreateTransactionFile.new.call({ family_payload: [family_params] })
-        end
-
         def open_transaction_file(_outbound_folder)
+          @counter += 1
           @xml_builder = Nokogiri::XML::Builder.new do |xml|
-            xml.Form1095ATransmissionUpstream do
-            end
+            xml.Form1095ATransmissionUpstream
           end
          @policies_count = 0
         end
 
         def close_transaction_file(outbound_folder)
           xml_string = @xml_builder.to_xml(:indent => 2, :encoding => 'UTF-8')
-          file_name = outbound_folder + "/MDCR_Request_00001_#{Time.now.gmtime.strftime('%Y%m%dT%H%M%S%LZ')}.xml"
+          file_name = outbound_folder + "/EOY_Request_0000#{@counter}_#{Time.now.gmtime.strftime('%Y%m%dT%H%M%S%LZ')}.xml"
           @transaction_file = File.open(file_name, "w")
           @transaction_file.write(xml_string.to_s)
           @transaction_file.close
         end
 
         def create_batch_file(outbound_folder)
-          Fdsh::Rrv::Medicare::Request::CreateBatchRequestFile.new.call({
-                                                                          transaction_file: @transaction_file,
-                                                                          applicants_count: @applicants_count,
-                                                                          outbound_folder: outbound_folder
-                                                                        })
+          Fdsh::H41::Request::CreateBatchRequestFile.new.call({outbound_folder: outbound_folder})
         end
 
-        def append_xml(transaction_xml)
-          individual_xml = Nokogiri.XML(transaction_xml, &:noblanks)
-          individual_xml.at('Form1095ATransmissionUpstream').children.each do |child_node|
-            @xml_builder.doc.at('Form1095ATransmissionUpstream').add_child(child_node)
-          end
-        end
+        def process_for_transaction_xml(tax_household, values, outbound_folder)
+          xml_string = tax_household.h41_transmission
+          transaction_xml = Nokogiri.XML(xml_string, &:noblanks)
+          individual_xml = transaction_xml.at("//airty20a:Form1095AUpstreamDetail")
 
-        def process_for_transaction_xml(transaction, values, outbound_folder)
-          family_params = JSON.parse(transaction.activities.where({
-                                                                    event_key: H41_EVENT_KEY,
-                                                                    tax_year: values[:tax_year]
-                                                                  }).max_by(&:created_at).message['request'])
-
-          result = create_transaction_xml(family_params, outbound_folder)
-          if result.success?
-            transaction_xml, applicants_count = result.success
-            append_xml(transaction_xml)
-            @applicants_count += applicants_count
-          else
-            p "xml generation failed for #{transaction.id} due to #{result.failure}"
-          end
+          @xml_builder.doc.at('Form1095ATransmissionUpstream').add_child(individual_xml)
         end
 
         def create_batch_requests(transactions, values, outbound_folder)
           batch_offset = 0
           query_offset = 0
+          @counter = 0
 
           open_transaction_file(outbound_folder)
-
           while transactions.count > query_offset
             batched_requests = batch_request_for(query_offset, values)
             batched_requests.no_timeout.each do |transaction|
-              process_for_transaction_xml(transaction, values, outbound_folder)
+              transaction.aptc_csr_tax_households.each do |tax_household|
+                process_for_transaction_xml(tax_household, values, outbound_folder)
+              end
             end
 
             query_offset += processing_batch_size
@@ -144,8 +108,7 @@ module Fdsh
             end
             # rubocop:enable Layout/LineLength
             batch_offset = 0
-            close_transaction_file(outbound_folder)
-            create_batch_file(outbound_folder)
+              close_transaction_file(outbound_folder)
             open_transaction_file(outbound_folder)
           end
 
