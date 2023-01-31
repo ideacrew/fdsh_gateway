@@ -84,18 +84,20 @@ module Fdsh
                                                                         })
         end
 
-
         def open_transaction_file(_outbound_folder)
           @xml_builder = Nokogiri::XML::Builder.new do |xml|
-            xml.Form1095ATransmissionUpstream
+            xml.EESDSHBatchRequestData do
+              xml.IndividualRequests
+            end
           end
           @applicants_count = 0
         end
 
-
         def append_xml(transaction_xml)
           individual_xml = Nokogiri.XML(transaction_xml, &:noblanks)
-          @xml_builder.doc.at('Form1095AUpstreamDetail').add_child(individual_xml)
+          individual_xml.at('IndividualRequests').children.each do |child_node|
+            @xml_builder.doc.at('IndividualRequests').add_child(child_node)
+          end
         end
 
         def process_for_transaction_xml(transaction, values, outbound_folder)

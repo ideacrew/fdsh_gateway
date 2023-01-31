@@ -365,6 +365,7 @@ RSpec.shared_context 'family response from enroll', :shared_context => :metadata
   let(:aptc_csr_tax_households) do
     [
       {
+        hbx_assigned_id: "82876288",
         covered_individuals: [
           {
             coverage_start_on: current_date.beginning_of_year,

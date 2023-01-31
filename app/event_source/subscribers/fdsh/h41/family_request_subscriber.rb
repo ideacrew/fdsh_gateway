@@ -5,7 +5,7 @@ module Subscribers
     module H41
       # Subscribe events for H41 requests
       class FamilyRequestSubscriber
-        include ::EventSource::Subscriber[amqp: 'edigw.h41.report_item']
+        include ::EventSource::Subscriber[amqp: 'edi_gateway.h41.report_items']
 
         # rubocop:disable Lint/RescueException
         # rubocop:disable Style/LineEndConcatenation

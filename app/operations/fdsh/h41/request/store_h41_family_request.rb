@@ -45,7 +45,7 @@ module Fdsh
           family.households.each do |household|
             household.insurance_agreements.each do |agreement|
               agreement.insurance_policies.each do |insurance_policy|
-                store_insurance_policy(insurance_policy, family)
+                store_insurance_policy(insurance_policy, agreement, family)
               end
             end
           end
@@ -53,7 +53,7 @@ module Fdsh
           Success(true)
         end
 
-        def store_insurance_policy(insurance_policy, family)
+        def store_insurance_policy(insurance_policy, agreement, family)
           return if insurance_policy.aptc_csr_tax_households.blank?
 
           activity_hash = {
@@ -64,9 +64,16 @@ module Fdsh
           }
 
           aptc_csr_tax_households = insurance_policy.aptc_csr_tax_households.collect do |aptc_csr_tax_household|
+            xml_string = BuildH41Xml.new.call({
+              family: family,
+              insurance_policy: insurance_policy,
+              agreement: agreement,
+              tax_household: aptc_csr_tax_household
+              }).success
+
             {
-              hbx_assigned_id: "", #aptc_csr_tax_household&.hbx_assigned_id,
-              h41_transmission: ""
+              hbx_assigned_id: aptc_csr_tax_household&.hbx_assigned_id,
+              h41_transmission: xml_string
             }
           end
 
