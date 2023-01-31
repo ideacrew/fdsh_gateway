@@ -37,7 +37,7 @@ module Fdsh
 
             recipient = fetch_recipient(tax_household, agreement, values[:family])
             recipient_spouse = fetch_recipient_spouse(tax_household)
-            has_aptc = tax_household.months_of_year.any? { |month| month.coverage_information && month.coverage_information.tax_credit.cents.to_f > 0 }
+            has_aptc = tax_household.months_of_year.any? { |month| month.coverage_information && convert_to_currency(month.coverage_information.tax_credit).to_f > 0 }
 
             provider = agreement.insurance_provider
             form_1095a_upstream_detail = {
@@ -78,12 +78,12 @@ module Fdsh
 
           def construct_annual_premium_totals(tax_household)
             annual_premiums = tax_household.annual_premiums
-            annual_aptc_amount = annual_premiums.tax_credit.cents.to_f
-            slcsp = annual_premiums.slcsp_benchmark_premium.cents.to_f
+            annual_aptc_amount = convert_to_currency(annual_premiums.tax_credit)
+            slcsp = convert_to_currency(annual_premiums.slcsp_benchmark_premium)
             {
-              AnnualPremiumAmt: annual_premiums.total_premium.cents.to_f,
-              AnnualPremiumSLCSPAmt: annual_aptc_amount.present? && annual_aptc_amount > 0 ? slcsp : 0.00,
-              AnnualAdvancedPTCAmt: annual_aptc_amount.present? && annual_aptc_amount > 0 ? annual_aptc_amount : 0.00
+              AnnualPremiumAmt: convert_to_currency(annual_premiums.total_premium),
+              AnnualPremiumSLCSPAmt: annual_aptc_amount.present? && annual_aptc_amount.to_f > 0 ? slcsp : 0.00,
+              AnnualAdvancedPTCAmt: annual_aptc_amount.present? && annual_aptc_amount.to_f > 0 ? annual_aptc_amount : 0.00
             }
           end
 
@@ -92,11 +92,11 @@ module Fdsh
             monthly_premium = tax_household.months_of_year.detect { |month_of_year| month_of_year.month == month }
             if monthly_premium
               coverage_information = monthly_premium.coverage_information
-              aptc_amount = coverage_information.tax_credit.cents.to_f
+              aptc_amount = convert_to_currency(coverage_information.tax_credit)
               {
-                MonthlyPremiumAmt: coverage_information.total_premium.cents.to_f,
-                MonthlyPremiumSLCSPAmt: aptc_amount > 0 ? coverage_information.slcsp_benchmark_premium.cents.to_f : 0.00,
-                MonthlyAdvancedPTCAmt:  aptc_amount > 0 ? aptc_amount : 0.00
+                MonthlyPremiumAmt: convert_to_currency(coverage_information.total_premium),
+                MonthlyPremiumSLCSPAmt: aptc_amount.to_f > 0 ? convert_to_currency(coverage_information.slcsp_benchmark_premium) : 0.00,
+                MonthlyAdvancedPTCAmt:  aptc_amount.to_f > 0 ? aptc_amount : 0.00
               }
             else
               {
@@ -227,6 +227,10 @@ module Fdsh
             encoding_result.or do |e|
               Failure(e)
             end
+          end
+
+          def convert_to_currency(amount)
+            '%.2f' % (amount.cents.to_i / 100)
           end
         end
       end
