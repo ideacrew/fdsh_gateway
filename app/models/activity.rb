@@ -45,6 +45,7 @@ class Activity
   private
 
   def create_activity_row
+    return if command == "Fdsh::H41::BuildH41RequestXml"
     row = {
       transaction_id: transaction._id,
       application_id: transaction.application_id,

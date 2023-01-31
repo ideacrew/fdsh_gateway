@@ -13,10 +13,10 @@ module Fdsh
         def call(params)
           values               = yield validate(params)
           family_hash          = yield validate_family(values)
-          family = yield initialize_family_entity(family_hash)
-          _updated_transaction = yield store_request(family)
+          family               = yield initialize_family_entity(family_hash)
+          result               = yield persist(family)
 
-          Success(application)
+          Success(result)
         end
 
         private
@@ -28,7 +28,7 @@ module Fdsh
 
         def validate_family(values)
           result = AcaEntities::Contracts::Families::FamilyContract.new.call(values[:family_hash])
-          result.success? ? result.to_h : Failure(result)
+          result.success? ? Success(result.to_h) : Failure(result)
         end
 
         def initialize_family_entity(family_hash)
@@ -41,13 +41,11 @@ module Fdsh
           end
         end
 
-        def store_request(family)
+        def persist(family)
           family.households.each do |household|
             household.insurance_agreements.each do |agreement|
               agreement.insurance_policies.each do |insurance_policy|
-                next if insurance_policy.aptc_csr_tax_households.blank?
-
-                create_or_update_transaction("request", family, insurance_policy)
+                store_insurance_policy(insurance_policy, family)
               end
             end
           end
@@ -55,26 +53,37 @@ module Fdsh
           Success(true)
         end
 
-        def create_or_update_transaction(key, family, insurance_policy)
+        def store_insurance_policy(insurance_policy, family)
+          return if insurance_policy.aptc_csr_tax_households.blank?
+
           activity_hash = {
             correlation_id: "fdsh_h41_#{insurance_policy.policy_id}",
             command: "Fdsh::H41::BuildH41RequestXml",
             event_key: "h41_payload_requested",
-            message: { "#{key}": family.to_json },
-            tax_year: insurance_policy.start_on.year
+            tax_year: insurance_policy.start_on.year.to_s
           }
 
-          family_irs_group_id = family.hbx_id
-          primary_hbx_id = family.family_members.detect(&:is_primary_applicant)&.person_hbx_id
-          transaction_hash = {
-            correlation_id: activity_hash[:correlation_id],
-            activity: activity_hash,
-            family: family.to_json,
-            family_hbx_id: family_irs_group_id,
-            primary_hbx_id: primary_hbx_id
+          aptc_csr_tax_households = insurance_policy.aptc_csr_tax_households.collect do |aptc_csr_tax_household|
+            {
+              hbx_assigned_id: "", #aptc_csr_tax_household&.hbx_assigned_id,
+              h41_transmission: ""
+            }
+          end
+
+          primary_hbx_id = family.family_members.detect(&:is_primary_applicant)&.person.hbx_id
+
+          h41_transaction_hash = {
+              correlation_id: activity_hash[:correlation_id],
+              activities: [activity_hash],
+              cv3_family: family.to_json,
+              family_hbx_id: family.hbx_id,
+              primary_hbx_id: primary_hbx_id,
+              policy_hbx_id: insurance_policy.policy_id,
+              aptc_csr_tax_households: aptc_csr_tax_households
           }
+
           Try do
-            Journal::Transactions::AddActivity.new.call(transaction_hash)
+            Journal::H41Transactions::FindOrCreate.new.call(h41_transaction_hash)
           end
         end
       end
