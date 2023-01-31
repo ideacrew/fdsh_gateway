@@ -230,7 +230,7 @@ module Fdsh
           end
 
           def convert_to_currency(amount)
-            '%.2f' % (amount.cents.to_i / 100)
+            '%.2f' % (amount.cents / 100)
           end
         end
       end
