@@ -304,7 +304,7 @@ RSpec.shared_context 'family response from enroll', :shared_context => :metadata
         end_on: current_date.end_of_year,
         enrollments: insurance_policy_enrollments,
         aptc_csr_tax_households: aptc_csr_tax_households
-      },
+      }
     ]
   end
 

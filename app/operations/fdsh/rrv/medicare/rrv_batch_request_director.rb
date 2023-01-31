@@ -66,8 +66,6 @@ module Fdsh
           Fdsh::Rrv::Medicare::Request::CreateTransactionFile.new.call({ application_payload: [application_params] })
         end
 
-
-
         def close_transaction_file(outbound_folder)
           xml_string = @xml_builder.to_xml(:indent => 2, :encoding => 'UTF-8')
           file_name = outbound_folder + "/MDCR_Request_00001_#{Time.now.gmtime.strftime('%Y%m%dT%H%M%S%LZ')}.xml"

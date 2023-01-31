@@ -5,116 +5,120 @@ module Fdsh
     # director accepts tax_year, transactions limit per file, date time stamps
     # generates batch request zip files.
     class H41BatchRequestDirector
-        include Dry::Monads[:result, :do, :try]
-        include EventSource::Command
+      include Dry::Monads[:result, :do, :try]
+      include EventSource::Command
 
-        H41_EVENT_KEY = "h41_payload_requested"
-        PROCESSING_BATCH_SIZE = 5000
+      H41_EVENT_KEY = "h41_payload_requested"
+      PROCESSING_BATCH_SIZE = 5000
 
-        def call(params)
-          values          = yield validate(params)
-          transactions    = yield query_h41_transactions(values)
-          outbound_folder = yield create_outbound_folder(values)
-          outbound_folder = yield create_batch_requests(transactions, values, outbound_folder)
-          batch_files     = yield create_batch_file(outbound_folder)
+      def call(params)
+        values          = yield validate(params)
+        transactions    = yield query_h41_transactions(values)
+        outbound_folder = yield create_outbound_folder(values)
+        outbound_folder = yield create_batch_requests(transactions, values, outbound_folder)
+        batch_file      = yield create_batch_file(outbound_folder)
 
-          Success(outbound_folder)
-        end
+        Success(batch_file)
+      end
 
-        private
+      private
 
-        def validate(params)
-          # return Failure('tax year missing') unless params[:tax_year]
-          return Failure('transactions per file missing') unless params[:transactions_per_file]
-          return Failure('outbound folder name missing') unless params[:outbound_folder_name]
-          return Failure('start date missing') unless params[:start_date]
-          return Failure('end date name missing') unless params[:end_date]
+      def validate(params)
+        # return Failure('tax year missing') unless params[:tax_year]
+        return Failure('transactions per file missing') unless params[:transactions_per_file]
+        return Failure('outbound folder name missing') unless params[:outbound_folder_name]
+        return Failure('start date missing') unless params[:start_date]
+        return Failure('end date name missing') unless params[:end_date]
 
-          @batch_size = params[:batch_size] if params[:batch_size]
+        @batch_size = params[:batch_size] if params[:batch_size]
 
-          Success(params)
-        end
+        Success(params)
+      end
 
-        def query_h41_transactions(values)
-          transactions = H41Transaction.where(created_at: {:'$gte' => values[:start_date], :'$lt' => values[:end_date]})
+      def query_h41_transactions(values)
+        transactions = H41Transaction.where(created_at: { :'$gte' => values[:start_date], :'$lt' => values[:end_date] })
 
-          Success(transactions)
-        end
+        Success(transactions)
+      end
 
-        def processing_batch_size
-          @batch_size || PROCESSING_BATCH_SIZE
-        end
+      def processing_batch_size
+        @batch_size || PROCESSING_BATCH_SIZE
+      end
 
-        def batch_request_for(offset, values)
-          H41Transaction.where(created_at: {:'$gte' => values[:start_date], :'$lt' => values[:end_date]}).skip(offset).limit(processing_batch_size)
-        end
+      def batch_request_for(offset, values)
+        H41Transaction.where(created_at: { :'$gte' => values[:start_date], :'$lt' => values[:end_date] }).skip(offset).limit(processing_batch_size)
+      end
 
-        def create_outbound_folder(values)
-          folder = "#{Rails.root}/#{values[:outbound_folder_name]}"
-          outbound_folder = FileUtils.mkdir_p(folder).first
+      def create_outbound_folder(values)
+        folder = "#{Rails.root}/#{values[:outbound_folder_name]}"
+        outbound_folder = FileUtils.mkdir_p(folder).first
 
-          Success(outbound_folder)
-        end
+        Success(outbound_folder)
+      end
 
-        def open_transaction_file(_outbound_folder)
-          @counter += 1
-          @xml_builder = Nokogiri::XML::Builder.new do |xml|
-            xml.Form1095ATransmissionUpstream
-          end
-         @policies_count = 0
-        end
-
-        def close_transaction_file(outbound_folder)
-          xml_string = @xml_builder.to_xml(:indent => 2, :encoding => 'UTF-8')
-          file_name = outbound_folder + "/EOY_Request_0000#{@counter}_#{Time.now.gmtime.strftime('%Y%m%dT%H%M%S%LZ')}.xml"
-          @transaction_file = File.open(file_name, "w")
-          @transaction_file.write(xml_string.to_s)
-          @transaction_file.close
-        end
-
-        def create_batch_file(outbound_folder)
-          Fdsh::H41::Request::CreateBatchRequestFile.new.call({outbound_folder: outbound_folder})
-        end
-
-        def process_for_transaction_xml(tax_household, values, outbound_folder)
-          xml_string = tax_household.h41_transmission
-          transaction_xml = Nokogiri.XML(xml_string, &:noblanks)
-          individual_xml = transaction_xml.at("//airty20a:Form1095AUpstreamDetail")
-
-          @xml_builder.doc.at('Form1095ATransmissionUpstream').add_child(individual_xml)
-        end
-
-        def create_batch_requests(transactions, values, outbound_folder)
-          batch_offset = 0
-          query_offset = 0
-          @counter = 0
-
-          open_transaction_file(outbound_folder)
-          while transactions.count > query_offset
-            batched_requests = batch_request_for(query_offset, values)
-            batched_requests.no_timeout.each do |transaction|
-              transaction.aptc_csr_tax_households.each do |tax_household|
-                process_for_transaction_xml(tax_household, values, outbound_folder)
-              end
-            end
-
-            query_offset += processing_batch_size
-            batch_offset += processing_batch_size
-            p "Processed #{query_offset} transactions."
-
-            # rubocop:disable Layout/LineLength
-            unless (batch_offset >= values[:transactions_per_file]) || (batched_requests.count < processing_batch_size) || (transactions.count <= query_offset)
-              next
-            end
-            # rubocop:enable Layout/LineLength
-            batch_offset = 0
-              close_transaction_file(outbound_folder)
-            open_transaction_file(outbound_folder)
-          end
-
-          Success(values[:outbound_folder_name])
+      def open_transaction_file(_outbound_folder)
+        @counter += 1
+        @xml_builder = Nokogiri::XML::Builder.new do |xml|
+          xml.Form1095ATransmissionUpstream('xmlns:air5.0' => "urn:us:gov:treasury:irs:ext:aca:air:ty20a",
+                                            'xmlns:irs' => "urn:us:gov:treasury:irs:common",
+                                            'xmlns:batchreq' => "urn:us:gov:treasury:irs:msg:form1095atransmissionupstreammessage",
+                                            'xmlns:batchresp' => "urn:us:gov:treasury:irs:msg:form1095atransmissionexchrespmessage",
+                                            'xmlns:reqack' => "urn:us:gov:treasury:irs:msg:form1095atransmissionexchackngmessage",
+                                            'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance")
         end
       end
+
+      def close_transaction_file(outbound_folder)
+        xml_string = @xml_builder.to_xml(:indent => 2, :encoding => 'UTF-8')
+        file_name = outbound_folder + "/EOY_Request_0000#{@counter}_#{Time.now.gmtime.strftime('%Y%m%dT%H%M%S%LZ')}.xml"
+        @transaction_file = File.open(file_name, "w")
+        @transaction_file.write(xml_string.to_s)
+        @transaction_file.close
+      end
+
+      def create_batch_file(outbound_folder)
+        Fdsh::H41::Request::CreateBatchRequestFile.new.call({ outbound_folder: outbound_folder })
+      end
+
+      def process_for_transaction_xml(tax_household, _values, _outbound_folder)
+        xml_string = tax_household.h41_transmission
+        transaction_xml = Nokogiri.XML(xml_string, &:noblanks)
+        individual_xml = transaction_xml.at("//airty20a:Form1095AUpstreamDetail")
+
+        @xml_builder.doc.at('Form1095ATransmissionUpstream').add_child(individual_xml)
+      end
+
+      def create_batch_requests(transactions, values, outbound_folder)
+        batch_offset = 0
+        query_offset = 0
+        @counter = 0
+
+        open_transaction_file(outbound_folder)
+        while transactions.count > query_offset
+          batched_requests = batch_request_for(query_offset, values)
+          batched_requests.no_timeout.each do |transaction|
+            transaction.aptc_csr_tax_households.each do |tax_household|
+              process_for_transaction_xml(tax_household, values, outbound_folder)
+            end
+          end
+
+          query_offset += processing_batch_size
+          batch_offset += processing_batch_size
+          p "Processed #{query_offset} transactions."
+
+          # rubocop:disable Layout/LineLength
+          unless (batch_offset >= values[:transactions_per_file]) || (batched_requests.count < processing_batch_size) || (transactions.count <= query_offset)
+            next
+          end
+          # rubocop:enable Layout/LineLength
+          batch_offset = 0
+          close_transaction_file(outbound_folder)
+          open_transaction_file(outbound_folder)
+        end
+
+        Success(values[:outbound_folder_name])
+      end
+    end
   end
 end
 

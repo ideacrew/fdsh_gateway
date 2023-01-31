@@ -16,15 +16,15 @@ module Subscribers
           result = ::Fdsh::H41::Request::StoreH41FamilyRequest.new.call({ family_hash: values[:cv3_family] })
 
           if result.success?
-              logger.info("OK: :on_fdsh_irs_request_subscriber successful and acked")
+            logger.info("OK: :on_fdsh_irs_request_subscriber successful and acked")
           else
-              logger.error("Error: :on_fdsh_irs_request_subscriber; failed due to:#{result.inspect}")
+            logger.error("Error: :on_fdsh_irs_request_subscriber; failed due to:#{result.inspect}")
           end
           ack(delivery_info.delivery_tag)
         rescue Exception => e
           logger.error(
-              "Exception: :on_fdsh_irs_request_subscriber\n Exception: #{e.inspect}" +
-              "\n Backtrace:\n" + e.backtrace.join("\n")
+            "Exception: :on_fdsh_irs_request_subscriber\n Exception: #{e.inspect}" +
+            "\n Backtrace:\n" + e.backtrace.join("\n")
           )
           ack(delivery_info.delivery_tag)
         end

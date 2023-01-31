@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'shared_examples/family_response'
 
@@ -15,7 +17,7 @@ RSpec.describe Fdsh::H41::Request::BuildH41Xml do
   let(:tax_household) { insurace_policy.aptc_csr_tax_households.first }
 
   let(:params) do
-    {  
+    {
       family: family,
       insurance_policy: insurance_policy,
       agreement: agreement,

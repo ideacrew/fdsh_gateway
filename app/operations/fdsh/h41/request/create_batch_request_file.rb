@@ -32,9 +32,9 @@ module Fdsh
           Fdsh::H41::Request::CreateManifestFile.new.call(values)
         end
 
-        def generate_batch_zip(values, manifest_file)
+        def generate_batch_zip(values, _manifest_file)
           input_files = Dir.glob("#{Rails.root}/#{values[:outbound_folder]}/*.xml").map do |file|
-          	File.basename(file)
+            File.basename(file)
           end
 
           @zip_name = values[:outbound_folder] + "/SBE00ME.DSH.EOYIN.D#{Time.now.strftime('%y%m%d.T%H%M%S%L.P')}.IN"
@@ -46,7 +46,7 @@ module Fdsh
           end
 
           input_files.each do |file_name|
-          	FileUtils.rm_rf(File.join(values[:outbound_folder], file_name))
+            FileUtils.rm_rf(File.join(values[:outbound_folder], file_name))
           end
         end
       end

@@ -4,7 +4,7 @@
 class H41Transaction
   include Mongoid::Document
   include Mongoid::Timestamps
-  
+
   field :correlation_id, as: :request_id, type: String
   field :primary_hbx_id, type: String
   field :family_hbx_id, type: String
@@ -34,4 +34,3 @@ class H41Transaction
 
   default_scope -> { order(:'activity.created_at'.desc) }
 end
-  

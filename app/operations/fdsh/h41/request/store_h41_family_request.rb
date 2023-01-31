@@ -64,29 +64,20 @@ module Fdsh
           }
 
           aptc_csr_tax_households = insurance_policy.aptc_csr_tax_households.collect do |aptc_csr_tax_household|
-            xml_string = BuildH41Xml.new.call({
-              family: family,
-              insurance_policy: insurance_policy,
-              agreement: agreement,
-              tax_household: aptc_csr_tax_household
-              }).success
+            xml_string = BuildH41Xml.new.call({ family: family,
+                                                insurance_policy: insurance_policy,
+                                                agreement: agreement,
+                                                tax_household: aptc_csr_tax_household }).success
 
-            {
-              hbx_assigned_id: aptc_csr_tax_household&.hbx_assigned_id,
-              h41_transmission: xml_string
-            }
+            { hbx_assigned_id: aptc_csr_tax_household&.hbx_assigned_id, h41_transmission: xml_string }
           end
 
-          primary_hbx_id = family.family_members.detect(&:is_primary_applicant)&.person.hbx_id
+          primary_hbx_id = family.family_members.detect(&:is_primary_applicant)&.person&.hbx_id
 
           h41_transaction_hash = {
-              correlation_id: activity_hash[:correlation_id],
-              activities: [activity_hash],
-              cv3_family: family.to_json,
-              family_hbx_id: family.hbx_id,
-              primary_hbx_id: primary_hbx_id,
-              policy_hbx_id: insurance_policy.policy_id,
-              aptc_csr_tax_households: aptc_csr_tax_households
+            correlation_id: activity_hash[:correlation_id], activities: [activity_hash],
+            cv3_family: family.to_json, family_hbx_id: family.hbx_id, primary_hbx_id: primary_hbx_id,
+            policy_hbx_id: insurance_policy.policy_id, aptc_csr_tax_households: aptc_csr_tax_households
           }
 
           Try do
