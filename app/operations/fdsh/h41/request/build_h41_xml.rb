@@ -156,7 +156,7 @@ module Fdsh
             USZIPCd: address.zip&.gsub(/[^0-9a-z ]/i, '')
           }
 
-          result.merge!({AddressLine2Txt: address.address_2.gsub(/[^0-9a-z ]/i, ''),}) if address.address_2.present?
+          result.merge!({ AddressLine2Txt: address.address_2.gsub(/[^0-9a-z ]/i, '')  }) if address.address_2.present?
 
           result
         end
@@ -203,7 +203,7 @@ module Fdsh
         def decrypt_ssn(encrypted_ssn)
           return if encrypted_ssn.blank?
 
-          AcaEntities::Operations::Encryption::Decrypt.new.call({ value: encrypted_ssn }).value!.gsub("-","")
+          AcaEntities::Operations::Encryption::Decrypt.new.call({ value: encrypted_ssn }).value!.gsub("-", "")
         end
 
         def validate_payload(payload)

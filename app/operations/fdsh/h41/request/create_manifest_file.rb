@@ -98,7 +98,7 @@ module Fdsh
             {
               DocumentBinary: construct_document_binary(file),
               DocumentFileName: File.basename(file_path),
-              DocumentSequenceID: "%05d" % (i + 1)
+              DocumentSequenceID: format("%05d", (i + 1))
             }
           end
         end
