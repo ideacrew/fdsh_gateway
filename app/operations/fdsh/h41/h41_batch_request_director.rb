@@ -96,6 +96,7 @@ module Fdsh
           batched_requests = batch_request_for(query_offset, values)
           batched_requests.no_timeout.each do |transaction|
             transaction.aptc_csr_tax_households.each do |tax_household|
+              next unless tax_household.h41_transmission.present?
               process_for_transaction_xml(tax_household, values, outbound_folder)
             end
           end

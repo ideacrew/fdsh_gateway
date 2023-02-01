@@ -57,7 +57,8 @@ module Fdsh
         end
 
         def construct_manifest_request(values)
-          @attachment_files = Dir.glob("#{Rails.root}/#{values[:outbound_folder]}/*.xml")
+          @attachment_files = Dir.glob("#{Rails.root}/#{values[:outbound_folder]}/*.xml").sort
+
           manifest_request = {
             BatchMetadata: construct_batch_metadata,
             TransmissionMetadata: construct_transmission_metadata,
@@ -92,12 +93,12 @@ module Fdsh
         end
 
         def construct_attachments
-          @attachment_files.each_with_index.map do |file_path, index|
+          @attachment_files.each_with_index.map do |file_path, i|
             file = File.open(file_path)
             {
               DocumentBinary: construct_document_binary(file),
               DocumentFileName: File.basename(file_path),
-              DocumentSequenceID: "0000#{index + 1}"
+              DocumentSequenceID: "%05d" % (i + 1)
             }
           end
         end

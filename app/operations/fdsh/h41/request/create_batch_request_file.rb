@@ -33,7 +33,7 @@ module Fdsh
         end
 
         def generate_batch_zip(values, _manifest_file)
-          input_files = Dir.glob("#{Rails.root}/#{values[:outbound_folder]}/*.xml").map do |file|
+          input_files = Dir.glob("#{Rails.root}/#{values[:outbound_folder]}/*.xml").sort.map do |file|
             File.basename(file)
           end
 

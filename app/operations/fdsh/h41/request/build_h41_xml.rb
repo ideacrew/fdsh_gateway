@@ -117,8 +117,8 @@ module Fdsh
         def construct_covered_individuals(covered_individuals)
           covered_individuals.collect do |individual|
             {
-              InsuredPerson: { OtherCompletePersonName: { PersonFirstNm: individual.person.person_name.first_name,
-                                                          PersonLastNm: individual.person.person_name.last_name },
+              InsuredPerson: { OtherCompletePersonName: { PersonFirstNm: individual.person.person_name.first_name.gsub(/[^A-Za-z]/, ''),
+                                                          PersonLastNm: individual.person.person_name.last_name.gsub(/[^A-Za-z]/, '') },
                                SSN: decrypt_ssn(individual.person.person_demographics&.encrypted_ssn),
                                BirthDt: individual.person.person_demographics.dob },
               CoverageStartDt: individual.coverage_start_on,
@@ -129,8 +129,8 @@ module Fdsh
 
         def construct_recipient(recipient)
           {
-            OtherCompletePersonName: { PersonFirstNm: recipient.person.person_name.first_name,
-                                       PersonLastNm: recipient.person.person_name.last_name },
+            OtherCompletePersonName: { PersonFirstNm: recipient.person.person_name.first_name.gsub(/[^A-Za-z]/, ''),
+                                       PersonLastNm: recipient.person.person_name.last_name.gsub(/[^A-Za-z]/, '') },
             SSN: decrypt_ssn(recipient.person.person_demographics.encrypted_ssn),
             BirthDt: recipient.person.person_demographics.dob,
             UsAddressGroup: construct_address(recipient)
@@ -139,8 +139,8 @@ module Fdsh
 
         def construct_recipient_spouse(recipient_spouse)
           {
-            OtherCompletePersonName: { PersonFirstNm: recipient_spouse.person.person_name.first_name,
-                                       PersonLastNm: recipient_spouse.person.person_name.last_name },
+            OtherCompletePersonName: { PersonFirstNm: recipient_spouse.person.person_name.first_name.gsub(/[^A-Za-z]/, ''),
+                                       PersonLastNm: recipient_spouse.person.person_name.last_name.gsub(/[^A-Za-z]/, '') },
             SSN: decrypt_ssn(recipient_spouse.person.person_demographics.encrypted_ssn),
             BirthDt: recipient_spouse.person.person_demographics.dob
           }
@@ -148,14 +148,17 @@ module Fdsh
 
         def construct_address(recipient)
           address = fetch_address(recipient)
-          street_address = address.address_1
-          street_address += ", #{address.address_2}" if address.address_2.present?
-          {
-            AddressLine1Txt: street_address,
-            CityNm: address.city,
-            USStateCd: address.state,
-            USZIPCd: address.zip
+
+          result = {
+            AddressLine1Txt: address.address_1&.gsub(/[^0-9a-z ]/i, ''),
+            CityNm: address.city&.gsub(/[^0-9a-z ]/i, ''),
+            USStateCd: address.state&.gsub(/[^0-9a-z ]/i, ''),
+            USZIPCd: address.zip&.gsub(/[^0-9a-z ]/i, '')
           }
+
+          result.merge!({AddressLine2Txt: address.address_2.gsub(/[^0-9a-z ]/i, ''),}) if address.address_2.present?
+
+          result
         end
 
         def fetch_address(recipient)
@@ -200,7 +203,7 @@ module Fdsh
         def decrypt_ssn(encrypted_ssn)
           return if encrypted_ssn.blank?
 
-          AcaEntities::Operations::Encryption::Decrypt.new.call({ value: encrypted_ssn }).value!
+          AcaEntities::Operations::Encryption::Decrypt.new.call({ value: encrypted_ssn }).value!.gsub("-","")
         end
 
         def validate_payload(payload)
@@ -214,8 +217,9 @@ module Fdsh
 
         def encode_xml_and_schema_validate(payload)
           xml_string = ::AcaEntities::Serializers::Xml::Fdsh::H41::Form1095ATransmissionUpstream.domain_to_mapper(payload).to_xml
+          validation = AcaEntities::Serializers::Xml::Fdsh::H41::Operations::ValidateH41RequestPayloadXml.new.call(xml_string)
 
-          Success(xml_string)
+          validation.success? ? Success(xml_string) : Failure("Invalid H41 xml due to #{validation.failure}")
         end
 
         def encode_request_xml(xml_string)

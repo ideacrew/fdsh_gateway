@@ -82,7 +82,7 @@ RSpec.shared_context 'family response from enroll', :shared_context => :metadata
         :person_health => { :is_tobacco_user => "unknown" },
         :is_active => true,
         :is_disabled => false,
-        :addresses => [{ :kind => 'mailing', :address_1 => 'H st', :state => "ME", :city => 'Augusta', :zip => '67662' }],
+        :addresses => [{ :kind => 'mailing', :address_1 => '742 Washington Ave, 1', :address_2 => '742 Washington Ave, 2', :state => "ME", :city => 'Augusta', :zip => '67662' }],
         :verification_types => verification_types
       }
     }
@@ -104,7 +104,7 @@ RSpec.shared_context 'family response from enroll', :shared_context => :metadata
         :person_health => { :is_tobacco_user => "unknown" },
         :is_active => true,
         :is_disabled => false,
-        :addresses => [{ :kind => 'mailing', :address_1 => 'H st', :state => "ME", :city => 'Augusta', :zip => '67662' }],
+        :addresses => [{ :kind => 'mailing', :address_1 => '742 Washington Ave, 1', :address_2 => '742 Washington Ave, 2', :state => "ME", :city => 'Augusta', :zip => '67662' }],
         :verification_types => verification_types
       }
     }
@@ -211,8 +211,8 @@ RSpec.shared_context 'family response from enroll', :shared_context => :metadata
     [
       {
         kind: "home",
-        address_1: "S Street NW",
-        address_2: "",
+        address_1: "742 Washington Ave, 1",
+        :address_2 => '742 Washington Ave, 2',
         address_3: "",
         city: "Awesome city",
         county_name: "Awesome county",
@@ -237,7 +237,8 @@ RSpec.shared_context 'family response from enroll', :shared_context => :metadata
           addresses: [
             {
               kind: "home",
-              address_1: "S Street NW",
+              address_1: "742 Washington Ave, 1",
+              :address_2 => '742 Washington Ave, 2',
               address_2: "",
               address_3: "",
               city: "Awesome city",
@@ -330,8 +331,8 @@ RSpec.shared_context 'family response from enroll', :shared_context => :metadata
       addresses: [
         {
           kind: "home",
-          address_1: "S Street NW",
-          address_2: "",
+          address_1: "742 Washington Ave, 1",
+          :address_2 => '742 Washington Ave, 2',
           address_3: "",
           city: "Awesome city",
           county_name: "Awesome county",
