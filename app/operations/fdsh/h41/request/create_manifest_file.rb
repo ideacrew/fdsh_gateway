@@ -87,7 +87,7 @@ module Fdsh
 
         def construct_service_specific_data
           {
-            ReportPeriod: { year: Date.today.year - 1 }
+            ReportPeriod: { Year: Date.today.year - 1 }
           }
         end
 
