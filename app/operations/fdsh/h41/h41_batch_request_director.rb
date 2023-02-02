@@ -68,7 +68,7 @@ module Fdsh
 
       def close_transaction_file(outbound_folder)
         xml_string = @xml_builder.to_xml(:indent => 2, :encoding => 'UTF-8')
-        file_name = outbound_folder + "/EOY_Request_0000#{@counter}_#{Time.now.gmtime.strftime('%Y%m%dT%H%M%S%LZ')}.xml"
+        file_name = outbound_folder + "/EOY_Request_#{format("%05d", @counter)}_#{Time.now.gmtime.strftime('%Y%m%dT%H%M%S%LZ')}.xml"
         transaction_file = File.open(file_name, "w")
         transaction_file.write(xml_string.to_s)
         transaction_file.close
