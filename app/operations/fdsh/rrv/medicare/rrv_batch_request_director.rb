@@ -66,6 +66,15 @@ module Fdsh
           Fdsh::Rrv::Medicare::Request::CreateTransactionFile.new.call({ application_payload: [application_params] })
         end
 
+        def open_transaction_file(_outbound_folder)
+          @xml_builder = Nokogiri::XML::Builder.new do |xml|
+            xml.EESDSHBatchRequestData do
+              xml.IndividualRequests
+            end
+          end
+          @applicants_count = 0
+        end
+
         def close_transaction_file(outbound_folder)
           xml_string = @xml_builder.to_xml(:indent => 2, :encoding => 'UTF-8')
           file_name = outbound_folder + "/MDCR_Request_00001_#{Time.now.gmtime.strftime('%Y%m%dT%H%M%S%LZ')}.xml"
@@ -80,15 +89,6 @@ module Fdsh
                                                                           applicants_count: @applicants_count,
                                                                           outbound_folder: outbound_folder
                                                                         })
-        end
-
-        def open_transaction_file(_outbound_folder)
-          @xml_builder = Nokogiri::XML::Builder.new do |xml|
-            xml.EESDSHBatchRequestData do
-              xml.IndividualRequests
-            end
-          end
-          @applicants_count = 0
         end
 
         def append_xml(transaction_xml)
