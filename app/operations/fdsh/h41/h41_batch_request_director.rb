@@ -57,18 +57,18 @@ module Fdsh
       def open_transaction_file(_outbound_folder)
         @counter += 1
         @xml_builder = Nokogiri::XML::Builder.new do |xml|
-          xml.Form1095ATransmissionUpstream('xmlns:air5.0' => "urn:us:gov:treasury:irs:ext:aca:air:ty20a",
-                                            'xmlns:irs' => "urn:us:gov:treasury:irs:common",
-                                            'xmlns:batchreq' => "urn:us:gov:treasury:irs:msg:form1095atransmissionupstreammessage",
-                                            'xmlns:batchresp' => "urn:us:gov:treasury:irs:msg:form1095atransmissionexchrespmessage",
-                                            'xmlns:reqack' => "urn:us:gov:treasury:irs:msg:form1095atransmissionexchackngmessage",
-                                            'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance")
+          xml['batchreq'].Form1095ATransmissionUpstream('xmlns:air5.0' => "urn:us:gov:treasury:irs:ext:aca:air:ty20a",
+                                                        'xmlns:irs' => "urn:us:gov:treasury:irs:common",
+                                                        'xmlns:batchreq' => "urn:us:gov:treasury:irs:msg:form1095atransmissionupstreammessage",
+                                                        'xmlns:batchresp' => "urn:us:gov:treasury:irs:msg:form1095atransmissionexchrespmessage",
+                                                        'xmlns:reqack' => "urn:us:gov:treasury:irs:msg:form1095atransmissionexchackngmessage",
+                                                        'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance")
         end
       end
 
       def close_transaction_file(outbound_folder)
         xml_string = @xml_builder.to_xml(:indent => 2, :encoding => 'UTF-8')
-        file_name = outbound_folder + "/EOY_Request_#{format("%05d", @counter)}_#{Time.now.gmtime.strftime('%Y%m%dT%H%M%S%LZ')}.xml"
+        file_name = outbound_folder + "/EOY_Request_#{format('%05d', @counter)}_#{Time.now.gmtime.strftime('%Y%m%dT%H%M%S%LZ')}.xml"
         transaction_file = File.open(file_name, "w")
         transaction_file.write(xml_string.to_s)
         transaction_file.close
@@ -79,12 +79,15 @@ module Fdsh
         Fdsh::H41::Request::CreateBatchRequestFile.new.call({ outbound_folder: outbound_folder })
       end
 
-      def process_for_transaction_xml(tax_household, _values, _outbound_folder)
+      def process_for_transaction_xml(tax_household, _values, record_sequence)
         xml_string = tax_household.h41_transmission
         transaction_xml = Nokogiri.XML(xml_string, &:noblanks)
-        individual_xml = transaction_xml.at("//airty20a:Form1095AUpstreamDetail")
+        individual_xml = transaction_xml.at("//airty20a:RecordSequenceNum")
+        if (content = individual_xml.at("//airty20a:RecordSequenceNum")&.content)
+          individual_xml.at("//airty20a:RecordSequenceNum").content = content + format("%05d", record_sequence)
+        end
 
-        @xml_builder.doc.at('Form1095ATransmissionUpstream').add_child(individual_xml)
+        @xml_builder.doc.at('//batchreq:Form1095ATransmissionUpstream').add_child(individual_xml)
       end
 
       def create_batch_requests(transactions, values, outbound_folder)
@@ -94,10 +97,13 @@ module Fdsh
         open_transaction_file(outbound_folder)
         while transactions.count > query_offset
           batched_requests = batch_request_for(query_offset, values)
+          record_sequence = 0
           batched_requests.no_timeout.each do |transaction|
             transaction.aptc_csr_tax_households.each do |tax_household|
+              record_sequence += 1
+
               next unless tax_household.h41_transmission.present?
-              process_for_transaction_xml(tax_household, values, outbound_folder)
+              process_for_transaction_xml(tax_household, values, record_sequence)
             end
           end
 
