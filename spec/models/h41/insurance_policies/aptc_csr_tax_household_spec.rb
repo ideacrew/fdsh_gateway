@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe H41::InsurancePolicies::TaxHousehold, type: :model do
+RSpec.describe H41::InsurancePolicies::AptcCsrTaxHousehold, type: :model do
   let(:tax_household_id) { '525252' }
   let(:transaction_xml) { '<xml>hello world</xml>' }
 
@@ -17,11 +17,11 @@ RSpec.describe H41::InsurancePolicies::TaxHousehold, type: :model do
     )
   end
 
-  let(:policy_id) { '6655644' }
+  let(:policy_hbx_id) { '6655644' }
   let(:assistance_year) { Date.today.year - 1.year }
   let(:insurance_policy) do
     H41::InsurancePolicies::InsurancePolicy.new(
-      policy_id: policy_id,
+      policy_hbx_id: policy_hbx_id,
       assistance_year: assistance_year,
       posted_family: posted_family
     )

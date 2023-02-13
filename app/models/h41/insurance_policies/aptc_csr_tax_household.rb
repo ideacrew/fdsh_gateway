@@ -4,7 +4,7 @@ module H41
   module InsurancePolicies
     # Persistance model for a unitary H41 Transaction.
     # Composed by policy_id and tax_household_id
-    class TaxHousehold
+    class AptcCsrTaxHousehold
       include Mongoid::Document
       include Mongoid::Timestamps
       include Transmittable::Subject
