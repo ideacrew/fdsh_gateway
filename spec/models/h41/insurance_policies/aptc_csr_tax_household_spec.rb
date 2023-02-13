@@ -3,6 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe H41::InsurancePolicies::AptcCsrTaxHousehold, type: :model do
+  before :all do
+    DatabaseCleaner.clean
+  end
+
+  it { is_expected.to belong_to(:insurance_policy) }
+
   let(:tax_household_id) { '525252' }
   let(:transaction_xml) { '<xml>hello world</xml>' }
 
@@ -34,11 +40,17 @@ RSpec.describe H41::InsurancePolicies::AptcCsrTaxHousehold, type: :model do
   context 'Given all required, valid params' do
     it 'should be valid, persist and findable' do
       result = described_class.new(required_params)
-      # expect(described_class.all.count).to eq 0
+      expect(described_class.all.count).to eq 0
       expect(result.valid?).to be_truthy
       expect(result.save).to be_truthy
-      # expect(described_class.all.count).to eq 1
+      expect(described_class.all.count).to eq 1
       expect(described_class.find(result._id).created_at).to be_present
+    end
+
+    describe 'Transmittable Behavior' do
+      it 'should have an association with Transaction model' do
+        expect(described_class.new).to have_many(:transactions)
+      end
     end
   end
 end
