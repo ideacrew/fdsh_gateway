@@ -47,6 +47,8 @@ RSpec.describe Journal::Transactions::AddActivity do
            application_id
            correlation_id
            created_at
+           family
+           family_hbx_id
            magi_medicaid_application
            primary_hbx_id
            updated_at

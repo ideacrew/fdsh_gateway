@@ -14,6 +14,7 @@ class Activity
   field :status, type: StringifiedSymbol
   field :assistance_year, type: Integer
   field :application_hbx_id, type: String
+  field :tax_year, type: String
 
   after_save :create_activity_row
 
@@ -44,6 +45,7 @@ class Activity
   private
 
   def create_activity_row
+    return if command == "Fdsh::H41::BuildH41RequestXml"
     row = {
       transaction_id: transaction._id,
       application_id: transaction.application_id,

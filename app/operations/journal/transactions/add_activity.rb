@@ -33,7 +33,9 @@ module Journal
               magi_medicaid_application: params[:magi_medicaid_application],
               activities: [result.to_h],
               application_id: params[:application_id],
-              primary_hbx_id: params[:primary_hbx_id]
+              primary_hbx_id: params[:primary_hbx_id],
+              family_hbx_id: params[:family_hbx_id],
+              family: params[:family]
             )
           else
             result

@@ -2,7 +2,7 @@
 
 module Journal
   # FDSH schema and validation rules for {Journal::Transaction}
-  class ActivityContract < Contract
+  class AptcCsrTaxHouseholdContract < Contract
     # @!method call(opts)
     # @param opts [Hash] the parameters to validate using this contract
     # @option opts [Types::String] :correlation_id required
@@ -12,14 +12,8 @@ module Journal
     # @option opts [Types::String] :status
     # @return [Dry::Monads::Result]
     params do
-      required(:correlation_id).filled(:string)
-      optional(:command).maybe(:string)
-      required(:event_key).filled(:string)
-      optional(:message).maybe(:hash)
-      optional(:status).maybe(:string)
-      optional(:assistance_year).maybe(:integer)
-      optional(:application_hbx_id).maybe(:string)
-      optional(:tax_year).maybe(:string)
+      optional(:hbx_assigned_id).maybe(:string)
+      required(:h41_transmission).maybe(:string)
     end
   end
 end
