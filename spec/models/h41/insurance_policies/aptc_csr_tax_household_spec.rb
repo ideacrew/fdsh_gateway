@@ -9,7 +9,7 @@ RSpec.describe H41::InsurancePolicies::AptcCsrTaxHousehold, type: :model do
 
   it { is_expected.to belong_to(:insurance_policy) }
 
-  let(:tax_household_id) { '525252' }
+  let(:hbx_assigned_id) { '525252' }
   let(:transaction_xml) { '<xml>hello world</xml>' }
 
   let(:correlation_id) { 'ae321f' }
@@ -34,7 +34,7 @@ RSpec.describe H41::InsurancePolicies::AptcCsrTaxHousehold, type: :model do
   end
 
   let(:required_params) do
-    { insurance_policy: insurance_policy, tax_household_id: tax_household_id, transaction_xml: transaction_xml }
+    { insurance_policy: insurance_policy, hbx_assigned_id: hbx_assigned_id, transaction_xml: transaction_xml }
   end
 
   context 'Given all required, valid params' do

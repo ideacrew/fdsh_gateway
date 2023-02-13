@@ -7,10 +7,10 @@ module H41
     include Mongoid::Timestamps
     include Transmittable::Transmission
 
-    SUBJECT_CLASS_NAME = 'H41::InsurancePolicies::TaxHousehold'
+    SUBJECT_CLASS_NAME = 'H41::InsurancePolicies::AptcCsrTaxHousehold'
     TRANSMIT_ACTION_TYPES = %i[transmit no_transmit blocked].freeze
 
-    TRANSACTION_TYPES = %i[original corrected void]
+    TRANSACTION_TYPES = %i[original corrected void].freeze
 
     # Only populated for Corrected and Void transactions
     # Batch ID/File ID/Record ID

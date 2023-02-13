@@ -23,13 +23,13 @@ RSpec.describe H41::InsurancePolicies::InsurancePolicy, type: :model, dbclean: :
 
   let(:transaction_xml) { '<xml>hello world</xml>' }
   let(:aptc_csr_tax_household_1) do
-    H41::InsurancePolicies::AptcCsrTaxHousehold.new(tax_household_id: '5454555', transaction_xml: transaction_xml)
+    H41::InsurancePolicies::AptcCsrTaxHousehold.new(hbx_assigned_id: '5454555', transaction_xml: transaction_xml)
   end
   let(:aptc_csr_tax_household_2) do
-    H41::InsurancePolicies::AptcCsrTaxHousehold.new(tax_household_id: '6655644', transaction_xml: transaction_xml)
+    H41::InsurancePolicies::AptcCsrTaxHousehold.new(hbx_assigned_id: '6655644', transaction_xml: transaction_xml)
   end
   let(:aptc_csr_tax_household_3) do
-    H41::InsurancePolicies::AptcCsrTaxHousehold.new(tax_household_id: '6655644', transaction_xml: transaction_xml)
+    H41::InsurancePolicies::AptcCsrTaxHousehold.new(hbx_assigned_id: '6655644', transaction_xml: transaction_xml)
   end
   let(:aptc_csr_tax_households) { [aptc_csr_tax_household_1, aptc_csr_tax_household_2, aptc_csr_tax_household_3] }
 

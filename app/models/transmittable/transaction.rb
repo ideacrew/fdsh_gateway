@@ -7,21 +7,36 @@ module Transmittable
     include Mongoid::Timestamps
 
     belongs_to :transmission, class_name: '::Transmittable::Transmission', counter_cache: true
-    has_one :subject, class_name: '::Transmittable::Subject'
+
+    # belongs_to :subject, polymorphic: true
+    belongs_to :subject, class_name: 'H41::InsurancePolicies::AptcCsrTaxHousehold'
 
     field :transmit_action, type: Symbol
     field :status, type: Symbol, default: :created
 
+    # An optional field for Transmissions that have more than one Transaction kind.
+    # Restrict to enumerated values by configuring during this Transacation's
+    # Transmission initialization
+    # @example
+    #   Transmission.new(options: { transaction_types: %i[original corrected void] })
     field :type, type: Symbol
     field :transaction_errors, type: Hash
 
-    # Persist Transaction-related attributes, e.g., foreign key, associated documents
-    # { Transmission, Segment and Transaction ID }
+    # An optional field to persist Transaction-related attributes, e.g., foreign key, associated documents
+    # @example
+    #   metadata = { original_transaction_path: { transmission_id: "37373737", section_id: 2, transaction_id: 535 } }
     field :metadata, type: Hash
 
     # field :started_at, type: DateTime, default: -> { Time.now }
     field :started_at, type: DateTime
     field :end_at, type: DateTime
+
+    def type=(value)
+      unless ::Transmittable::TRANSACTION_TYPES.includes?(value)
+        raise ArgumentError "must be one of: #{::Transmittable::TRANSACTION_TYPES}"
+      end
+      write_attribute(:transmit_status, value)
+    end
 
     def transmit_action=(value)
       unless ::Transmittable::TRANSMIT_ACTION_TYPES.includes?(value)

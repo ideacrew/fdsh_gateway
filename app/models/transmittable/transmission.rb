@@ -37,6 +37,7 @@ module Transmittable
   ].freeze
 
   DEFAULT_TRANSMIT_ACTION_TYPES = %i[blocked expired hold no_transmit pending transmit].freeze
+  DEFAULT_TRANSACTION_TYPES = []
 
   class Transmission
     include Mongoid::Document
@@ -52,16 +53,18 @@ module Transmittable
 
     scope :transmission_errors, -> { where(:'transactions.transacion_errors'.ne => nil) }
 
+    # @example
     def initialize(args)
       super
       const_set(
         '::Transmittable::TRANSMISSION_STATUS_TYPES',
-        options[:transmission_status_types] || DEFAULT_TRANSMISSION_STATUS_TYPES
+        args[:options][:transmission_status_types] || DEFAULT_TRANSMISSION_STATUS_TYPES
       )
       const_set(
         '::Transmittable::TRANSMIT_ACTION_TYPES',
-        options[:transmission_status_types] || DEFAULT_TRANSMIT_ACTION_TYPES
+        args[:options][:transmit_action_types] || DEFAULT_TRANSMIT_ACTION_TYPES
       )
+      const_set('::Transmittable::TRANSACTION_TYPES', args[:options][:transaction_types] || DEFAULT_TRANSACTION_TYPES)
     end
 
     def status=(value)
@@ -72,7 +75,7 @@ module Transmittable
     end
 
     # Returns boolean indicating if all Transaction subjects completed processing
-    def is_complete?
+    def complete?
       # code here
     end
 
