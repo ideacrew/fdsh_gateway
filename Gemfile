@@ -73,6 +73,8 @@ end
 
 group :development do
   gem 'listen', '~> 3.3'
+  gem 'prettier'
+  gem 'redcarpet'
 
   gem 'rubocop-git'
   gem 'rubocop-rails',          require: false
@@ -88,7 +90,20 @@ group :development do
 
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem 'web-console', '>= 4.1.0'
+
+  gem 'yard'
+  gem 'yard-mongoid'
+end
+
+group :test do
+  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
+  gem "capybara"
+  gem 'mongoid-rspec'
+  gem "selenium-webdriver"
+  gem "webdrivers"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+gem "jsbundling-rails", "~> 1.1"
