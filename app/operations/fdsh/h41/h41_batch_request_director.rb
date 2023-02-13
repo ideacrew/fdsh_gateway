@@ -82,7 +82,7 @@ module Fdsh
       def process_for_transaction_xml(tax_household, _values, record_sequence)
         xml_string = tax_household.h41_transmission
         transaction_xml = Nokogiri.XML(xml_string, &:noblanks)
-        individual_xml = transaction_xml.at("//airty20a:RecordSequenceNum")
+        individual_xml = transaction_xml.at("//airty20a:Form1095AUpstreamDetail")
         if (content = individual_xml.at("//airty20a:RecordSequenceNum")&.content)
           individual_xml.at("//airty20a:RecordSequenceNum").content = content + format("%05d", record_sequence)
         end
