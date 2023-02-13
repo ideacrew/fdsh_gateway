@@ -12,8 +12,10 @@ module H41
       accepts_nested_attributes_for :insurance_policies
 
       field :correlation_id, type: String
+      # primary person hbx_id
       field :contract_holder_id, type: String
       field :family_cv, type: String
+      field :family_hbx_id, type: String
 
       index({ correlation_id: 1 })
       index({ contract_holder_id: 1 })

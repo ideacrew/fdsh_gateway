@@ -3,7 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe H41::InsurancePolicies::InsurancePolicy, type: :model, dbclean: :before_each do
-  let(:policy_id) { '21212424' }
+  before :all do
+    DatabaseCleaner.clean
+  end
+
+  let(:policy_hbx_id) { '21212424' }
   let(:assistance_year) { Date.today.year - 1.year }
 
   let(:correlation_id) { 'ae321f' }
@@ -18,23 +22,23 @@ RSpec.describe H41::InsurancePolicies::InsurancePolicy, type: :model, dbclean: :
   end
 
   let(:transaction_xml) { '<xml>hello world</xml>' }
-  let(:tax_household_1) do
-    H41::InsurancePolicies::TaxHousehold.new(tax_household_id: '5454555', transaction_xml: transaction_xml)
+  let(:aptc_csr_tax_household_1) do
+    H41::InsurancePolicies::AptcCsrTaxHousehold.new(tax_household_id: '5454555', transaction_xml: transaction_xml)
   end
-  let(:tax_household_2) do
-    H41::InsurancePolicies::TaxHousehold.new(tax_household_id: '6655644', transaction_xml: transaction_xml)
+  let(:aptc_csr_tax_household_2) do
+    H41::InsurancePolicies::AptcCsrTaxHousehold.new(tax_household_id: '6655644', transaction_xml: transaction_xml)
   end
-  let(:tax_household_3) do
-    H41::InsurancePolicies::TaxHousehold.new(tax_household_id: '6655644', transaction_xml: transaction_xml)
+  let(:aptc_csr_tax_household_3) do
+    H41::InsurancePolicies::AptcCsrTaxHousehold.new(tax_household_id: '6655644', transaction_xml: transaction_xml)
   end
-  let(:tax_households) { [tax_household_1, tax_household_2, tax_household_3] }
+  let(:aptc_csr_tax_households) { [aptc_csr_tax_household_1, aptc_csr_tax_household_2, aptc_csr_tax_household_3] }
 
   let(:required_params) do
     {
-      policy_id: policy_id,
+      policy_hbx_id: policy_hbx_id,
       assistance_year: assistance_year,
       posted_family: posted_family,
-      tax_households: tax_households
+      aptc_csr_tax_households: aptc_csr_tax_households
     }
   end
 

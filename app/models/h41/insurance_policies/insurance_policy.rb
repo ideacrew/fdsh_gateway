@@ -8,14 +8,14 @@ module H41
       include Mongoid::Timestamps
 
       belongs_to :posted_family, class_name: 'H41::InsurancePolicies::PostedFamily'
-      has_many :tax_households, class_name: 'H41::InsurancePolicies::TaxHousehold'
+      has_many :aptc_csr_tax_households, class_name: 'H41::InsurancePolicies::AptcCsrTaxHousehold'
 
-      accepts_nested_attributes_for :tax_households, :posted_family
+      accepts_nested_attributes_for :aptc_csr_tax_households, :posted_family
 
-      field :policy_id, type: String
+      field :policy_hbx_id, type: String
       field :assistance_year, type: Integer
 
-      index({ assistance_year: 1, policy_id: 1 })
+      index({ assistance_year: 1, policy_hbx_id: 1 })
     end
   end
 end

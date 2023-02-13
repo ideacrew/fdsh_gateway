@@ -7,22 +7,22 @@ RSpec.describe H41::InsurancePolicies::PostedFamily, type: :model do
   let(:contract_holder_id) { '25458' }
   let(:family_cv) { 'family: {}' }
 
-  let(:policy_id) { '6655644' }
+  let(:policy_hbx_id) { '6655644' }
   let(:assistance_year) { Date.today.year - 1.year }
 
   let(:insurance_policies) do
     [
       H41::InsurancePolicies::InsurancePolicy.new(
-        policy_id: policy_id,
+        policy_hbx_id: policy_hbx_id,
         assistance_year: assistance_year,
-        tax_households: tax_households
+        aptc_csr_tax_households: aptc_csr_tax_households
       )
     ]
   end
 
   let(:transaction_xml) { '<xml>hello world</xml>' }
-  let(:tax_households) do
-    [H41::InsurancePolicies::TaxHousehold.new(tax_household_id: '5454555', transaction_xml: transaction_xml)]
+  let(:aptc_csr_tax_households) do
+    [H41::InsurancePolicies::AptcCsrTaxHousehold.new(tax_household_id: '5454555', transaction_xml: transaction_xml)]
   end
 
   let(:required_params) do
