@@ -22,7 +22,7 @@ RSpec.describe H41::InsurancePolicies::PostedFamily, type: :model do
 
   let(:transaction_xml) { '<xml>hello world</xml>' }
   let(:aptc_csr_tax_households) do
-    [H41::InsurancePolicies::AptcCsrTaxHousehold.new(tax_household_id: '5454555', transaction_xml: transaction_xml)]
+    [H41::InsurancePolicies::AptcCsrTaxHousehold.new(hbx_assigned_id: '5454555', transaction_xml: transaction_xml)]
   end
 
   let(:required_params) do

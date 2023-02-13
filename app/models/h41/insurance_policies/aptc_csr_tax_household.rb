@@ -14,13 +14,12 @@ module H41
       accepts_nested_attributes_for :insurance_policy
 
       # Subject
-      field :subject_id, type: String
-      field :tax_household_id, type: String
+      field :hbx_assigned_id, type: String
 
       # Produced by operation
       field :transaction_xml, type: String
 
-      # index({ policy_id: 1, tax_household_id: 1 })
+      index({ hbx_assigned_id: 1 })
     end
   end
 end

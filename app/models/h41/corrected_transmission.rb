@@ -22,7 +22,7 @@ module H41
     scope :exceptions, -> { exists?('subjects.errors': true) }
 
     # All subject_entries successfully processed
-    def is_complete?
+    def complete?
       # code here
     end
 

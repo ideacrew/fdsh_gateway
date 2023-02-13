@@ -9,7 +9,7 @@ module H41
 
     SUBJECT_CLASS_NAME = 'H41::InsurancePolicies::TaxHousehold'
     TRANSMIT_ACTION_TYPES = %i[transmit no_transmit blocked].freeze
-    TRANSACTION_TYPES = %i[original corrected void]
+    TRANSACTION_TYPES = %i[original corrected void].freeze
 
     # Time boundary parameters for the job
     field :time_span_start, type: DateTime
@@ -32,7 +32,7 @@ module H41
     scope :exceptions, -> { exists?('subjects.errors': true) }
 
     # All subject_entries successfully processed
-    def is_complete?
+    def complete?
       # code here
     end
 
