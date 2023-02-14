@@ -17,7 +17,7 @@ module Fdsh
           family = yield initialize_family_entity(values)
           policies = yield parse_family(family)
           _persisted_posted_family = yield persist_family(family, policies, params[:correlation_id])
-          result = yield enqueue(policies, family)
+          _result = yield enqueue(policies, family)
 
           Success('Successfully processed event: edi_gateway.insurance_policies.posted')
         end
@@ -25,9 +25,15 @@ module Fdsh
         protected
 
         # def construct_metadata(policy, aptc_csr_thh, previous_transactions)
-        #   original_transaction = previous_transactions.any? { |transaction| transaction.type == :original && transaction.status == :transmitted }.first
+        #   original_transaction = previous_transactions.any? do |transaction|
+        #     transaction.type == :original && transaction.status == :transmitted
+        #   end.first
         #   return {} if original_transaction.blank?
-        #   { original_transaction_path: { transmission_id: original_transaction.transmission.id, section_id: 2, transaction_id: original_transaction } }
+        #   {
+        #     original_transaction_path: {
+        #       transmission_id: original_transaction.transmission.id, section_id: 2, transaction_id: original_transaction
+        #     }
+        #   }
         # end
 
         # Adds the Family event and its updated policies to the transmission list
@@ -37,7 +43,7 @@ module Fdsh
           Success('')
         end
 
-        def find_all_matching_transactions(family, policy, aptc_csr_thh)
+        def find_all_matching_transactions(_family, _policy, aptc_csr_thh)
           ::Transmittable::Transaction.where(
             :subject_id.in => ::H41::InsurancePolicies::AptcCsrTaxHousehold.by_hbx_assigned_id(aptc_csr_thh.hbx_assigned_id).pluck(:id)
           )
@@ -68,11 +74,11 @@ module Fdsh
         # Check to see if there are any transactions for this policy_aptc_csr_thh combo
         # Return check to see if Incoming transaction transmitted an original, if yes we check policy status to determine if it is corrected or void
 
-        def find_type(policy, aptc_csr_thh, previous_transactions)
+        def find_type(policy, _aptc_csr_thh, previous_transactions)
           # policy.start_on.present? && policy.end_on.present? && policy.start_on == policy.end_on
           if policy.aasm_state == 'canceled'
             :void
-          elsif previous_transactions.blank? || !previous_transactions.any? { |transaction| transaction.status == :transmitted }
+          elsif previous_transactions.blank? || previous_transactions.none? { |transaction| transaction.status == :transmitted }
             :original
           else
             :corrected
@@ -110,7 +116,7 @@ module Fdsh
             type: find_type(policy, aptc_csr_thh, previous_transactions),
             # transaction_errors: [],
             # metadata: construct_metadata(policy, aptc_csr_thh, previous_transactions),
-            started_at: Time.now,
+            started_at: Time.now
             # end_at: find_end_at(policy, aptc_csr_thh, previous_transactions)
           }
         end
@@ -136,7 +142,7 @@ module Fdsh
         def persist_family(family, policies, correlation_id)
           posted_family = ::H41::InsurancePolicies::PostedFamily.new(
             correlation_id: correlation_id,
-            contract_holder_id: family.family_members.detect { |mmbr| mmbr.is_primary_applicant }.person.hbx_id,
+            contract_holder_id: family.family_members.detect(&:is_primary_applicant).person.hbx_id,
             family_cv: family.to_h.to_s,
             family_hbx_id: family.hbx_id
           )
@@ -144,7 +150,7 @@ module Fdsh
           policies.each do |policy_hash|
             policy = posted_family.insurance_policies.build(
               assistance_year: policy_hash[:assistance_year],
-              policy_hbx_id: policy_hash[:policy_hbx_id],
+              policy_hbx_id: policy_hash[:policy_hbx_id]
             )
 
             policy_hash[:aptc_csr_tax_households].each do |aptc_csr_thh_hash|
