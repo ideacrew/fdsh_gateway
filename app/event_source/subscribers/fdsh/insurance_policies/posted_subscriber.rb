@@ -6,14 +6,16 @@ module Subscribers
     class PostedSubscriber
       include ::EventSource::Subscriber[amqp: 'edi_gateway.insurance_policies']
 
-      subscribe(:on_posted) do |delivery_info, _properties, response|
+      subscribe(:on_posted) do |delivery_info, metadata, response|
         logger.info "on_posted response: #{response}"
         subscriber_logger = subscriber_logger_for(:on_insurance_policies_posted)
         response = JSON.parse(response, symbolize_names: true)
         logger.info "on_posted response: #{response}"
         subscriber_logger.info "on_posted response: #{response}"
 
-        process_insurance_policies_posted_event(subscriber_logger, response) unless Rails.env.test?
+        if !Rails.env.test? && metadata[:headers]["assistance_year"] == Date.today.year.pred
+          process_insurance_policies_posted_event(subscriber_logger, response, metadata[:headers])
+        end
 
         ack(delivery_info.delivery_tag)
       rescue StandardError, SystemStackError => e
@@ -31,10 +33,15 @@ module Subscribers
         end
       end
 
-      # TODO: Call correct operations based on requirements.
-      def process_insurance_policies_posted_event(subscriber_logger, _response)
+      def process_insurance_policies_posted_event(subscriber_logger, response, headers)
         subscriber_logger.info "process_insurance_policies_posted_event: ------- start"
-        result = '' # ::InsurancePolicies::CreateOrUpdate.new.call(response)
+        result = H41::InsurancePolicies::Enqueue.new.call(
+          {
+            # affected_policies: headers['affected_policies'], # Not needed as FamilyCv only has affected_policies
+            correlation_id: headers['correlation_id'],
+            family: response
+          }
+        )
 
         if result.success?
           message = result.success

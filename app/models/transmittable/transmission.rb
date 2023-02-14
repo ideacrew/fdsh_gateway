@@ -18,7 +18,7 @@ module Transmittable
   # completed: processing of the object finished
   # nacked: negative_acknowledged, an outside service completed processing and indicated an error
   # pending: awaiting processing
-  DEFAULT_TRANSMISSION_STATUS_TYPES = %i[
+  DEFAULT_TRANSACTION_STATUS_TYPES = %i[
     approved
     acked
     created
@@ -58,8 +58,8 @@ module Transmittable
     def initialize(args)
       super
       const_set(
-        '::Transmittable::TRANSMISSION_STATUS_TYPES',
-        args[:options][:transmission_status_types] || DEFAULT_TRANSMISSION_STATUS_TYPES
+        '::Transmittable::TRANSACTION_STATUS_TYPES',
+        args[:options][:transaction_status_types] || DEFAULT_TRANSACTION_STATUS_TYPES
       )
       const_set(
         '::Transmittable::TRANSMIT_ACTION_TYPES',
@@ -69,8 +69,8 @@ module Transmittable
     end
 
     def status=(value)
-      unless ::Transmittable::TRANSMISSION_STATUS_TYPES.includes?(value)
-        raise ArgumentError "must be one of: #{::Transmittable::TRANSMISSION_STATUS_TYPES}"
+      unless ::Transmittable::TRANSACTION_STATUS_TYPES.includes?(value)
+        raise ArgumentError "must be one of: #{::Transmittable::TRANSACTION_STATUS_TYPES}"
       end
       write_attribute(:status, value)
     end

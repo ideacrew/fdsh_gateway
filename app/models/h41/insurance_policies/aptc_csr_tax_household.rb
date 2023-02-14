@@ -20,6 +20,9 @@ module H41
       field :transaction_xml, type: String
 
       index({ hbx_assigned_id: 1 })
+
+      # Scopes
+      scope :by_hbx_assigned_id, ->(hbx_assigned_id) { where(hbx_assigned_id: hbx_assigned_id) }
     end
   end
 end
