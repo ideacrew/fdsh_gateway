@@ -32,16 +32,12 @@ module Transmittable
     field :end_at, type: DateTime
 
     def type=(value)
-      unless ::Transmittable::TRANSACTION_TYPES.includes?(value)
-        raise ArgumentError "must be one of: #{::Transmittable::TRANSACTION_TYPES}"
-      end
+      raise ArgumentError "must be one of: #{::Transmittable::TRANSACTION_TYPES}" unless ::Transmittable::TRANSACTION_TYPES.includes?(value)
       write_attribute(:transmit_status, value)
     end
 
     def transmit_action=(value)
-      unless ::Transmittable::TRANSMIT_ACTION_TYPES.includes?(value)
-        raise ArgumentError "must be one of: #{::Transmittable::TRANSMIT_ACTION_TYPES}"
-      end
+      raise ArgumentError "must be one of: #{::Transmittable::TRANSMIT_ACTION_TYPES}" unless ::Transmittable::TRANSMIT_ACTION_TYPES.includes?(value)
       write_attribute(:transmit_status, value)
     end
 

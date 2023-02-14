@@ -22,17 +22,17 @@ module H41
       protected
 
       # Validates params using AcaEntities Family contract
-      def validate(params)
+      def validate(_params)
         Success(result)
       end
 
       # Returns the updated policies and attributes from the Family payload
-      def parse_family(values)
+      def parse_family(_values)
         Success(result)
       end
 
       # Adds the Family event and its updated policies to the transmission list
-      def enqueue(policies, family)
+      def enqueue(_policies, _family)
         Success(result)
       end
     end

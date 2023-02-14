@@ -8,7 +8,7 @@ module H41
     include Transmittable::Transmission
 
     SUBJECT_CLASS_NAME = 'H41::InsurancePolicies::TaxHousehold'
-    TRANSACTION_TYPES = %i[original corrected void]
+    TRANSACTION_TYPES = %i[original corrected void].freeze
 
     # Only populated for Corrected and Void transactions
     # Batch ID/File ID/Record ID

@@ -37,8 +37,9 @@ module Transmittable
   ].freeze
 
   DEFAULT_TRANSMIT_ACTION_TYPES = %i[blocked expired hold no_transmit pending transmit].freeze
-  DEFAULT_TRANSACTION_TYPES = []
+  DEFAULT_TRANSACTION_TYPES = [].freeze
 
+  # Persistence model for all transmissions
   class Transmission
     include Mongoid::Document
     include Mongoid::Timestamps
