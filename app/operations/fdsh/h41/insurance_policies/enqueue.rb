@@ -17,6 +17,7 @@ module Fdsh
           family = yield initialize_family_entity(values)
           policies = yield parse_family(family)
           _persisted_posted_family = yield persist_family(family, policies, params[:correlation_id])
+          require 'pry'; binding.pry
           _result = yield enqueue(policies, family)
 
           Success('Successfully processed event: edi_gateway.insurance_policies.posted')
@@ -55,6 +56,18 @@ module Fdsh
         #   :updated We will set transmit_action to 'updated' when we get event 'enroll.h41_10955as.transmission_requested'
         def find_status(_policy, _aptc_csr_thh, _previous_transactions)
           :created
+        end
+
+        def find_transmission(transaction_type)
+          case transaction_type
+          when :corrected
+            ::H41::CorrectedTransmission.first.communication
+          when :original
+            ::H41::OriginalTransmission.first.communication
+          when :void
+            ::H41::VoidTransmission.first.communication
+          else
+          end
         end
 
         # Value:
@@ -154,9 +167,19 @@ module Fdsh
             )
 
             policy_hash[:aptc_csr_tax_households].each do |aptc_csr_thh_hash|
-              policy.aptc_csr_tax_households.build(
+              aptc_csr_tax_household = policy.aptc_csr_tax_households.build(
                 hbx_assigned_id: aptc_csr_thh_hash[:hbx_assigned_id],
                 transaction_xml: aptc_csr_thh_hash[:transaction_xml]
+              )
+
+              aptc_csr_tax_household.transactions.build(
+                transmission: find_transmission(aptc_csr_thh_hash[:transaction][:type]),
+                transmit_action: aptc_csr_thh_hash[:transaction][:transmit_action],
+                status: aptc_csr_thh_hash[:transaction][:status],
+                type: aptc_csr_thh_hash[:transaction][:type],
+                # metadata
+                started_at: aptc_csr_thh_hash[:transaction][:started_at]
+                # end_at
               )
             end
           end

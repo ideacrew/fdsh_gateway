@@ -6,6 +6,8 @@ require 'shared_examples/family_response'
 RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
   subject { described_class.new.call(input_params) }
 
+  let!(:h41_original_transmission) { FactoryBot.create(:h41_original_transmission) }
+
   before :all do
     DatabaseCleaner.clean
   end
@@ -22,8 +24,11 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
       end
 
       it 'returns a success with a message' do
+        require 'pry'; binding.pry
+        result = subject
+        require 'pry'; binding.pry
         expect(
-          subject.success
+          result.success
         ).to eq('Successfully processed event: edi_gateway.insurance_policies.posted')
       end
     end

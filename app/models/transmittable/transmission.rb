@@ -37,7 +37,6 @@ module Transmittable
   ].freeze
 
   DEFAULT_TRANSMIT_ACTION_TYPES = %i[blocked expired hold no_transmit pending transmit].freeze
-  DEFAULT_TRANSACTION_TYPES = [].freeze
 
   # Persistence model for all transmissions
   class Transmission
@@ -45,27 +44,27 @@ module Transmittable
     include Mongoid::Timestamps
 
     belongs_to :account, class_name: 'Accounts::Account', optional: true
-    has_many :transactions, class_name: '::Transmittable::Transaction'
+
+    has_many :transactions, as: :transmission, class_name: 'Transmittable::Transaction'
 
     # State for the Transmission
     field :status, type: Symbol
     field :started_at, type: DateTime, default: -> { Time.now }
     field :ended_at, type: DateTime
 
-    scope :transmission_errors, -> { where(:'transactions.transacion_errors'.ne => nil) }
-
     # @example
     def initialize(args)
-      super
-      const_set(
-        '::Transmittable::TRANSACTION_STATUS_TYPES',
+      super(args.except(:options))
+
+      ::Transmittable.const_set(
+        'TRANSACTION_STATUS_TYPES',
         args[:options][:transaction_status_types] || DEFAULT_TRANSACTION_STATUS_TYPES
       )
-      const_set(
-        '::Transmittable::TRANSMIT_ACTION_TYPES',
+
+      ::Transmittable.const_set(
+        'TRANSMIT_ACTION_TYPES',
         args[:options][:transmit_action_types] || DEFAULT_TRANSMIT_ACTION_TYPES
       )
-      const_set('::Transmittable::TRANSACTION_TYPES', args[:options][:transaction_types] || DEFAULT_TRANSACTION_TYPES)
     end
 
     def status=(value)

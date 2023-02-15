@@ -40,6 +40,67 @@ RSpec.describe H41::InsurancePolicies::PostedFamily, type: :model do
       expect(described_class.all.count).to eq 0
       expect(result.valid?).to be_truthy
       expect(result.save).to be_truthy
+
+      posted_family = described_class.all.first
+      insurance_policy = posted_family.insurance_policies.first
+      aptc_csr_thh = insurance_policy.aptc_csr_tax_households.first
+
+      # ---------------------- Given Start
+      # ::H41::Transmissions::H41Transmission < Transmittable::Transmission
+      # ::H41::Transmissions::Original
+      # ::H41::Transmissions::Original.transactions << Transaction.new
+      h41_original_transmission = ::H41::OriginalTransmission.new({ options: {} })
+      h41_original_transmission.valid?
+      h41_original_transmission.save!
+
+      h41_corrected_transmission = ::H41::CorrectedTransmission.new({ options: {} })
+      h41_corrected_transmission.valid?
+      h41_corrected_transmission.save!
+
+      h41_void_transmission = ::H41::VoidTransmission.new({ options: {} })
+      h41_void_transmission.valid?
+      h41_void_transmission.save!
+
+      # ::H41::H41Transmission
+      # communication = h41_original_transmission.build_communication({ options: {}, name_test: 'First Communication' })
+      # communication.valid?
+      # communication.save!
+      # ---------------------- Given End
+
+      require 'pry'; binding.pry
+
+      transaction = Transmittable::Transaction.new(subject: aptc_csr_thh, status: :transmitted, transmission: h41_original_transmission)
+      transaction.valid?
+      transaction.save!
+
+      transaction1 = Transmittable::Transaction.new(subject: aptc_csr_thh, status: :transmitted, transmission: h41_corrected_transmission)
+      transaction1.valid?
+      transaction1.save!
+
+      transaction2 = Transmittable::Transaction.new(subject: aptc_csr_thh, status: :transmitted, transmission: h41_void_transmission)
+      transaction2.valid?
+      transaction2.save!
+
+      transaction3 = Transmittable::Transaction.new(subject: aptc_csr_thh, transmission: h41_corrected_transmission, status: :created, transmit_action: :blocked)
+      transaction3.valid?
+      transaction3.save!
+
+      transaction4 = Transmittable::Transaction.new(subject: aptc_csr_thh, transmission: h41_corrected_transmission, status: :created, transmit_action: :no_transmit)
+      transaction4.valid?
+      transaction4.save!
+
+      transaction5 = Transmittable::Transaction.new(subject: aptc_csr_thh, transmission: h41_corrected_transmission, status: :created, transmit_action: :transmit)
+      transaction5.valid?
+      transaction5.save!
+
+      Transmittable::Transaction.all.blocked.count
+      Transmittable::Transaction.all.no_transmit.count
+      Transmittable::Transaction.all.transmit_pending.count
+      Transmittable::Transaction.all.transmitted.count
+
+      ::H41::OriginalTransmission.first.transactions.transmitted
+      ::H41::OriginalTransmission.where(:'transactions'.exists => true)
+
       expect(described_class.all.count).to eq 1
       expect(described_class.find(result._id).created_at).to be_present
     end
