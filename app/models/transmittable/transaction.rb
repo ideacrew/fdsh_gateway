@@ -38,12 +38,12 @@ module Transmittable
     index({ 'transmit_action' => 1 })
 
     def transmit_action=(value)
-      raise ArgumentError "must be one of: #{::Transmittable::TRANSMIT_ACTION_TYPES}" unless ::Transmittable::TRANSMIT_ACTION_TYPES.includes?(value)
-      write_attribute(:transmit_status, value)
+      raise ArgumentError "must be one of: #{::Transmittable::TRANSMIT_ACTION_TYPES}" if ::Transmittable::TRANSMIT_ACTION_TYPES.exclude?(value)
+      write_attribute(:transmit_action, value)
     end
 
     def status=(value)
-      unless ::Transmittable::TRANSACTION_STATUS_TYPES.includes?(value)
+      unless ::Transmittable::TRANSACTION_STATUS_TYPES.include?(value)
         raise ArgumentError "must be one of: #{::Transmittable::TRANSACTION_STATUS_TYPES}"
       end
 
