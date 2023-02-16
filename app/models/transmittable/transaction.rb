@@ -6,20 +6,14 @@ module Transmittable
     include Mongoid::Document
     include Mongoid::Timestamps
 
-    belongs_to :transmission, class_name: '::Transmittable::Transmission', counter_cache: true
-
-    # belongs_to :subject, polymorphic: true
+    belongs_to :transmission, polymorphic: true
     belongs_to :subject, class_name: 'H41::InsurancePolicies::AptcCsrTaxHousehold'
 
     field :transmit_action, type: Symbol
+
+    # :transmitted will be the value for status if the transaction is already tranmitted
     field :status, type: Symbol, default: :created
 
-    # An optional field for Transmissions that have more than one Transaction kind.
-    # Restrict to enumerated values by configuring during this Transacation's
-    # Transmission initialization
-    # @example
-    #   Transmission.new(options: { transaction_types: %i[original corrected void] })
-    field :type, type: Symbol
     field :transaction_errors, type: Hash
 
     # An optional field to persist Transaction-related attributes, e.g., foreign key, associated documents
@@ -31,22 +25,27 @@ module Transmittable
     field :started_at, type: DateTime
     field :end_at, type: DateTime
 
-    def type=(value)
-      unless ::Transmittable::TRANSACTION_TYPES.includes?(value)
-        raise ArgumentError "must be one of: #{::Transmittable::TRANSACTION_TYPES}"
-      end
-      write_attribute(:transmit_status, value)
-    end
+    # Scopes
+    scope :blocked,          -> { where(transmit_action: :blocked) }
+    scope :errored,          -> { where(:transaction_errors.ne => nil) }
+    scope :no_transmit,      -> { where(transmit_action: :no_transmit) }
+    scope :transmitted,      -> { where(status: :transmitted) }
+    scope :transmit_pending, -> { where(transmit_action: :transmit) }
+
+    # Indexes
+    index({ 'status' => 1 })
+    index({ 'transaction_errors' => 1 })
+    index({ 'transmit_action' => 1 })
 
     def transmit_action=(value)
-      unless ::Transmittable::TRANSMIT_ACTION_TYPES.includes?(value)
-        raise ArgumentError "must be one of: #{::Transmittable::TRANSMIT_ACTION_TYPES}"
-      end
-      write_attribute(:transmit_status, value)
+      raise ArgumentError "must be one of: #{::Transmittable::TRANSMIT_ACTION_TYPES}" if ::Transmittable::TRANSMIT_ACTION_TYPES.exclude?(value)
+      write_attribute(:transmit_action, value)
     end
 
     def status=(value)
-      raise ArgumentError "must be one of: #{@status_kinds}" unless @status_kinds.includes?(value)
+      unless ::Transmittable::TRANSACTION_STATUS_TYPES.include?(value)
+        raise ArgumentError "must be one of: #{::Transmittable::TRANSACTION_STATUS_TYPES}"
+      end
 
       write_attribute(:status, value)
     end
