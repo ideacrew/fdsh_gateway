@@ -8,6 +8,8 @@ module H41
         include Mongoid::Document
         include Mongoid::Timestamps
 
+        field :batch_reference, type: String
+
       end
     end
   end
