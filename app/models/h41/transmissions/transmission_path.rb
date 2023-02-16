@@ -8,7 +8,7 @@ module H41
       include Mongoid::Timestamps
 
       belongs_to :transmission, class_name: 'Transmittable::Transmission'
-      belongs_to :transaction, class_name: 'Transmittable::Transaction'
+      has_one :transaction, as: :transactable, class_name: 'Transmittable::Transaction'
 
       # Batch ID/File ID/Record ID
       field :file_reference, type: String

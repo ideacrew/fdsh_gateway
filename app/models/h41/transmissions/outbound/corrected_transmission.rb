@@ -8,6 +8,8 @@ module H41
         include Mongoid::Document
         include Mongoid::Timestamps
 
+        has_many :transmission_paths, class_name: 'H41::Transmissions::TransmissionPath'
+
         field :batch_reference, type: String
 
       end

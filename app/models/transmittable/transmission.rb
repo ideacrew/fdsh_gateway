@@ -33,6 +33,12 @@ module Transmittable
     rejected
     submitted
     successful
+    superseded
+    transmitted
+  ].freeze
+
+  DEFAULT_TRANSMISSION_STATUS_TYPES = %i[
+    open
     transmitted
   ].freeze
 
@@ -44,16 +50,24 @@ module Transmittable
     include Mongoid::Timestamps
 
     belongs_to :account, class_name: 'Accounts::Account', optional: true
-
-    has_many :transactions, as: :transmission, class_name: 'Transmittable::Transaction'
+    has_many :transactions_transmissions, class_name: 'Transmittable::TransactionsTransmissions'
 
     # State for the Transmission
     field :status, type: Symbol
     field :started_at, type: DateTime, default: -> { Time.now }
     field :ended_at, type: DateTime
 
+    # Scopes
+    scope :open, -> { where(status: :open) }
+
+    # Indexes
+    index({ 'open' => 1 })
+
     # @example
-    def initialize(args)
+    def initialize(args = nil)
+      args ||= { options: {} }
+      args.merge!({ options: {} }) unless args.key?(:options)
+
       super(args.except(:options))
 
       ::Transmittable.const_set(
@@ -65,11 +79,16 @@ module Transmittable
         'TRANSMIT_ACTION_TYPES',
         args[:options][:transmit_action_types] || DEFAULT_TRANSMIT_ACTION_TYPES
       )
+
+      ::Transmittable.const_set(
+        'TRANSMISSION_STATUS_TYPES',
+        args[:options][:transmission_status_types] || DEFAULT_TRANSMISSION_STATUS_TYPES
+      )
     end
 
     def status=(value)
-      unless ::Transmittable::TRANSACTION_STATUS_TYPES.includes?(value)
-        raise ArgumentError "must be one of: #{::Transmittable::TRANSACTION_STATUS_TYPES}"
+      unless ::Transmittable::TRANSMISSION_STATUS_TYPES.include?(value)
+        raise ArgumentError "must be one of: #{::Transmittable::TRANSMISSION_STATUS_TYPES}"
       end
       write_attribute(:status, value)
     end

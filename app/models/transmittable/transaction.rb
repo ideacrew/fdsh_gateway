@@ -6,8 +6,8 @@ module Transmittable
     include Mongoid::Document
     include Mongoid::Timestamps
 
-    belongs_to :transmission, polymorphic: true
-    belongs_to :subject, class_name: 'H41::InsurancePolicies::AptcCsrTaxHousehold'
+    belongs_to :transactable, polymorphic: true
+    has_many :transactions_transmissions, class_name: 'Transmittable::TransactionsTransmissions'
 
     field :transmit_action, type: Symbol
 
@@ -26,7 +26,6 @@ module Transmittable
     field :end_at, type: DateTime
 
     # Scopes
-    scope :blocked,          -> { where(transmit_action: :blocked) }
     scope :errored,          -> { where(:transaction_errors.ne => nil) }
     scope :no_transmit,      -> { where(transmit_action: :no_transmit) }
     scope :transmitted,      -> { where(status: :transmitted) }

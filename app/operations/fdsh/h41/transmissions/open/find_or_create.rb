@@ -4,6 +4,7 @@ module Fdsh
   module H41
     module Transmissions
       module Open
+        # Operation's job is to find or create a H41 Transmission of given type.
         class FindOrCreate
           include Dry::Monads[:result, :do]
 
@@ -18,15 +19,18 @@ module Fdsh
 
           private
 
-          def create(transaction_type)
-            case transmission_type
-            when :corrected
-              ::H41::Transmissions::Outbound::CorrectedTransmission.create!({ options: {}, status: :open })
-            when :original
-              ::H41::Transmissions::Outbound::OriginalTransmission.create!({ options: {}, status: :open })
-            else
-              ::H41::Transmissions::Outbound::VoidTransmission.create!({ options: {}, status: :open })
-            end
+          def create(transmission_type)
+            transmission = case transmission_type
+                           when :corrected
+                             ::H41::Transmissions::Outbound::CorrectedTransmission.new
+                           when :original
+                             ::H41::Transmissions::Outbound::OriginalTransmission.new
+                           else
+                             ::H41::Transmissions::Outbound::VoidTransmission.new
+                           end
+            transmission.status = :open
+            transmission.save!
+            transmission
           end
 
           def find(transmission_type)
@@ -40,14 +44,13 @@ module Fdsh
             end
           end
 
-          # TODO: Use find_or_create_by by updating transmission's initialization to set constants with default values when args are not passed in.
           def find_or_create(transmission_type)
             transmission = find(transmission_type)
-            Success(transmission) if transmission.present?
-
-            Success(
-              create(transaction_type)
-            )
+            if transmission.present?
+              Success(transmission)
+            else
+              Success(create(transmission_type))
+            end
           end
 
           def validate(params)

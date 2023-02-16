@@ -297,15 +297,15 @@ RSpec.shared_context 'family response from enroll', :shared_context => :metadata
         aptc_csr_tax_households: aptc_csr_tax_households
       },
       {
-        policy_id: "1000",
+        policy_id: "1001",
         insurance_product: insurance_product,
         hbx_enrollment_ids: [
-          "1000"
+          "10001"
         ],
         start_on: current_date.beginning_of_year,
         end_on: current_date.end_of_year,
         enrollments: insurance_policy_enrollments,
-        aptc_csr_tax_households: aptc_csr_tax_households
+        aptc_csr_tax_households: aptc_csr_tax_households1
       }
     ]
   end
@@ -368,6 +368,60 @@ RSpec.shared_context 'family response from enroll', :shared_context => :metadata
     [
       {
         hbx_assigned_id: "82876288",
+        tax_household_members: [
+          family_member_reference: {
+            family_member_hbx_id: '1',
+            first_name: "John",
+            last_name: "Smith1",
+            person_hbx_id: "1000595",
+            dob: Date.new(1972, 4, 4)
+          },
+        ],
+        covered_individuals: [
+          {
+            coverage_start_on: current_date.beginning_of_year,
+            coverage_end_on: current_date.end_of_year,
+            person: {
+              hbx_id: "1000595",
+              person_name: person_name_1,
+              person_demographics: {
+                gender: "female",
+                encrypted_ssn: "yobheUbYUK2Abfc6lrq37YQCsPgBL8lLkw==\n",
+                dob: current_date - 40.years
+              },
+              person_health: {},
+              is_active: true,
+              addresses: addresses,
+              emails: [
+                {
+                  kind: "home",
+                  address: "test@gmail.com"
+                }
+              ]
+            },
+            relation_with_primary: "self",
+            filer_status: "tax_filer"
+          }
+        ],
+        months_of_year: months_of_year,
+        annual_premiums: annual_premiums
+      }
+    ]
+  end
+
+  let(:aptc_csr_tax_households1) do
+    [
+      {
+        hbx_assigned_id: "82876210",
+        tax_household_members: [
+          family_member_reference: {
+            family_member_hbx_id: '1',
+            first_name: "John",
+            last_name: "Smith1",
+            person_hbx_id: "1000595",
+            dob: Date.new(1972, 4, 4)
+          },
+        ],
         covered_individuals: [
           {
             coverage_start_on: current_date.beginning_of_year,
