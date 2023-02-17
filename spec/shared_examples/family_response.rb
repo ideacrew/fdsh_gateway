@@ -375,7 +375,7 @@ RSpec.shared_context 'family response from enroll', :shared_context => :metadata
             last_name: "Smith1",
             person_hbx_id: "1000595",
             dob: Date.new(1972, 4, 4)
-          },
+          }
         ],
         covered_individuals: [
           {
@@ -420,7 +420,7 @@ RSpec.shared_context 'family response from enroll', :shared_context => :metadata
             last_name: "Smith1",
             person_hbx_id: "1000595",
             dob: Date.new(1972, 4, 4)
-          },
+          }
         ],
         covered_individuals: [
           {

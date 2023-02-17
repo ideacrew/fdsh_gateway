@@ -2,7 +2,7 @@
 
 module H41
   module Transmissions
-    # A model to persist a the transmission transaction path
+    # A model to persist the transmission transaction path
     class TransmissionPath
       include Mongoid::Document
       include Mongoid::Timestamps
@@ -13,7 +13,7 @@ module H41
       # Batch ID/File ID/Record ID
       field :file_reference, type: String
 
-      # TODO: move this to correct model
+      # Transaction reference
       field :record_reference, type: String
 
       def transmission_path

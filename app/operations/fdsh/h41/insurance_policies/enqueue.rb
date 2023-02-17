@@ -3,7 +3,15 @@
 module Fdsh
   module H41
     module InsurancePolicies
-      # Adds a Family and Insurance Policies to the database for H41 transmission to CMS
+      # Adds a Family, Insurance Policies, Aptc Csr TaxHousheolds, Transactions and Transmissions to the database for H41 transmission to CMS
+      # This operation does all the below:
+      #   1. creates database model Posted Family
+      #   2. creates database model Insurance Policies
+      #   3. creates database model Aptc Csr TaxHousheolds(Subject)
+      #   4. creates database model Transactions
+      #   5. FindOrCreate H41 Transmissions(Corrected, Original, and Void)
+      #   6. creates database model Transmittable::TransactionsTransmissions, the join table between Transactions and H41 Transmissions
+      #   7. Updates all the :untransmitted transactions that map to the subject
       class Enqueue
         include Dry::Monads[:result, :do]
 
@@ -25,24 +33,9 @@ module Fdsh
 
         protected
 
-        # TODO: check with Dan and get the below code verified
-        # def construct_metadata(policy, aptc_csr_thh, previous_transactions)
-        #   original_transaction = previous_transactions.transmitted.detect(&:original?)
-        #   return {} if original_transaction.blank?
-
-        #   # TODO: Update below code and check with Dan.
-        #   # Where do we get the original_transaction_path
-        #   {
-        #     original_transaction_path: {
-        #       transmission_id: original_transaction.transmission.id, section_id: 2, transaction_id: original_transaction
-        #     }
-        #   }
-        # end
-
         def find_transactions(aptc_csr_thh)
-          ::Transmittable::Transaction.where(
-            :subject_id.in => ::H41::InsurancePolicies::AptcCsrTaxHousehold.by_hbx_assigned_id(aptc_csr_thh.hbx_assigned_id).pluck(:id)
-          )
+          subjects = ::H41::InsurancePolicies::AptcCsrTaxHousehold.by_hbx_assigned_id(aptc_csr_thh.hbx_assigned_id)
+          ::Transmittable::Transaction.where(:transactable_id.in => subjects.pluck(:id))
         end
 
         def find_transmission(transaction_type)
@@ -58,27 +51,14 @@ module Fdsh
           end
         end
 
-        # Value:
-        #   :transmit We always set transmit_action to 'transmit'
-        #   :blocked We will set transmit_action to 'blocked' when we get event 'enroll.h41_10955as.transmission_requested' and
-        #     if the policy is listed in the denied_list
-        #   :no_transmit We will set transmit_action to 'no_transmit' if we do not want to transmit this transaction.
-        #     Eg: We have 2 transactions for the subject and we got a new transaction, then we will only report the latest transaction.
-        #         And we will update the untransmitted transactions to :no_transmit
-        def find_transmit_action(previous_transactions)
-          # Update all the previous transmit_pending trasactions to no_transmit. Command
-          previous_transactions.transmit_pending.update_all(transmit_action: :no_transmit, status: :superseded)
-
-          :transmit
+        def update_previous_transactions(previous_transactions)
+          previous_transactions.transmit_pending.update_all(status: :superseded, transmit_action: :no_transmit)
         end
 
-        # Check to see if there are any transactions for this policy_aptc_csr_thh combo
-        # Check to see if Incoming transaction transmitted an original, if yes we check policy status to determine if it is corrected or void
-        def find_type(policy, _aptc_csr_thh, previous_transactions)
+        def find_transmission_type(policy, previous_transactions)
           if policy.aasm_state == 'canceled'
             :void
-          # No transmitted original
-          elsif previous_transactions.blank? || previous_transactions.none? { |transaction| transaction.status == :transmitted }
+          elsif previous_transactions.blank? || previous_transactions.transmitted.none?
             :original
           else
             :corrected
@@ -113,19 +93,17 @@ module Fdsh
 
         def parse_transaction(policy, aptc_csr_thh)
           previous_transactions = find_transactions(aptc_csr_thh)
+          update_previous_transactions(previous_transactions)
+          transmission_type = find_transmission_type(policy, previous_transactions)
 
-          {
-            transmit_action: find_transmit_action(previous_transactions),
-            status: :created,
-            type: find_type(policy, aptc_csr_thh, previous_transactions),
-            # transaction_errors: [],
-            # metadata: construct_metadata(policy, aptc_csr_thh, previous_transactions),
-            started_at: Time.now
-            # end_at: find_end_at(policy, aptc_csr_thh, previous_transactions)
-          }
+          # If current transaction is void and we never transmitted this subject before, then status is :superseded, transmit_action is :no_transmit
+          if transmission_type == :void && previous_transactions.transmitted.none?
+            { transmit_action: :no_transmit, status: :superseded, transmission_type: transmission_type, started_at: Time.now }
+          else
+            { transmit_action: :transmit, status: :created, transmission_type: transmission_type, started_at: Time.now }
+          end
         end
 
-        # Returns the updated policies and attributes from the Family payload
         # Extract information that matches with the persistence models.
         def parse_family(family)
           Success(
@@ -143,31 +121,31 @@ module Fdsh
         end
 
         def persist_family(family, policies, correlation_id)
-          posted_family = ::H41::InsurancePolicies::PostedFamily.new(
-            correlation_id: correlation_id, family_cv: family.to_h.to_s, family_hbx_id: family.hbx_id,
+          posted_family = ::H41::InsurancePolicies::PostedFamily.create(
+            correlation_id: correlation_id, family_cv: family.to_h.to_json, family_hbx_id: family.hbx_id,
             contract_holder_id: family.family_members.detect(&:is_primary_applicant).person.hbx_id
           )
           policies.each do |policy_hash|
-            policy = posted_family.insurance_policies.build(
+            policy = posted_family.insurance_policies.create(
               assistance_year: policy_hash[:assistance_year],
               policy_hbx_id: policy_hash[:policy_hbx_id]
             )
             policy_hash[:aptc_csr_tax_households].each do |aptc_csr_thh_hash|
-              aptc_csr_tax_household = policy.aptc_csr_tax_households.build(
+              aptc_csr_tax_household = policy.aptc_csr_tax_households.create(
                 hbx_assigned_id: aptc_csr_thh_hash[:hbx_assigned_id], transaction_xml: aptc_csr_thh_hash[:transaction_xml]
               )
-              transaction = aptc_csr_tax_household.transactions.build(
-                transmission: find_transmission(aptc_csr_thh_hash[:transaction][:type]),
+              transaction = aptc_csr_tax_household.transactions.create(
                 transmit_action: aptc_csr_thh_hash[:transaction][:transmit_action],
-                status: aptc_csr_thh_hash[:transaction][:status], type: aptc_csr_thh_hash[:transaction][:type],
+                status: aptc_csr_thh_hash[:transaction][:status],
                 started_at: aptc_csr_thh_hash[:transaction][:started_at]
               )
-              transaction
 
-              # TODO: Create H41::Transmissions::TransmissionPath
+              Transmittable::TransactionsTransmissions.create(
+                transmission: find_transmission(aptc_csr_thh_hash[:transaction][:transmission_type]),
+                transaction: transaction
+              )
             end
           end
-          posted_family.save!
           Success(posted_family)
         end
 
