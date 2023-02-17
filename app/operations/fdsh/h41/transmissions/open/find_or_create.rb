@@ -4,7 +4,7 @@ module Fdsh
   module H41
     module Transmissions
       module Open
-        # Operation's job is to find or create a H41 Transmission of given type.
+        # Operation's job is to find or create an 'open' H41 Transmission of given type.
         class FindOrCreate
           include Dry::Monads[:result, :do]
 

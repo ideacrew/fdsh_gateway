@@ -2,7 +2,6 @@
 
 require 'spec_helper'
 require 'shared_examples/family_response2'
-# require 'shared_examples/h41_open_transmissions'
 
 RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
   subject { described_class.new.call(input_params) }
@@ -18,45 +17,39 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
   describe '#call' do
     include_context 'family response with one policy'
 
-    let(:corrected_transmission) { ::H41::Transmissions::Outbound::CorrectedTransmission.open.first }
-    let(:original_transmission) { ::H41::Transmissions::Outbound::OriginalTransmission.open.first }
-    let(:void_transmission) { ::H41::Transmissions::Outbound::VoidTransmission.open.first }
-
-    let(:corrected_transactions_transmissions_transactions) do
-      Transmittable::TransactionsTransmissions.where(transmission: corrected_transmission).map(&:transaction)
-    end
-
-    let(:original_transactions_transmissions_transactions) do
-      Transmittable::TransactionsTransmissions.where(transmission: original_transmission).map(&:transaction)
-    end
-
-    let(:void_transactions_transmissions_transactions) do
-      Transmittable::TransactionsTransmissions.where(transmission: void_transmission).map(&:transaction)
-    end
-
-    let(:transmitted_transactions) do
-      Transmittable::Transaction.update_all(status: :transmitted, transmit_action: :no_transmit)
-    end
-
-    let(:transactions_for_first_subject) do
-      ::H41::InsurancePolicies::AptcCsrTaxHousehold.all.first.transactions
-    end
-
-    let(:transactions_for_second_subject) do
-      ::H41::InsurancePolicies::AptcCsrTaxHousehold.all.second.transactions
-    end
-
-    let(:posted_family) { ::H41::InsurancePolicies::PostedFamily.all.first }
-    let(:insurance_policy) { posted_family.insurance_policies.first }
-    let(:aptc_csr_tax_household) { insurance_policy.aptc_csr_tax_households.first }
-
-    # include_context 'open transmissions for h41'
-
-    # without previous transactions(DONE)
-    # with previous transactions that are transmitted(DONE)
-    # with previous transactions that are transmit_pending(DONE)
-    # with canceled policy
     context 'with valid input params' do
+      let(:corrected_transmission) { ::H41::Transmissions::Outbound::CorrectedTransmission.open.first }
+      let(:original_transmission) { ::H41::Transmissions::Outbound::OriginalTransmission.open.first }
+      let(:void_transmission) { ::H41::Transmissions::Outbound::VoidTransmission.open.first }
+
+      let(:corrected_transactions_transmissions_transactions) do
+        Transmittable::TransactionsTransmissions.where(transmission: corrected_transmission).map(&:transaction)
+      end
+
+      let(:original_transactions_transmissions_transactions) do
+        Transmittable::TransactionsTransmissions.where(transmission: original_transmission).map(&:transaction)
+      end
+
+      let(:void_transactions_transmissions_transactions) do
+        Transmittable::TransactionsTransmissions.where(transmission: void_transmission).map(&:transaction)
+      end
+
+      let(:transmitted_transactions) do
+        Transmittable::Transaction.update_all(status: :transmitted, transmit_action: :no_transmit)
+      end
+
+      let(:transactions_for_first_subject) do
+        ::H41::InsurancePolicies::AptcCsrTaxHousehold.all.first.transactions
+      end
+
+      let(:transactions_for_second_subject) do
+        ::H41::InsurancePolicies::AptcCsrTaxHousehold.all.second.transactions
+      end
+
+      let(:posted_family) { ::H41::InsurancePolicies::PostedFamily.all.first }
+      let(:insurance_policy) { posted_family.insurance_policies.first }
+      let(:aptc_csr_tax_household) { insurance_policy.aptc_csr_tax_households.first }
+
       let(:input_params) { { correlation_id: 'cor100', family: family_hash } }
 
       let(:original_first_transaction) do
