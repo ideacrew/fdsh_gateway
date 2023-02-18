@@ -274,12 +274,13 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
   end
 
   let(:policy_aasm_state) { 'submitted' }
+  let(:policy_id) { '103200' }
 
   let(:insurance_policies) do
     [
       {
         aasm_state: policy_aasm_state,
-        policy_id: '1000',
+        policy_id: policy_id,
         insurance_product: insurance_product,
         hbx_enrollment_ids: ['1000'],
         start_on: current_date.beginning_of_year,

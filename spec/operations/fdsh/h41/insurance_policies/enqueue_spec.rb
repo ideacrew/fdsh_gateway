@@ -50,7 +50,13 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
       let(:insurance_policy) { posted_family.insurance_policies.first }
       let(:aptc_csr_tax_household) { insurance_policy.aptc_csr_tax_households.first }
 
-      let(:input_params) { { correlation_id: 'cor100', family: family_hash } }
+      let(:input_params) do
+        {
+          affected_policies: [policy_id],
+          correlation_id: 'cor100',
+          family: family_hash
+        }
+      end
 
       let(:original_first_transaction) do
         original_transactions_transmissions_transactions.first
@@ -192,9 +198,20 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
     end
 
     context 'with invalid input params' do
+      context 'missing params' do
+        let(:input_params) { {} }
+
+        it 'returns failure with error message' do
+          expect(
+            subject.failure
+          ).to eq('Invalid params. affected_policies, correlation_id and family are required.')
+        end
+      end
+
       context 'bad input family Cv' do
         let(:input_params) do
           {
+            affected_policies: [policy_id],
             correlation_id: 'correlation_id',
             family: family_hash.merge(hbx_id: nil)
           }

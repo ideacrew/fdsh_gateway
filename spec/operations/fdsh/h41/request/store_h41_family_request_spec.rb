@@ -6,7 +6,7 @@ require 'shared_examples/family_response'
 RSpec.describe Fdsh::H41::Request::StoreH41FamilyRequest do
   include_context "family response from enroll"
 
-  before :all do
+  around :each do
     DatabaseCleaner.clean
   end
 
@@ -19,6 +19,7 @@ RSpec.describe Fdsh::H41::Request::StoreH41FamilyRequest do
   end
 
   it 'should persist h41 transaction' do
+    subject
     expect(H41Transaction.count).to eq 1
 
     h41_transaction = H41Transaction.first

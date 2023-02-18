@@ -37,7 +37,8 @@ module Subscribers
         subscriber_logger.info "process_insurance_policies_posted_event: ------- start"
         result = H41::InsurancePolicies::Enqueue.new.call(
           {
-            # affected_policies: headers['affected_policies'], # Not needed as FamilyCv only has affected_policies
+            affected_policies: headers['affected_policies'],
+            assistance_year: headers['assistance_year'],
             correlation_id: headers['correlation_id'],
             family: response
           }

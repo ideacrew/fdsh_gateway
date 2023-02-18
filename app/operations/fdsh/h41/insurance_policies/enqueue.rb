@@ -21,8 +21,9 @@ module Fdsh
         # @option opts [String] :from ('nobody') From address
         def call(params)
           values                  = yield validate(params)
-          family                  = yield initialize_family_entity(values)
-          policies                = yield parse_family(family)
+          family_cv               = yield validate_family_cv(values)
+          family                  = yield initialize_family_entity(family_cv)
+          policies                = yield parse_family(family, values)
           @corrected_transmission = yield find_or_create_transmission(:corrected)
           @original_transmission  = yield find_or_create_transmission(:original)
           @void_transmission      = yield find_or_create_transmission(:void)
@@ -32,6 +33,26 @@ module Fdsh
         end
 
         protected
+
+        def create_posted_family(correlation_id, family)
+          ::H41::InsurancePolicies::PostedFamily.create(
+            contract_holder_id: family.family_members.detect(&:is_primary_applicant).person.hbx_id,
+            correlation_id: correlation_id,
+            family_cv: family.to_h.to_json,
+            family_hbx_id: family.hbx_id
+          )
+        end
+
+        def create_transactions_transmissions(transmission, transaction)
+          Transmittable::TransactionsTransmissions.create(
+            transmission: transmission,
+            transaction: transaction
+          )
+        end
+
+        def fetch_affected_policies(insurance_policies, affected_policy_hbx_ids)
+          insurance_policies.select { |policy| affected_policy_hbx_ids.include?(policy.policy_id)  }
+        end
 
         def find_transactions(aptc_csr_thh)
           subjects = ::H41::InsurancePolicies::AptcCsrTaxHousehold.by_hbx_assigned_id(aptc_csr_thh.hbx_assigned_id)
@@ -49,10 +70,6 @@ module Fdsh
           else
             ''
           end
-        end
-
-        def update_previous_transactions(previous_transactions)
-          previous_transactions.transmit_pending.update_all(status: :superseded, transmit_action: :no_transmit)
         end
 
         def find_transmission_type(policy, previous_transactions)
@@ -105,10 +122,11 @@ module Fdsh
         end
 
         # Extract information that matches with the persistence models.
-        def parse_family(family)
+        def parse_family(family, values)
           Success(
             family.households.first.insurance_agreements.inject([]) do |policies, insurance_agreement|
-              insurance_agreement.insurance_policies.each do |policy|
+              insurance_policies = fetch_affected_policies(insurance_agreement.insurance_policies, values[:affected_policies])
+              insurance_policies.each do |policy|
                 policies << {
                   policy_hbx_id: policy.policy_id,
                   assistance_year: insurance_agreement.plan_year,
@@ -121,10 +139,8 @@ module Fdsh
         end
 
         def persist_family(family, policies, correlation_id)
-          posted_family = ::H41::InsurancePolicies::PostedFamily.create(
-            correlation_id: correlation_id, family_cv: family.to_h.to_json, family_hbx_id: family.hbx_id,
-            contract_holder_id: family.family_members.detect(&:is_primary_applicant).person.hbx_id
-          )
+          posted_family = create_posted_family(correlation_id, family)
+
           policies.each do |policy_hash|
             policy = posted_family.insurance_policies.create(
               assistance_year: policy_hash[:assistance_year],
@@ -140,18 +156,31 @@ module Fdsh
                 started_at: aptc_csr_thh_hash[:transaction][:started_at]
               )
 
-              Transmittable::TransactionsTransmissions.create(
-                transmission: find_transmission(aptc_csr_thh_hash[:transaction][:transmission_type]),
-                transaction: transaction
+              create_transactions_transmissions(
+                find_transmission(aptc_csr_thh_hash[:transaction][:transmission_type]),
+                transaction
               )
             end
           end
+
           Success(posted_family)
         end
 
-        # Validates params using AcaEntities Family contract
+        def update_previous_transactions(previous_transactions)
+          previous_transactions.transmit_pending.update_all(status: :superseded, transmit_action: :no_transmit)
+        end
+
         def validate(params)
-          result = AcaEntities::Contracts::Families::FamilyContract.new.call(params[:family])
+          if params[:affected_policies].is_a?(Array) && params[:correlation_id].is_a?(String) && params[:family].present?
+            Success(params)
+          else
+            Failure('Invalid params. affected_policies, correlation_id and family are required.')
+          end
+        end
+
+        # Validates params using AcaEntities Family contract
+        def validate_family_cv(values)
+          result = AcaEntities::Contracts::Families::FamilyContract.new.call(values[:family])
 
           if result.success?
             Success(result.to_h)
