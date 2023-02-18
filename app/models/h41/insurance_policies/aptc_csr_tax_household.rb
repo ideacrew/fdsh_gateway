@@ -9,7 +9,7 @@ module H41
       include Mongoid::Timestamps
       include Transmittable::Subject
 
-      belongs_to :insurance_policy, class_name: 'H41::InsurancePolicies::InsurancePolicy'
+      belongs_to :insurance_policy, class_name: 'H41::InsurancePolicies::InsurancePolicy', index: true
 
       accepts_nested_attributes_for :insurance_policy
 

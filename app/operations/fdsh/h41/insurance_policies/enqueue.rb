@@ -54,8 +54,14 @@ module Fdsh
           insurance_policies.select { |policy| affected_policy_hbx_ids.include?(policy.policy_id)  }
         end
 
-        def find_transactions(aptc_csr_thh)
-          subjects = ::H41::InsurancePolicies::AptcCsrTaxHousehold.by_hbx_assigned_id(aptc_csr_thh.hbx_assigned_id)
+        def find_transactions(policy, aptc_csr_thh)
+          insurance_policies = ::H41::InsurancePolicies::InsurancePolicy.where(policy_hbx_id: policy.policy_id)
+
+          subjects = ::H41::InsurancePolicies::AptcCsrTaxHousehold.where(
+            :insurance_policy_id.in => insurance_policies.pluck(:id),
+            hbx_assigned_id: aptc_csr_thh.hbx_assigned_id
+          )
+
           ::Transmittable::Transaction.where(:transactable_id.in => subjects.pluck(:id))
         end
 
@@ -109,7 +115,7 @@ module Fdsh
         end
 
         def parse_transaction(policy, aptc_csr_thh)
-          previous_transactions = find_transactions(aptc_csr_thh)
+          previous_transactions = find_transactions(policy, aptc_csr_thh)
           update_previous_transactions(previous_transactions)
           transmission_type = find_transmission_type(policy, previous_transactions)
 

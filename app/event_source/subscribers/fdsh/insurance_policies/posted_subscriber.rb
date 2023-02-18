@@ -13,8 +13,8 @@ module Subscribers
         logger.info "on_posted response: #{response}"
         subscriber_logger.info "on_posted response: #{response}"
 
-        if !Rails.env.test? && metadata[:headers]["assistance_year"] == Date.today.year.pred
-          process_insurance_policies_posted_event(subscriber_logger, response, metadata[:headers])
+        if !Rails.env.test? && metadata['assistance_year'] == Date.today.year.pred
+          process_insurance_policies_posted_event(subscriber_logger, response, metadata)
         end
 
         ack(delivery_info.delivery_tag)
