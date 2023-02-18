@@ -42,10 +42,7 @@ module Transmittable
     end
 
     def status=(value)
-      unless ::Transmittable::TRANSACTION_STATUS_TYPES.include?(value)
-        raise ArgumentError "must be one of: #{::Transmittable::TRANSACTION_STATUS_TYPES}"
-      end
-
+      raise ArgumentError "must be one of: #{::Transmittable::TRANSACTION_STATUS_TYPES}" if ::Transmittable::TRANSACTION_STATUS_TYPES.exclude?(value)
       write_attribute(:status, value)
     end
   end
