@@ -12,11 +12,7 @@ module Subscribers
         response = JSON.parse(response, symbolize_names: true)
         logger.info "on_posted response: #{response}"
         subscriber_logger.info "on_posted response: #{response}"
-
-        if !Rails.env.test? && metadata['assistance_year'] == Date.today.year.pred
-          process_insurance_policies_posted_event(subscriber_logger, response, metadata)
-        end
-
+        process_insurance_policies_posted_event(subscriber_logger, response, metadata) unless Rails.env.test?
         ack(delivery_info.delivery_tag)
       rescue StandardError, SystemStackError => e
         logger.error "on_posted error: #{e} backtrace: #{e.backtrace}; acked (nacked)"
@@ -38,7 +34,7 @@ module Subscribers
         result = H41::InsurancePolicies::Enqueue.new.call(
           {
             affected_policies: headers['affected_policies'],
-            assistance_year: headers['assistance_year'],
+            # assistance_year: headers['assistance_year'],
             correlation_id: headers['correlation_id'],
             family: response
           }
