@@ -98,6 +98,10 @@ module Fdsh
 
         def parse_aptc_csr_tax_households(family, insurance_agreement, policy)
           policy.aptc_csr_tax_households.inject([]) do |thhs_array, aptc_csr_thh|
+            previous_transactions = find_transactions(policy, aptc_csr_thh)
+            update_previous_transactions(previous_transactions)
+            transmission_type = find_transmission_type(policy, previous_transactions)
+
             thhs_array << {
               hbx_assigned_id: aptc_csr_thh.hbx_assigned_id,
               transaction_xml: Fdsh::H41::Request::BuildH41Xml.new.call(
@@ -105,20 +109,18 @@ module Fdsh
                   agreement: insurance_agreement,
                   family: family,
                   insurance_policy: policy,
-                  tax_household: aptc_csr_thh
+                  tax_household: aptc_csr_thh,
+                  transaction_type: transmission_type,
+                  record_sequence_num: find_record_sequence_num(previous_transactions, transmission_type)
                 }
               ).success,
-              transaction: parse_transaction(policy, aptc_csr_thh)
+              transaction: parse_transaction(transmission_type, previous_transactions)
             }
             thhs_array
           end
         end
 
-        def parse_transaction(policy, aptc_csr_thh)
-          previous_transactions = find_transactions(policy, aptc_csr_thh)
-          update_previous_transactions(previous_transactions)
-          transmission_type = find_transmission_type(policy, previous_transactions)
-
+        def parse_transaction(transmission_type, previous_transactions)
           # If current transaction is void and we never transmitted this subject before, then status is :superseded, transmit_action is :no_transmit
           if transmission_type == :void && previous_transactions.transmitted.none?
             { transmit_action: :no_transmit, status: :superseded, transmission_type: transmission_type, started_at: Time.now }
@@ -170,6 +172,19 @@ module Fdsh
           end
 
           Success(posted_family)
+        end
+
+        def find_record_sequence_num(_previous_transactions, transaction_type)
+          return nil if transaction_type == :original
+
+          'test|00001|123'
+          # TODO: Uncomment below and update logic
+          # original_transaction = previous_transactions.transmitted.detect do |transaction|
+          #   transaction.transactable.original?
+          # end
+          # return nil if original_transaction.blank?
+
+          # ::H41::Transmissions::TransmissionPath.where(transaction_id: original_transaction.id).first.transmission_path
         end
 
         def update_previous_transactions(previous_transactions)

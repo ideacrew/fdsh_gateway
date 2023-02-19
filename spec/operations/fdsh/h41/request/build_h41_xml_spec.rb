@@ -25,11 +25,44 @@ RSpec.describe Fdsh::H41::Request::BuildH41Xml do
     }
   end
 
+  let(:input_params) { params }
+
   subject do
-    described_class.new.call(params)
+    described_class.new.call(input_params)
   end
 
   it 'should return a success' do
     expect(subject.success?).to be_truthy
+  end
+
+  context 'with invalid params' do
+    context 'with missing params' do
+      let(:input_params) { {} }
+
+      it 'returns failure with error messages' do
+        expect(subject.failure).to eq(
+          [
+            'family required',
+            'agreement required',
+            'insurance_policy required',
+            'tax_household required'
+          ]
+        )
+      end
+    end
+
+    context 'with missing record_sequence_num for non original transaction_type' do
+      let(:transaction_type) { [:corrected, :void].sample }
+      let(:input_params) do
+        params[:transaction_type] = transaction_type
+        params
+      end
+
+      it 'returns failure with error messages' do
+        expect(subject.failure).to eq(
+          ['record_sequence_num required for transaction_type']
+        )
+      end
+    end
   end
 end
