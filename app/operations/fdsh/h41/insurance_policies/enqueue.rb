@@ -103,6 +103,9 @@ module Fdsh
             transmission_type = find_transmission_type(policy, previous_transactions)
 
             thhs_array << {
+              corrected: transmission_type == :corrected,
+              original: transmission_type == :original,
+              void: transmission_type == :void,
               hbx_assigned_id: aptc_csr_thh.hbx_assigned_id,
               transaction_xml: Fdsh::H41::Request::BuildH41Xml.new.call(
                 {
@@ -154,9 +157,11 @@ module Fdsh
               assistance_year: policy_hash[:assistance_year],
               policy_hbx_id: policy_hash[:policy_hbx_id]
             )
+
             policy_hash[:aptc_csr_tax_households].each do |aptc_csr_thh_hash|
               aptc_csr_tax_household = policy.aptc_csr_tax_households.create(
-                hbx_assigned_id: aptc_csr_thh_hash[:hbx_assigned_id], transaction_xml: aptc_csr_thh_hash[:transaction_xml]
+                hbx_assigned_id: aptc_csr_thh_hash[:hbx_assigned_id], transaction_xml: aptc_csr_thh_hash[:transaction_xml],
+                corrected: aptc_csr_thh_hash[:corrected], original: aptc_csr_thh_hash[:original], void: aptc_csr_thh_hash[:void]
               )
               transaction = aptc_csr_tax_household.transactions.create(
                 transmit_action: aptc_csr_thh_hash[:transaction][:transmit_action],

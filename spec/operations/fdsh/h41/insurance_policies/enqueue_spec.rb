@@ -77,6 +77,12 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
           expect(void_transactions_transmissions_transactions.map(&:id)).to eq([])
         end
 
+        it 'creates subjects with transmission_type' do
+          expect(
+            original_transactions_transmissions_transactions.map(&:transactable).flat_map(&:original).uniq
+          ).to eq([true])
+        end
+
         it 'creates transaction with status and transmit_action' do
           expect(original_first_transaction.status).to eq(:created)
           expect(original_first_transaction.transmit_action).to eq(:transmit)
@@ -110,6 +116,12 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
             expect(void_transactions_transmissions_transactions.map(&:id)).to eq([])
           end
 
+          it 'creates subjects with transmission_type' do
+            expect(
+              original_transactions_transmissions_transactions.map(&:transactable).flat_map(&:original).uniq
+            ).to eq([true])
+          end
+
           it 'creates new transaction with status and transmit_action' do
             subject
             expect(original_second_transaction.transmit_action).to eq(:transmit)
@@ -133,6 +145,15 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
             expect(corrected_transactions_transmissions_transactions.map(&:id)).to eq(transactions_for_second_subject.map(&:id))
             expect(original_transactions_transmissions_transactions.map(&:id)).to eq(transactions_for_first_subject.map(&:id))
             expect(void_transactions_transmissions_transactions.map(&:id)).to eq([])
+          end
+
+          it 'creates subjects with transmission_type' do
+            expect(
+              corrected_transactions_transmissions_transactions.map(&:transactable).flat_map(&:corrected).uniq
+            ).to eq([true])
+            expect(
+              original_transactions_transmissions_transactions.map(&:transactable).flat_map(&:original).uniq
+            ).to eq([true])
           end
         end
       end
@@ -172,6 +193,15 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
             expect(original_transactions_transmissions_transactions.map(&:id)).to eq(transactions_for_first_subject.map(&:id))
             expect(void_transactions_transmissions_transactions.map(&:id)).to eq(transactions_for_second_subject.map(&:id))
           end
+
+          it 'creates subjects with transmission_type' do
+            expect(
+              original_transactions_transmissions_transactions.map(&:transactable).flat_map(&:original).uniq
+            ).to eq([true])
+            expect(
+              void_transactions_transmissions_transactions.map(&:transactable).flat_map(&:void).uniq
+            ).to eq([true])
+          end
         end
 
         context 'with transmitted transactions' do
@@ -192,6 +222,15 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
             expect(corrected_transactions_transmissions_transactions.map(&:id)).to eq([])
             expect(original_transactions_transmissions_transactions.map(&:id)).to eq(transactions_for_first_subject.map(&:id))
             expect(void_transactions_transmissions_transactions.map(&:id)).to eq(transactions_for_second_subject.map(&:id))
+          end
+
+          it 'creates subjects with transmission_type' do
+            expect(
+              original_transactions_transmissions_transactions.map(&:transactable).flat_map(&:original).uniq
+            ).to eq([true])
+            expect(
+              void_transactions_transmissions_transactions.map(&:transactable).flat_map(&:void).uniq
+            ).to eq([true])
           end
         end
       end
