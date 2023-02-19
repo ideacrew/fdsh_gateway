@@ -28,7 +28,6 @@ RSpec.describe Fdsh::H41::Request::Build1095aPayload do
     }
   end
 
-
   context 'with valid params' do
     let(:input_params) { params }
 
