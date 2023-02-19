@@ -34,9 +34,9 @@ module Fdsh
           end
 
           def define_missing_constants
-            unless ::Transmittable.const_defined?('Transmittable::TRANSACTION_STATUS_TYPES')
-              ::Transmittable::Transmission.define_transmission_constants
-            end
+            return if ::Transmittable.const_defined?('Transmittable::TRANSACTION_STATUS_TYPES')
+
+            ::Transmittable::Transmission.define_transmission_constants
           end
 
           def find(transmission_type)
