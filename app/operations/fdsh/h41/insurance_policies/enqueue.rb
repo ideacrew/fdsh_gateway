@@ -178,7 +178,7 @@ module Fdsh
           return nil if transaction_type == :original
 
           'test|00001|123'
-          # TODO: Uncomment below and update logic
+          # TODO: Read record_sequence_num from TransmissionPath
           # original_transaction = previous_transactions.transmitted.detect do |transaction|
           #   transaction.transactable.original?
           # end
