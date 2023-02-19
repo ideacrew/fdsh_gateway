@@ -70,20 +70,7 @@ module Transmittable
 
       super(args.except(:options))
 
-      ::Transmittable.const_set(
-        'TRANSACTION_STATUS_TYPES',
-        args[:options][:transaction_status_types] || DEFAULT_TRANSACTION_STATUS_TYPES
-      )
-
-      ::Transmittable.const_set(
-        'TRANSMIT_ACTION_TYPES',
-        args[:options][:transmit_action_types] || DEFAULT_TRANSMIT_ACTION_TYPES
-      )
-
-      ::Transmittable.const_set(
-        'TRANSMISSION_STATUS_TYPES',
-        args[:options][:transmission_status_types] || DEFAULT_TRANSMISSION_STATUS_TYPES
-      )
+      self.class.define_transmission_constants(args[:options])
     end
 
     def status=(value)
@@ -102,6 +89,23 @@ module Transmittable
     # an exception
     def errors?
       self.errors.nil? == false
+    end
+
+    def self.define_transmission_constants(options = {})
+      ::Transmittable.const_set(
+        'TRANSACTION_STATUS_TYPES',
+        options[:transaction_status_types] || DEFAULT_TRANSACTION_STATUS_TYPES
+      )
+
+      ::Transmittable.const_set(
+        'TRANSMIT_ACTION_TYPES',
+        options[:transmit_action_types] || DEFAULT_TRANSMIT_ACTION_TYPES
+      )
+
+      ::Transmittable.const_set(
+        'TRANSMISSION_STATUS_TYPES',
+        options[:transmission_status_types] || DEFAULT_TRANSMISSION_STATUS_TYPES
+      )
     end
   end
 end

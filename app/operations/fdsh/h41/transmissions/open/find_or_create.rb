@@ -33,6 +33,12 @@ module Fdsh
             transmission
           end
 
+          def define_missing_constants
+            unless ::Transmittable.const_defined?('Transmittable::TRANSACTION_STATUS_TYPES')
+              ::Transmittable::Transmission.define_transmission_constants
+            end
+          end
+
           def find(transmission_type)
             case transmission_type
             when :corrected
@@ -47,6 +53,7 @@ module Fdsh
           def find_or_create(transmission_type)
             transmission = find(transmission_type)
             if transmission.present?
+              define_missing_constants
               Success(transmission)
             else
               Success(create(transmission_type))
