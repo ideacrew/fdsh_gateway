@@ -6,7 +6,7 @@ module Transmittable
     include Mongoid::Document
     include Mongoid::Timestamps
 
-    belongs_to :transactable, polymorphic: true
+    belongs_to :transactable, polymorphic: true, index: true
     has_many :transactions_transmissions, class_name: 'Transmittable::TransactionsTransmissions'
 
     field :transmit_action, type: Symbol

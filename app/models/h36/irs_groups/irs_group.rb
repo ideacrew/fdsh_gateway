@@ -1,0 +1,28 @@
+# frozen_string_literal: true
+
+module H36
+  module IrsGroups
+    # Persistence model for an InsurancePolicy.posted event Family CV
+    class IrsGroup
+      include Mongoid::Document
+      include Mongoid::Timestamps
+      include ::Transmittable::Subject
+
+      field :correlation_id, type: String
+      field :contract_holder_hbx_id, type: String
+      field :family_hbx_id, type: String
+      field :family_cv, type: String
+      field :assistance_year, type: Integer
+
+      embeds_many :monthly_activities, class_name: "H36::IrsGroups::MonthlyActivity", cascade_callbacks: true
+      accepts_nested_attributes_for :monthly_activities
+
+      index({ assistance_year: 1 })
+      index({ correlation_id: 1 })
+      index({ contract_holder_id: 1 })
+      index({ family_hbx_id: 1 })
+      index({ family_cv: 1 })
+      index({ family_hbx_id: 1, family_cv: 1 })
+    end
+  end
+end
