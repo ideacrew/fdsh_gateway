@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Fdsh::H36::Transmissions::FindOrCreate do
+RSpec.describe Fdsh::H36::Transmissions::Find do
   subject { described_class.new.call(input_params) }
 
   before :all do
@@ -15,22 +15,15 @@ RSpec.describe Fdsh::H36::Transmissions::FindOrCreate do
 
   describe '#call' do
     context 'with valid input params' do
-      context 'without an open H36 transmission' do
-        let(:input_params) { { assistance_year: Date.today.year } }
-        it 'creates an open H36 transmission' do
-          expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to be_zero
-          subject
-          expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to eq(1)
-        end
-      end
-
       context 'with an open H36 transmission with same reporting year' do
-        let(:input_params) { { assistance_year: Date.today.year } }
+        let(:input_params) { { assistance_year: Date.today.year, month_of_year: Date.today.month } }
         let!(:month_of_year_transmission) do
-          FactoryBot.create(:month_of_year_transmission, reporting_year: Date.today.year)
+          FactoryBot.create(:month_of_year_transmission, reporting_year: Date.today.year,
+                                                         month_of_year: Date.today.month)
         end
 
         it 'returns the existing open H36 transmission' do
+          expect(subject.success?).to be_truthy
           expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to eq(1)
           subject
           expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to eq(1)

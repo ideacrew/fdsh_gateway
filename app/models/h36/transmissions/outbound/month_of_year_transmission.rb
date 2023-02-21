@@ -10,7 +10,7 @@ module H36
 
         field :batch_reference, type: String
         field :reporting_year, type: Integer
-        field :reporting_month, type: Integer
+        field :month_of_year, type: Integer
 
         # scopes
         scope :by_reporting_year, ->(year) { where(reporting_year: year) }

@@ -16,7 +16,7 @@ module Fdsh
           family_cv                    = yield validate_family_cv(values[:family])
           family_entity                = yield initialize_family_entity(family_cv)
           existing_irs_group           = yield find_existing_irs_group(values, family_entity)
-          transmission                 = yield find_or_create_transmission(params[:assistance_year])
+          transmission                 = yield find_transmission(params[:assistance_year])
           _result                      = yield update_previous_transactions(existing_irs_group)
           irs_group                    = yield persist_irs_group(transmission, family_entity, values)
 
@@ -43,8 +43,9 @@ contract_holder_hbx_id: #{irs_group.contract_holder_hbx_id}")
           Success(::AcaEntities::Families::Family.new(family_contract_hash))
         end
 
-        def find_or_create_transmission(assistance_year)
-          ::Fdsh::H36::Transmissions::FindOrCreate.new.call({ assistance_year: assistance_year })
+        def find_transmission(assistance_year)
+          ::Fdsh::H36::Transmissions::Find.new.call({ assistance_year: assistance_year,
+                                                      month_of_year: Date.today.month })
         end
 
         def find_existing_irs_group(values, family)

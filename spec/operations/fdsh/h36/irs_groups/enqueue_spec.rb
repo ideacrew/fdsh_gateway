@@ -38,6 +38,10 @@ RSpec.describe Fdsh::H36::IrsGroups::Enqueue do
   end
 
   context "valid params" do
+    let!(:month_of_year_transmission) do
+      create(:month_of_year_transmission, reporting_year: Date.today.year, month_of_year: Date.today.month)
+    end
+
     context "create a new irs_group" do
       it "should create a new irs_group if no irs_group exists and puts the transaction in created state" do
         result = described_class.new.call({ correlation_id: SecureRandom.uuid,
@@ -51,10 +55,6 @@ RSpec.describe Fdsh::H36::IrsGroups::Enqueue do
 
     context "existing irs_group with transactions in pending state" do
       it "should move existing irs_group transactions to no_trasmit state and create a new irs_group" do
-        transmission = ::H36::Transmissions::Outbound::MonthOfYearTransmission.new
-        transmission.status = :open
-        transmission.reporting_year = Date.today.year
-        transmission.save!
         irs_group = create(:h36_irs_group, family_hbx_id: family_hash[:hbx_id], assistance_year: Date.today.year)
         _pending_transaction = create(:transmittable_transaction,
                                       status: :created, started_at: Time.now,
@@ -64,22 +64,9 @@ RSpec.describe Fdsh::H36::IrsGroups::Enqueue do
                                             assistance_year: assistance_year })
         expect(result.success?).to be_truthy
         expect(irs_group.reload.transactions.first.status).to eq(:superseded)
-        expect(transmission.reload.transactions.count).to eq 1
+        expect(month_of_year_transmission.reload.transactions.count).to eq 1
         expect(::H36::IrsGroups::IrsGroup.all.count).to eq 2
         expect(::H36::IrsGroups::IrsGroup.all.last.transactions.first.status).to eq(:created)
-      end
-    end
-
-    context "new transmission" do
-      it "should create new transmission if transmission reporting year not exists" do
-        transmission = ::H36::Transmissions::Outbound::MonthOfYearTransmission.new
-        transmission.status = :open
-        transmission.reporting_year = Date.today.year - 1
-        transmission.save!
-        result = described_class.new.call({ correlation_id: SecureRandom.uuid, family: family_hash,
-                                            assistance_year: assistance_year })
-        expect(result.success?).to be_truthy
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 2
       end
     end
 
