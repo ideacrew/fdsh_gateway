@@ -9,6 +9,10 @@ RSpec.describe H41::InsurancePolicies::AptcCsrTaxHousehold, type: :model do
 
   it { is_expected.to belong_to(:insurance_policy) }
 
+  it { is_expected.to have_field(:corrected).of_type(Mongoid::Boolean) }
+  it { is_expected.to have_field(:original).of_type(Mongoid::Boolean) }
+  it { is_expected.to have_field(:void).of_type(Mongoid::Boolean) }
+
   let(:hbx_assigned_id) { '525252' }
   let(:transaction_xml) { '<xml>hello world</xml>' }
 

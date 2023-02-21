@@ -19,10 +19,22 @@ module H41
       # Produced by operation
       field :transaction_xml, type: String
 
+      field :corrected, type: Boolean
+      field :original, type: Boolean
+      field :void, type: Boolean
+
+      # indexes
       index({ hbx_assigned_id: 1 })
+      index({ corrected: 1 })
+      index({ original: 1 })
+      index({ void: 1 })
+      index({ corrected: 1, original: 1, void: 1 })
 
       # Scopes
       scope :by_hbx_assigned_id, ->(hbx_assigned_id) { where(hbx_assigned_id: hbx_assigned_id) }
+      scope :corrected, -> { where(corrected: true, original: false, void: false) }
+      scope :original,  -> { where(corrected: false, original: true, void: false) }
+      scope :void,      -> { where(corrected: false, original: false, void: true) }
     end
   end
 end
