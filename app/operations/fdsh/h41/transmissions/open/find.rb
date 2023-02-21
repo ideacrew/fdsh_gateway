@@ -27,9 +27,9 @@ module Fdsh
 
           def find(values)
             open_transmission = find_open_transmission(values[:transmission_type], values[:reporting_year])
-            define_missing_constants
 
             if open_transmission.present?
+              define_missing_constants
               Success(open_transmission)
             else
               Failure(
