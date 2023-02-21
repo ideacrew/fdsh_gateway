@@ -4,22 +4,23 @@ module Fdsh
   module H41
     module Transmissions
       module Open
-        # Operation's job is to find or create an 'open' H41 Transmission of given type.
+        # Operation's job is to find or create an 'open' H41 Transmission of given type and reporting_year.
         class FindOrCreate
           include Dry::Monads[:result, :do]
 
           H41_TRANSMISSION_TYPES = [:corrected, :original, :void].freeze
 
           def call(params)
-            transmission_type = yield validate(params)
-            transmission = yield find_or_create(transmission_type)
+            values       = yield validate(params)
+            transmission = yield find(values)
+            transmission = yield find_or_create(transmission, values)
 
             Success(transmission)
           end
 
           private
 
-          def create(transmission_type)
+          def create(transmission_type, reporting_year)
             transmission = case transmission_type
                            when :corrected
                              ::H41::Transmissions::Outbound::CorrectedTransmission.new
@@ -28,44 +29,41 @@ module Fdsh
                            else
                              ::H41::Transmissions::Outbound::VoidTransmission.new
                            end
+            transmission.reporting_year = reporting_year
             transmission.status = :open
             transmission.save!
             transmission
           end
 
-          def define_missing_constants
-            return if ::Transmittable.const_defined?('Transmittable::TRANSACTION_STATUS_TYPES')
-
-            ::Transmittable::Transmission.define_transmission_constants
-          end
-
-          def find(transmission_type)
-            case transmission_type
-            when :corrected
-              ::H41::Transmissions::Outbound::CorrectedTransmission.open.first
-            when :original
-              ::H41::Transmissions::Outbound::OriginalTransmission.open.first
+          def find(values)
+            find_result = ::Fdsh::H41::Transmissions::Open::Find.new.call(
+              {
+                reporting_year: values[:reporting_year],
+                transmission_type: values[:transmission_type]
+              }
+            )
+            if find_result.success?
+              find_result
             else
-              ::H41::Transmissions::Outbound::VoidTransmission.open.first
+              Success(nil)
             end
           end
 
-          def find_or_create(transmission_type)
-            transmission = find(transmission_type)
-            if transmission.present?
-              define_missing_constants
-              Success(transmission)
-            else
-              Success(create(transmission_type))
-            end
+          def find_or_create(transmission, values)
+            return Success(transmission) if transmission.present?
+
+            Success(
+              create(values[:transmission_type], values[:reporting_year])
+            )
           end
 
           def validate(params)
-            if H41_TRANSMISSION_TYPES.include?(params[:transmission_type])
-              Success(params[:transmission_type])
-            else
-              Failure("Invalid transmission type: #{params[:transmission_type]}. Must be one of #{H41_TRANSMISSION_TYPES}")
+            if H41_TRANSMISSION_TYPES.exclude?(params[:transmission_type])
+              return Failure("Invalid transmission_type: #{params[:transmission_type]}. Must be one of #{H41_TRANSMISSION_TYPES}.")
             end
+            return Failure("Invalid reporting_year: #{params[:reporting_year]}. Must be an integer.") unless params[:reporting_year].is_a?(Integer)
+
+            Success(params)
           end
         end
       end

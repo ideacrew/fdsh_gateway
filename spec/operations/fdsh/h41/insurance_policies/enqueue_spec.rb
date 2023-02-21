@@ -18,9 +18,9 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
     include_context 'family response with one policy'
 
     context 'with valid input params' do
-      let(:corrected_transmission) { ::H41::Transmissions::Outbound::CorrectedTransmission.open.first }
-      let(:original_transmission) { ::H41::Transmissions::Outbound::OriginalTransmission.open.first }
-      let(:void_transmission) { ::H41::Transmissions::Outbound::VoidTransmission.open.first }
+      let!(:corrected_transmission) { FactoryBot.create(:h41_corrected_transmission) }
+      let!(:original_transmission)  { FactoryBot.create(:h41_original_transmission) }
+      let!(:void_transmission)      { FactoryBot.create(:h41_void_transmission) }
 
       let(:corrected_transactions_transmissions_transactions) do
         Transmittable::TransactionsTransmissions.where(transmission: corrected_transmission).map(&:transaction)
@@ -53,6 +53,7 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
       let(:input_params) do
         {
           affected_policies: [policy_id],
+          assistance_year: Date.today.year,
           correlation_id: 'cor100',
           family: family_hash
         }
@@ -60,27 +61,6 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
 
       let(:original_first_transaction) do
         original_transactions_transmissions_transactions.first
-      end
-
-      context 'without previous transactions' do
-        before { subject }
-
-        it 'returns a success with a message' do
-          expect(
-            subject.success
-          ).to eq('Successfully enqueued family with hbx_id: 43456, contract_holder_id: 1000595')
-        end
-
-        it 'creates transactions for original transmission' do
-          expect(corrected_transactions_transmissions_transactions.map(&:id)).to eq([])
-          expect(original_transactions_transmissions_transactions.map(&:id)).to eq(aptc_csr_tax_household.transactions.map(&:id))
-          expect(void_transactions_transmissions_transactions.map(&:id)).to eq([])
-        end
-
-        it 'creates transaction with status and transmit_action' do
-          expect(original_first_transaction.status).to eq(:created)
-          expect(original_first_transaction.transmit_action).to eq(:transmit)
-        end
       end
 
       context 'with submitted policy' do
@@ -204,7 +184,7 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
         it 'returns failure with error message' do
           expect(
             subject.failure
-          ).to eq('Invalid params. affected_policies, correlation_id and family are required.')
+          ).to eq('Invalid affected_policies: . Please pass in a list of affected_policies.')
         end
       end
 
@@ -212,6 +192,7 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
         let(:input_params) do
           {
             affected_policies: [policy_id],
+            assistance_year: Date.today.year,
             correlation_id: 'correlation_id',
             family: family_hash.merge(hbx_id: nil)
           }
@@ -221,6 +202,25 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
           expect(
             subject.failure
           ).to eq({ hbx_id: ['must be filled'] })
+        end
+      end
+
+      context 'without previous transactions' do
+        let(:input_params) do
+          {
+            affected_policies: [policy_id],
+            assistance_year: Date.today.year,
+            correlation_id: 'cor100',
+            family: family_hash
+          }
+        end
+
+        before { subject }
+
+        it 'returns a failure with a message' do
+          expect(
+            subject.failure
+          ).to match(/Unable to find OpenTransmission for type: /)
         end
       end
     end

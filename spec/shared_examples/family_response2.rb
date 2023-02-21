@@ -295,7 +295,7 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
     {
       name: 'ABC plan',
       hios_plan_id: '123456',
-      plan_year: 2023,
+      plan_year: current_date.year,
       coverage_type: 'health',
       metal_level: 'silver',
       market_type: 'individual',
@@ -328,7 +328,7 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
   let(:insurance_agreements) do
     [
       {
-        plan_year: 2023,
+        plan_year: current_date.year,
         contract_holder: contract_holder,
         insurance_provider: insurance_provider,
         insurance_policies: insurance_policies
@@ -437,7 +437,7 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
       family_deductible: '1400',
       hios_id: '41842DC0400010-01',
       name: 'BlueChoice silver1 2,000',
-      active_year: 2021,
+      active_year: current_date.year,
       is_dental_only: false,
       metal_level: 'silver',
       benefit_market_kind: 'aca_individual',

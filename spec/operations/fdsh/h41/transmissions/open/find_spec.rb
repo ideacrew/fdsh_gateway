@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Fdsh::H41::Transmissions::Open::FindOrCreate do
+RSpec.describe Fdsh::H41::Transmissions::Open::Find do
   subject { described_class.new.call(input_params) }
 
   before :all do
@@ -20,14 +20,6 @@ RSpec.describe Fdsh::H41::Transmissions::Open::FindOrCreate do
           reporting_year: Date.today.year,
           transmission_type: :original
         }
-      end
-
-      context 'without an open H41 transmission' do
-        it 'creates an open H41 transmission' do
-          expect(::H41::Transmissions::Outbound::OriginalTransmission.open.count).to be_zero
-          subject
-          expect(::H41::Transmissions::Outbound::OriginalTransmission.open.count).to eq(1)
-        end
       end
 
       context 'with an open H41 transmission' do
@@ -68,6 +60,21 @@ RSpec.describe Fdsh::H41::Transmissions::Open::FindOrCreate do
         it 'returns failure with errors' do
           expect(subject.failure).to eq(
             'Invalid reporting_year: test. Must be an integer.'
+          )
+        end
+      end
+
+      context 'without open transactions' do
+        let(:input_params) do
+          {
+            reporting_year: Date.today.year,
+            transmission_type: :original
+          }
+        end
+
+        it 'returns failure with errors' do
+          expect(subject.failure).to eq(
+            "Unable to find OpenTransmission for type: original, reporting_year: #{Date.today.year}."
           )
         end
       end
