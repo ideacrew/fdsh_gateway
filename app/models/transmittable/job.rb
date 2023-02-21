@@ -3,6 +3,9 @@
 module Transmittable
   # A data model for a unitary transaction
   module Job
+    include Mongoid::Document
+    include Mongoid::Timestamps
+
     # Time boundary parameters for the job
     field :time_span_start, type: DateTime
     field :time_span_end, type: DateTime
