@@ -34,6 +34,16 @@ module Fdsh
 
         protected
 
+        def create_aptc_csr_tax_household(policy, aptc_csr_thh_hash)
+          policy.aptc_csr_tax_households.create(
+            corrected: aptc_csr_thh_hash[:corrected],
+            hbx_assigned_id: aptc_csr_thh_hash[:hbx_assigned_id],
+            original: aptc_csr_thh_hash[:original],
+            transaction_xml: aptc_csr_thh_hash[:transaction_xml],
+            void: aptc_csr_thh_hash[:void]
+          )
+        end
+
         def create_posted_family(correlation_id, family)
           ::H41::InsurancePolicies::PostedFamily.create(
             contract_holder_id: family.family_members.detect(&:is_primary_applicant).person.hbx_id,
@@ -177,13 +187,8 @@ module Fdsh
             )
 
             policy_hash[:aptc_csr_tax_households].each do |aptc_csr_thh_hash|
-              aptc_csr_tax_household = policy.aptc_csr_tax_households.create(
-                corrected: aptc_csr_thh_hash[:corrected],
-                hbx_assigned_id: aptc_csr_thh_hash[:hbx_assigned_id],
-                original: aptc_csr_thh_hash[:original],
-                transaction_xml: aptc_csr_thh_hash[:transaction_xml],
-                void: aptc_csr_thh_hash[:void]
-              )
+              aptc_csr_tax_household = create_aptc_csr_tax_household(policy, aptc_csr_thh_hash)
+
               transaction = aptc_csr_tax_household.transactions.create(
                 transmit_action: aptc_csr_thh_hash[:transaction][:transmit_action],
                 status: aptc_csr_thh_hash[:transaction][:status],
