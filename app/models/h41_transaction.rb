@@ -11,11 +11,18 @@ class H41Transaction
   field :cv3_family, type: String
   field :policy_hbx_id, type: String
 
+  # This field is just used for migration
+  field :is_migrated, type: Boolean
+
   embeds_many :aptc_csr_tax_households, class_name: "::AptcCsrTaxHousehold", cascade_callbacks: true
   embeds_many :activities, cascade_callbacks: true
 
   accepts_nested_attributes_for :activities, :aptc_csr_tax_households
 
+  # Scope
+  scope :non_migrated, -> { where(:is_migrated.ne => true) }
+
+  index({ is_migrated: 1 })
   index({ correlation_id: 1 })
   index({ primary_hbx_id: 1 })
   index({ family_hbx_id: 1 })
