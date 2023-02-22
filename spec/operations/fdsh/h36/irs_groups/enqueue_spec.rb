@@ -67,7 +67,7 @@ RSpec.describe Fdsh::H36::IrsGroups::Enqueue do
                                             month_of_year: Date.today.month })
         expect(result.success?).to be_truthy
         expect(irs_group.reload.transactions.first.status).to eq(:superseded)
-        expect(month_of_year_transmission.reload.transactions.count).to eq 1
+        expect(month_of_year_transmission.reload.transactions.count).to eq 2
         expect(::H36::IrsGroups::IrsGroup.all.count).to eq 2
         expect(::H36::IrsGroups::IrsGroup.all.last.transactions.first.status).to eq(:created)
       end
