@@ -1,3 +1,8 @@
+# frozen_string_literal: true
+
+# This script migrates H41Transactions to new data models
+# rails runner script/migrate_h41_transactions.rb
+
 require 'csv'
 
 def find_or_create_policy(posted_family, old_transaction)
@@ -66,7 +71,8 @@ CSV.open(file_name, 'w', force_quotes: true) do |csv|
         transaction: transaction
       )
       # TODO: Create the TransmissionPath.
-      # TODO: Add a field 'is_migrated' on H41Transaction so that if this fails we can kick of migration again to create these objects in the new model.
+      # TODO: Add a field 'is_migrated' on H41Transaction so that if this fails,
+      # we can kick of migration again to create these objects in the new model.
     end
 
     csv << [
