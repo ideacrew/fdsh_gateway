@@ -34,19 +34,18 @@ field_names = %w[
 counter = 0
 total_h41_transactions = H41Transaction.all.non_migrated.count
 
-@all_content_ids_with_content = Dir["#{Rails.root}/SBE00ME.DSH.EOYIN.D230210.T214339000.P.IN.SUBMIT.20230210/*.xml"].inject({}) do |content_ids_with_content, file_path|
+all_file_paths = Dir["#{Rails.root}/SBE00ME.DSH.EOYIN.D230210.T214339000.P.IN.SUBMIT.20230210/*.xml"]
+@all_content_ids_with_content = all_file_paths.inject({}) do |content_ids_with_content, file_path|
   content_ids_with_content[File.basename(file_path).split('_')[2]] = File.read(file_path)
   content_ids_with_content
-end;nil
+end
 
 @record_sequence_element_start = "<airty20a:RecordSequenceNum>"
 @record_sequence_element_end = "</airty20a:RecordSequenceNum>"
 
 def find_content_file_id(record_sequence_number)
   @all_content_ids_with_content.each do |k, v|
-    if v.match?("#{@record_sequence_element_start}#{record_sequence_number}#{@record_sequence_element_end}")
-      return k
-    end
+    return k if v.match?("#{@record_sequence_element_start}#{record_sequence_number}#{@record_sequence_element_end}")
   end
 end
 
