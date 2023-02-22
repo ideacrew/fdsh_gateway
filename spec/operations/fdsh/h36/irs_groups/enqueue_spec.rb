@@ -59,14 +59,15 @@ RSpec.describe Fdsh::H36::IrsGroups::Enqueue do
         irs_group = create(:h36_irs_group, family_hbx_id: family_hash[:hbx_id], assistance_year: Date.today.year)
         _pending_transaction = create(:transmittable_transaction,
                                       status: :created, started_at: Time.now,
-                                      transactable: irs_group)
+                                      transactable: irs_group,
+                                      transmission: month_of_year_transmission)
         expect(irs_group.transactions.first.status).to eq(:created)
         result = described_class.new.call({ correlation_id: SecureRandom.uuid, family: family_hash,
                                             assistance_year: assistance_year,
                                             month_of_year: Date.today.month })
         expect(result.success?).to be_truthy
         expect(irs_group.reload.transactions.first.status).to eq(:superseded)
-        expect(month_of_year_transmission.reload.transactions.count).to eq 1
+        expect(month_of_year_transmission.reload.transactions.count).to eq 2
         expect(::H36::IrsGroups::IrsGroup.all.count).to eq 2
         expect(::H36::IrsGroups::IrsGroup.all.last.transactions.first.status).to eq(:created)
       end

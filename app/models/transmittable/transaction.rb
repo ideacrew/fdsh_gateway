@@ -49,5 +49,10 @@ module Transmittable
       end
       write_attribute(:status, value)
     end
+
+    def transmission
+      transaction_transmission = transactions_transmissions.where(transaction_id: self.id).first
+      transaction_transmission.transmission
+    end
   end
 end

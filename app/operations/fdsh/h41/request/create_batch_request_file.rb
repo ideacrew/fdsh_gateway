@@ -24,6 +24,7 @@ module Fdsh
 
         def validate(params)
           return Failure('outbound folder missing') unless params[:outbound_folder]
+          return Failure('new_batch_reference missing') unless params[:new_batch_reference]
 
           Success(params)
         end
@@ -33,19 +34,19 @@ module Fdsh
         end
 
         def generate_batch_zip(values, _manifest_file)
-          input_files = Dir.glob("#{Rails.root}/#{values[:outbound_folder]}/*.xml").sort.map do |file|
+          xml_files = Dir.glob("#{values[:outbound_folder]}/*.xml").sort.map do |file|
             File.basename(file)
           end
 
           @zip_name = values[:outbound_folder] + "/SBE00ME.DSH.EOYIN.D#{Time.now.strftime('%y%m%d.T%H%M%S%L.P')}.IN"
 
           Zip::File.open(@zip_name, create: true) do |zipfile|
-            input_files.each do |filename|
+            xml_files.each do |filename|
               zipfile.add(filename, File.join(values[:outbound_folder], filename))
             end
           end
 
-          input_files.each do |file_name|
+          xml_files.each do |file_name|
             FileUtils.rm_rf(File.join(values[:outbound_folder], file_name))
           end
         end

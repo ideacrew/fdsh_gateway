@@ -8,9 +8,8 @@ module H41
         include Mongoid::Document
         include Mongoid::Timestamps
 
-        has_many :transmission_paths, class_name: 'H41::Transmissions::TransmissionPath'
+        has_many :transmission_paths, class_name: '::H41::Transmissions::TransmissionPath', inverse_of: :transmission
 
-        field :batch_reference, type: String
         field :reporting_year, type: Integer
 
         # Scopes
@@ -19,3 +18,4 @@ module H41
     end
   end
 end
+
