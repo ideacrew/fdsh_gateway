@@ -46,7 +46,8 @@ RSpec.describe Fdsh::H36::IrsGroups::Enqueue do
       it "should create a new irs_group if no irs_group exists and puts the transaction in created state" do
         result = described_class.new.call({ correlation_id: SecureRandom.uuid,
                                             family: family_hash,
-                                            assistance_year: assistance_year })
+                                            assistance_year: assistance_year,
+                                            month_of_year: Date.today.month })
         expect(result.success?).to be_truthy
         expect(::H36::IrsGroups::IrsGroup.all.count).to eq 1
         expect(::H36::IrsGroups::IrsGroup.all.last.transactions.first.status).to eq(:created)
@@ -61,7 +62,8 @@ RSpec.describe Fdsh::H36::IrsGroups::Enqueue do
                                       transactable: irs_group)
         expect(irs_group.transactions.first.status).to eq(:created)
         result = described_class.new.call({ correlation_id: SecureRandom.uuid, family: family_hash,
-                                            assistance_year: assistance_year })
+                                            assistance_year: assistance_year,
+                                            month_of_year: Date.today.month })
         expect(result.success?).to be_truthy
         expect(irs_group.reload.transactions.first.status).to eq(:superseded)
         expect(month_of_year_transmission.reload.transactions.count).to eq 1
@@ -75,7 +77,8 @@ RSpec.describe Fdsh::H36::IrsGroups::Enqueue do
 
       it "should create irs_group with transactions in no_transmit state" do
         result = described_class.new.call({ correlation_id: SecureRandom.uuid,
-                                            family: family_hash, assistance_year: assistance_year })
+                                            family: family_hash, assistance_year: assistance_year,
+                                            month_of_year: Date.today.month })
         expect(result.success?).to be_truthy
         expect(::H36::IrsGroups::IrsGroup.all.count).to eq 1
         expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 1

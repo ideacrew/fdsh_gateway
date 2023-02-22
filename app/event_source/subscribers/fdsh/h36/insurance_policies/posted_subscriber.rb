@@ -34,10 +34,17 @@ module Subscribers
 
         def process_insurance_policies_posted_event(subscriber_logger, response, headers)
           subscriber_logger.info "process_h36_insurance_policies_posted_event: ------- start"
+          month = if headers['assistance_year'].to_i == Date.today.year - 1
+                    12 + Date.today.month
+                  else
+                    Date.today.month
+                  end
+
           result = Fdsh::H36::IrsGroups::Enqueue.new.call(
             {
-              assistance_year: headers['assistance_year'],
+              assistance_year: headers['assistance_year'].to_i,
               correlation_id: headers['correlation_id'],
+              month_of_year: month,
               family: response
             }
           )

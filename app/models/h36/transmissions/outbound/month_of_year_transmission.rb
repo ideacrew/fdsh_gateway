@@ -14,6 +14,7 @@ module H36
 
         # scopes
         scope :by_reporting_year, ->(year) { where(reporting_year: year) }
+        scope :by_reporting_year_and_month, ->(year, month) { where(reporting_year: year, month_of_year: month) }
 
       end
     end
