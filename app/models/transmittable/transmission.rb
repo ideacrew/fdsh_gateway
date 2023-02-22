@@ -39,6 +39,7 @@ module Transmittable
 
   DEFAULT_TRANSMISSION_STATUS_TYPES = %i[
     open
+    pending
     transmitted
   ].freeze
 
@@ -59,9 +60,13 @@ module Transmittable
 
     # Scopes
     scope :open, -> { where(status: :open) }
+    scope :pending, -> { where(status: :pending) }
+    scope :transmitted, -> { where(status: :transmitted) }
 
     # Indexes
     index({ 'open' => 1 })
+    index({ 'pending' => 1 })
+    index({ 'transmitted' => 1 })
 
     # @example
     def initialize(args = nil)
@@ -71,6 +76,12 @@ module Transmittable
       super(args.except(:options))
 
       self.class.define_transmission_constants(args[:options])
+    end
+
+    def transactions
+      ::Transmittable::Transaction.where(
+        :id.in => Transmittable::TransactionsTransmissions.where(transmission_id: self.id).pluck(:transaction_id)
+      )
     end
 
     def status=(value)
