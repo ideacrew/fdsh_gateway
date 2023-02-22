@@ -2,7 +2,7 @@
 
 module Transmittable
   # A data model for a unitary transaction
-  module Job
+  class Job
     include Mongoid::Document
     include Mongoid::Timestamps
 
