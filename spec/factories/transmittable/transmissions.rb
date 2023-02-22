@@ -2,7 +2,6 @@
 
 FactoryBot.define do
   factory :transmittable_transmission, class: "::Transmittable::Transmission" do
-
-    status  { :open } 
+    status  { :open }
   end
 end
