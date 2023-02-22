@@ -7,8 +7,8 @@ module Transmittable
     include Mongoid::Document
     include Mongoid::Timestamps
 
-    belongs_to :transmission, class_name: 'Transmittable::Transmission'
-    belongs_to :transaction, class_name: 'Transmittable::Transaction'
+    belongs_to :transmission, class_name: 'Transmittable::Transmission', index: true
+    belongs_to :transaction, class_name: 'Transmittable::Transaction', index: true
 
   end
 end
