@@ -65,9 +65,10 @@ module Fdsh
         end
 
         def find_transmission(transmission_type, reporting_year)
-          ::Fdsh::H41::Transmissions::Open::Find.new.call(
+          ::Fdsh::H41::Transmissions::Find.new.call(
             {
               reporting_year: reporting_year,
+              status: :open,
               transmission_type: transmission_type
             }
           )
