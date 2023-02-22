@@ -45,5 +45,10 @@ module Transmittable
       raise ArgumentError "must be one of: #{::Transmittable::TRANSACTION_STATUS_TYPES}" if ::Transmittable::TRANSACTION_STATUS_TYPES.exclude?(value)
       write_attribute(:status, value)
     end
+
+    def transmission
+      transaction_transmission = transactions_transmissions.where(transaction_id: self.id).first
+      transaction_transmission.transmission
+    end
   end
 end

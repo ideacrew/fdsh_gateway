@@ -39,6 +39,8 @@ module Transmittable
 
   DEFAULT_TRANSMISSION_STATUS_TYPES = %i[
     open
+    pending
+    processing
     transmitted
   ].freeze
 
@@ -106,6 +108,10 @@ module Transmittable
         'TRANSMISSION_STATUS_TYPES',
         options[:transmission_status_types] || DEFAULT_TRANSMISSION_STATUS_TYPES
       )
+    end
+
+    def transactions
+      Transmittable::Transaction.where(:id.in => transactions_transmissions.pluck(:transaction_id))
     end
   end
 end
