@@ -22,13 +22,13 @@ module Fdsh
 
         def create(transmission_type, reporting_year)
           transmission = case transmission_type
-                        when :corrected
-                          ::H41::Transmissions::Outbound::CorrectedTransmission.new
-                        when :original
-                          ::H41::Transmissions::Outbound::OriginalTransmission.new
-                        else
-                          ::H41::Transmissions::Outbound::VoidTransmission.new
-                        end
+                         when :corrected
+                           ::H41::Transmissions::Outbound::CorrectedTransmission.new
+                         when :original
+                           ::H41::Transmissions::Outbound::OriginalTransmission.new
+                         else
+                           ::H41::Transmissions::Outbound::VoidTransmission.new
+                         end
           transmission.reporting_year = reporting_year
           transmission.status = :open
           transmission.save!
