@@ -11,6 +11,10 @@ module H41
         has_many :transmission_paths, class_name: 'H41::Transmissions::TransmissionPath'
 
         field :batch_reference, type: String
+        field :reporting_year, type: Integer
+
+        # Scopes
+        scope :by_year, ->(reporting_year) { where(reporting_year: reporting_year) }
       end
     end
   end

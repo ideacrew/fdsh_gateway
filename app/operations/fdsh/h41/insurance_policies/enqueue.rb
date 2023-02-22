@@ -9,7 +9,7 @@ module Fdsh
       #   2. creates database model Insurance Policies
       #   3. creates database model Aptc Csr TaxHousheolds(Subject)
       #   4. creates database model Transactions
-      #   5. FindOrCreate H41 Transmissions(Corrected, Original, and Void)
+      #   5. Find H41 Transmissions(Corrected, Original, and Void) for given reporting year
       #   6. creates database model Transmittable::TransactionsTransmissions, the join table between Transactions and H41 Transmissions
       #   7. Updates all the :untransmitted transactions that map to the subject
       class Enqueue
@@ -24,15 +24,25 @@ module Fdsh
           family_cv               = yield validate_family_cv(values)
           family                  = yield initialize_family_entity(family_cv)
           policies                = yield parse_family(family, values)
-          @corrected_transmission = yield find_or_create_transmission(:corrected)
-          @original_transmission  = yield find_or_create_transmission(:original)
-          @void_transmission      = yield find_or_create_transmission(:void)
+          @corrected_transmission = yield find_transmission(:corrected, params[:assistance_year])
+          @original_transmission  = yield find_transmission(:original, params[:assistance_year])
+          @void_transmission      = yield find_transmission(:void, params[:assistance_year])
           posted_family           = yield persist_family(family, policies, params[:correlation_id])
 
           Success("Successfully enqueued family with hbx_id: #{posted_family.family_hbx_id}, contract_holder_id: #{posted_family.contract_holder_id}")
         end
 
         protected
+
+        def create_aptc_csr_tax_household(policy, aptc_csr_thh_hash)
+          policy.aptc_csr_tax_households.create(
+            corrected: aptc_csr_thh_hash[:corrected],
+            hbx_assigned_id: aptc_csr_thh_hash[:hbx_assigned_id],
+            original: aptc_csr_thh_hash[:original],
+            transaction_xml: aptc_csr_thh_hash[:transaction_xml],
+            void: aptc_csr_thh_hash[:void]
+          )
+        end
 
         def create_posted_family(correlation_id, family)
           ::H41::InsurancePolicies::PostedFamily.create(
@@ -54,6 +64,29 @@ module Fdsh
           insurance_policies.select { |policy| affected_policy_hbx_ids.include?(policy.policy_id)  }
         end
 
+        def find_transmission(transmission_type, reporting_year)
+          ::Fdsh::H41::Transmissions::Find.new.call(
+            {
+              reporting_year: reporting_year,
+              status: :open,
+              transmission_type: transmission_type
+            }
+          )
+        end
+
+        def find_record_sequence_num(_previous_transactions, transaction_type)
+          return nil if transaction_type == :original
+
+          'test|00001|123'
+          # TODO: Read record_sequence_num from TransmissionPath
+          # original_transaction = previous_transactions.transmitted.detect do |transaction|
+          #   transaction.transactable.original?
+          # end
+          # return nil if original_transaction.blank?
+
+          # ::H41::Transmissions::TransmissionPath.where(transaction_id: original_transaction.id).first.transmission_path
+        end
+
         def find_transactions(policy, aptc_csr_thh)
           insurance_policies = ::H41::InsurancePolicies::InsurancePolicy.where(policy_hbx_id: policy.policy_id)
 
@@ -65,7 +98,7 @@ module Fdsh
           ::Transmittable::Transaction.where(:transactable_id.in => subjects.pluck(:id))
         end
 
-        def find_transmission(transaction_type)
+        def fetch_transmission(transaction_type)
           case transaction_type
           when :corrected
             @corrected_transmission
@@ -88,37 +121,38 @@ module Fdsh
           end
         end
 
-        def find_or_create_transmission(transmission_type)
-          ::Fdsh::H41::Transmissions::Open::FindOrCreate.new.call({ transmission_type: transmission_type })
-        end
-
         def initialize_family_entity(payload)
           Success(::AcaEntities::Families::Family.new(payload))
         end
 
         def parse_aptc_csr_tax_households(family, insurance_agreement, policy)
           policy.aptc_csr_tax_households.inject([]) do |thhs_array, aptc_csr_thh|
+            previous_transactions = find_transactions(policy, aptc_csr_thh)
+            update_previous_transactions(previous_transactions)
+            transmission_type = find_transmission_type(policy, previous_transactions)
+
             thhs_array << {
+              corrected: transmission_type == :corrected,
+              original: transmission_type == :original,
+              void: transmission_type == :void,
               hbx_assigned_id: aptc_csr_thh.hbx_assigned_id,
               transaction_xml: Fdsh::H41::Request::BuildH41Xml.new.call(
                 {
                   agreement: insurance_agreement,
                   family: family,
                   insurance_policy: policy,
-                  tax_household: aptc_csr_thh
+                  tax_household: aptc_csr_thh,
+                  transaction_type: transmission_type,
+                  record_sequence_num: find_record_sequence_num(previous_transactions, transmission_type)
                 }
               ).success,
-              transaction: parse_transaction(policy, aptc_csr_thh)
+              transaction: parse_transaction(transmission_type, previous_transactions)
             }
             thhs_array
           end
         end
 
-        def parse_transaction(policy, aptc_csr_thh)
-          previous_transactions = find_transactions(policy, aptc_csr_thh)
-          update_previous_transactions(previous_transactions)
-          transmission_type = find_transmission_type(policy, previous_transactions)
-
+        def parse_transaction(transmission_type, previous_transactions)
           # If current transaction is void and we never transmitted this subject before, then status is :superseded, transmit_action is :no_transmit
           if transmission_type == :void && previous_transactions.transmitted.none?
             { transmit_action: :no_transmit, status: :superseded, transmission_type: transmission_type, started_at: Time.now }
@@ -152,10 +186,10 @@ module Fdsh
               assistance_year: policy_hash[:assistance_year],
               policy_hbx_id: policy_hash[:policy_hbx_id]
             )
+
             policy_hash[:aptc_csr_tax_households].each do |aptc_csr_thh_hash|
-              aptc_csr_tax_household = policy.aptc_csr_tax_households.create(
-                hbx_assigned_id: aptc_csr_thh_hash[:hbx_assigned_id], transaction_xml: aptc_csr_thh_hash[:transaction_xml]
-              )
+              aptc_csr_tax_household = create_aptc_csr_tax_household(policy, aptc_csr_thh_hash)
+
               transaction = aptc_csr_tax_household.transactions.create(
                 transmit_action: aptc_csr_thh_hash[:transaction][:transmit_action],
                 status: aptc_csr_thh_hash[:transaction][:status],
@@ -163,7 +197,7 @@ module Fdsh
               )
 
               create_transactions_transmissions(
-                find_transmission(aptc_csr_thh_hash[:transaction][:transmission_type]),
+                fetch_transmission(aptc_csr_thh_hash[:transaction][:transmission_type]),
                 transaction
               )
             end
@@ -177,11 +211,19 @@ module Fdsh
         end
 
         def validate(params)
-          if params[:affected_policies].is_a?(Array) && params[:correlation_id].is_a?(String) && params[:family].present?
-            Success(params)
-          else
-            Failure('Invalid params. affected_policies, correlation_id and family are required.')
+          unless params[:affected_policies].is_a?(Array)
+            return Failure("Invalid affected_policies: #{params[:affected_policies]}. Please pass in a list of affected_policies.")
           end
+          if params[:assistance_year].blank?
+            return Failure("Invalid assistance_year: #{params[:assistance_year]}. Please pass in a list of assistance_year.")
+          end
+          if params[:correlation_id].blank?
+            return Failure("Invalid correlation_id: #{params[:correlation_id]}. Please pass in a list of correlation_id.")
+          end
+          return Failure("Invalid family: #{params[:family]}. Please pass in a list of family.") if params[:family].blank?
+
+          params.merge!({ assistance_year: params[:assistance_year].to_i })
+          Success(params)
         end
 
         # Validates params using AcaEntities Family contract

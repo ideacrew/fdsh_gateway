@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Fdsh::H41::Transmissions::Open::FindOrCreate do
+RSpec.describe Fdsh::H41::Transmissions::FindOrCreate do
   subject { described_class.new.call(input_params) }
 
   before :all do
@@ -15,7 +15,13 @@ RSpec.describe Fdsh::H41::Transmissions::Open::FindOrCreate do
 
   describe '#call' do
     context 'with valid input params' do
-      let(:input_params) { { transmission_type: :original } }
+      let(:input_params) do
+        {
+          reporting_year: Date.today.year,
+          status: :open,
+          transmission_type: :original
+        }
+      end
 
       context 'without an open H41 transmission' do
         it 'creates an open H41 transmission' do
@@ -38,11 +44,33 @@ RSpec.describe Fdsh::H41::Transmissions::Open::FindOrCreate do
 
     context 'with invalid input params' do
       context 'bad input transmission_type' do
-        let(:input_params) { { transmission_type: :test } }
+        let(:input_params) do
+          {
+            reporting_year: Date.today.year,
+            status: :open,
+            transmission_type: :test
+          }
+        end
 
         it 'returns failure with errors' do
           expect(subject.failure).to eq(
-            'Invalid transmission type: test. Must be one of [:corrected, :original, :void]'
+            'Invalid transmission_type: test. Must be one of [:corrected, :original, :void].'
+          )
+        end
+      end
+
+      context 'bad input reporting_year' do
+        let(:input_params) do
+          {
+            reporting_year: 'test',
+            status: :open,
+            transmission_type: :original
+          }
+        end
+
+        it 'returns failure with errors' do
+          expect(subject.failure).to eq(
+            'Invalid reporting_year: test. Must be an integer.'
           )
         end
       end
