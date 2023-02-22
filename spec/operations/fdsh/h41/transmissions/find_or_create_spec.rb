@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Fdsh::H41::Transmissions::Open::FindOrCreate do
+RSpec.describe Fdsh::H41::Transmissions::FindOrCreate do
   subject { described_class.new.call(input_params) }
 
   before :all do
@@ -18,6 +18,7 @@ RSpec.describe Fdsh::H41::Transmissions::Open::FindOrCreate do
       let(:input_params) do
         {
           reporting_year: Date.today.year,
+          status: :open,
           transmission_type: :original
         }
       end
@@ -46,6 +47,7 @@ RSpec.describe Fdsh::H41::Transmissions::Open::FindOrCreate do
         let(:input_params) do
           {
             reporting_year: Date.today.year,
+            status: :open,
             transmission_type: :test
           }
         end
@@ -61,6 +63,7 @@ RSpec.describe Fdsh::H41::Transmissions::Open::FindOrCreate do
         let(:input_params) do
           {
             reporting_year: 'test',
+            status: :open,
             transmission_type: :original
           }
         end

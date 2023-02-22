@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Fdsh::H41::Transmissions::Open::Find do
+RSpec.describe Fdsh::H41::Transmissions::Find do
   subject { described_class.new.call(input_params) }
 
   before :all do
@@ -18,6 +18,7 @@ RSpec.describe Fdsh::H41::Transmissions::Open::Find do
       let(:input_params) do
         {
           reporting_year: Date.today.year,
+          status: :open,
           transmission_type: :original
         }
       end
@@ -38,6 +39,7 @@ RSpec.describe Fdsh::H41::Transmissions::Open::Find do
         let(:input_params) do
           {
             reporting_year: Date.today.year,
+            status: :open,
             transmission_type: :test
           }
         end
@@ -53,6 +55,7 @@ RSpec.describe Fdsh::H41::Transmissions::Open::Find do
         let(:input_params) do
           {
             reporting_year: 'test',
+            status: :open,
             transmission_type: :original
           }
         end
@@ -64,10 +67,27 @@ RSpec.describe Fdsh::H41::Transmissions::Open::Find do
         end
       end
 
+      context 'bad input status' do
+        let(:input_params) do
+          {
+            reporting_year: Date.today.year,
+            status: :test,
+            transmission_type: :original
+          }
+        end
+
+        it 'returns failure with errors' do
+          expect(subject.failure).to eq(
+            'Invalid status: test. Must be one of [:open, :transmitted].'
+          )
+        end
+      end
+
       context 'without open transactions' do
         let(:input_params) do
           {
             reporting_year: Date.today.year,
+            status: :open,
             transmission_type: :original
           }
         end

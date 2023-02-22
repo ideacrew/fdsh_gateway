@@ -3,7 +3,8 @@
 FactoryBot.define do
   factory :transmittable_transaction, class: "::Transmittable::Transaction" do
 
-    # association :posted_family, factory: :posted_family
+    status  { :created }
+    transmit_action { :transmit }
 
     transient do
       transmission { nil }

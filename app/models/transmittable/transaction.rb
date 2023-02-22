@@ -6,7 +6,7 @@ module Transmittable
     include Mongoid::Document
     include Mongoid::Timestamps
 
-    belongs_to :transactable, polymorphic: true
+    belongs_to :transactable, polymorphic: true, index: true
     has_many :transactions_transmissions, class_name: 'Transmittable::TransactionsTransmissions'
 
     field :transmit_action, type: Symbol
@@ -37,12 +37,16 @@ module Transmittable
     index({ 'transmit_action' => 1 })
 
     def transmit_action=(value)
-      raise ArgumentError "must be one of: #{::Transmittable::TRANSMIT_ACTION_TYPES}" if ::Transmittable::TRANSMIT_ACTION_TYPES.exclude?(value)
+      if ::Transmittable::DEFAULT_TRANSMIT_ACTION_TYPES.exclude?(value)
+        raise ArgumentError "must be one of: #{::Transmittable::DEFAULT_TRANSMIT_ACTION_TYPES}"
+      end
       write_attribute(:transmit_action, value)
     end
 
     def status=(value)
-      raise ArgumentError "must be one of: #{::Transmittable::TRANSACTION_STATUS_TYPES}" if ::Transmittable::TRANSACTION_STATUS_TYPES.exclude?(value)
+      if ::Transmittable::DEFAULT_TRANSACTION_STATUS_TYPES.exclude?(value)
+        raise ArgumentError "must be one of: #{::Transmittable::DEFAULT_TRANSACTION_STATUS_TYPES}"
+      end
       write_attribute(:status, value)
     end
 
