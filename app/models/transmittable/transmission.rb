@@ -40,6 +40,7 @@ module Transmittable
   DEFAULT_TRANSMISSION_STATUS_TYPES = %i[
     open
     pending
+    processing
     transmitted
   ].freeze
 
@@ -78,12 +79,6 @@ module Transmittable
       self.class.define_transmission_constants(args[:options])
     end
 
-    def transactions
-      ::Transmittable::Transaction.where(
-        :id.in => Transmittable::TransactionsTransmissions.where(transmission_id: self.id).pluck(:transaction_id)
-      )
-    end
-
     def status=(value)
       unless ::Transmittable::TRANSMISSION_STATUS_TYPES.include?(value)
         raise ArgumentError "must be one of: #{::Transmittable::TRANSMISSION_STATUS_TYPES}"
@@ -117,6 +112,10 @@ module Transmittable
         'TRANSMISSION_STATUS_TYPES',
         options[:transmission_status_types] || DEFAULT_TRANSMISSION_STATUS_TYPES
       )
+    end
+
+    def transactions
+      Transmittable::Transaction.where(:id.in => transactions_transmissions.pluck(:transaction_id))
     end
   end
 end
