@@ -7,8 +7,8 @@ module H41
       include Mongoid::Document
       include Mongoid::Timestamps
 
-      belongs_to :transaction, class_name: '::Transmittable::Transaction', inverse_of: :transaction_transmission_path
-      belongs_to :transmission, class_name: '::Transmittable::Transmission', inverse_of: :transmission_paths
+      belongs_to :transaction, class_name: '::Transmittable::Transaction', inverse_of: :transaction_transmission_path, index: true
+      belongs_to :transmission, class_name: '::Transmittable::Transmission', inverse_of: :transmission_paths, index: true
 
       field :batch_reference, type: String
       field :content_file_id, type: String
