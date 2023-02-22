@@ -41,7 +41,7 @@ module Subscribers
                       Date.today.month
                     end
 
-            result = Fdsh::H36::IrsGroups::Enqueue.new.call(
+            result = ::Fdsh::H36::IrsGroups::Enqueue.new.call(
               {
                 assistance_year: headers['assistance_year'].to_i,
                 correlation_id: headers['correlation_id'],

@@ -13,9 +13,7 @@ module H36
       field :family_hbx_id, type: String
       field :family_cv, type: String
       field :assistance_year, type: Integer
-
-      embeds_many :monthly_activities, class_name: "H36::IrsGroups::MonthlyActivity", cascade_callbacks: true
-      accepts_nested_attributes_for :monthly_activities
+      field :transaction_xml, type: String
 
       index({ assistance_year: 1 })
       index({ correlation_id: 1 })
