@@ -54,7 +54,7 @@ module Fdsh
         end
 
         def create_transactions_transmissions(transmission, transaction)
-          Transmittable::TransactionsTransmissions.create(
+          ::Transmittable::TransactionsTransmissions.create(
             transmission: transmission,
             transaction: transaction
           )

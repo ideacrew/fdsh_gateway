@@ -12,7 +12,7 @@ module Subscribers
           subscriber_logger = subscriber_logger_for(:on_insurance_policies_posted)
           response = JSON.parse(response, symbolize_names: true)
           logger.info "on_posted response: #{response}"
-          subscriber_logger.info "on_posted response: #{response}"
+          subscriber_logger.info "on_posted response: #{response} with headers #{metadata}"
 
           unless Rails.env.test?
             process_insurance_policies_posted_event_for_h41(subscriber_logger, response, metadata)
@@ -36,9 +36,9 @@ module Subscribers
           end
         end
 
-        def process_insurance_policies_posted_event_for_h36(subscriber_logger, response, headers)
+        def process_insurance_policies_posted_event_for_h36(subscriber_logger, response, metadata)
           subscriber_logger.info "process_h36_insurance_policies_posted_event: ------- start"
-          month = if headers['assistance_year'].to_i == Date.today.year - 1
+          month = if metadata[:headers]['assistance_year'].to_i == Date.today.year - 1
                     12 + Date.today.month
                   else
                     Date.today.month
@@ -46,8 +46,8 @@ module Subscribers
 
           result = ::Fdsh::H36::IrsGroups::Enqueue.new.call(
             {
-              assistance_year: headers['assistance_year'].to_i,
-              correlation_id: headers['correlation_id'],
+              assistance_year: metadata[:headers]['assistance_year'].to_i,
+              correlation_id: metadata[:headers]['correlation_id'],
               month_of_year: month,
               family: response
             }
@@ -65,13 +65,13 @@ module Subscribers
           subscriber_logger.error "process_h36_insurance_policies_posted_event: ------- end"
         end
 
-        def process_insurance_policies_posted_event_for_h41(subscriber_logger, response, headers)
+        def process_insurance_policies_posted_event_for_h41(subscriber_logger, response, metadata)
           subscriber_logger.info "process_insurance_policies_posted_event: ------- start"
           result = ::Fdsh::H41::InsurancePolicies::Enqueue.new.call(
             {
-              affected_policies: headers['affected_policies'],
-              assistance_year: headers['assistance_year'],
-              correlation_id: headers['correlation_id'],
+              affected_policies: metadata[:headers]['affected_policies'],
+              assistance_year: metadata[:headers]['assistance_year'],
+              correlation_id: metadata[:headers]['correlation_id'],
               family: response
             }
           )

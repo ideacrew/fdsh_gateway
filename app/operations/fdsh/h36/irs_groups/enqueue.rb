@@ -85,7 +85,7 @@ contract_holder_hbx_id: #{irs_group.contract_holder_hbx_id}")
         end
 
         def create_transactions_transmissions(transmission, transaction)
-          Transmittable::TransactionsTransmissions.create(
+          ::Transmittable::TransactionsTransmissions.create(
             transmission: transmission,
             transaction: transaction
           )
