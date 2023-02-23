@@ -47,7 +47,7 @@ module Subscribers
           result = ::Fdsh::H36::IrsGroups::Enqueue.new.call(
             {
               assistance_year: metadata[:headers]['assistance_year'].to_i,
-              correlation_id: metadata[:headers]['correlation_id'],
+              correlation_id: metadata[:correlation_id],
               month_of_year: month,
               family: response
             }
@@ -71,7 +71,7 @@ module Subscribers
             {
               affected_policies: metadata[:headers]['affected_policies'],
               assistance_year: metadata[:headers]['assistance_year'],
-              correlation_id: metadata[:headers]['correlation_id'],
+              correlation_id: metadata[:correlation_id],
               family: response
             }
           )
