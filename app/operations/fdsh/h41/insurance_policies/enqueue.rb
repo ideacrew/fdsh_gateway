@@ -103,7 +103,7 @@ module Fdsh
           # Case where we never transmitted Original and the policy is canceled, then the transaction is void with transmit_action is :no_transmit
           return nil if transaction_type == :void && original_transaction.blank?
 
-          ::H41::Transmissions::TransmissionPath.where(transaction_id: original_transaction.id).first.transmission_path
+          ::H41::Transmissions::TransmissionPath.where(transaction_id: original_transaction.id).first.record_sequence_number_path
         end
 
         def find_transactions(policy, aptc_csr_thh)
