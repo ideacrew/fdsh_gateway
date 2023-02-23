@@ -66,25 +66,27 @@ module Fdsh
           "H41::Transmissions::Outbound::#{kind.to_s.camelcase}Transmission".constantize
         end
 
-        def find_transactions(transmission, values)
+        def find_transactions_by_original_batch(transmission, values)
           transactions = transmission.transactions.transmit_pending
 
           transactions.group_by do |transaction|
-            aptc_csr_tax_household = transaction.transactable
+            subject = transaction.transactable
+            transaction_xml = Nokogiri.XML(subject.transaction_xml, &:noblanks)
+
             if values[:report_type] == :corrected
-              aptc_csr_tax_household.individual_xml.at("//airty20a:CorrectedRecordSequenceNum").content.split('|')[0]
+              transaction_xml.at("//airty20a:CorrectedRecordSequenceNum").content.split('|')[0]
             else
-              aptc_csr_tax_household.individual_xml.at("//airty20a:VoidedRecordSequenceNum").content.split('|')[0]
+              transaction_xml.at("//airty20a:VoidedRecordSequenceNum").content.split('|')[0]
             end
           end
         end
 
         def publish(transmission, values)
           if values[:report_type] == :original
-            generate_transmission_for(transmission.transactions.transmit_pending, values)
+            create_transmission_with(transmission.transactions.transmit_pending, values)
           else
-            find_transaction_records(transmission, values).each do |batch_reference, transactions|
-              generate_transmission_for(transactions, values, batch_reference)
+            find_transactions_by_original_batch(transmission, values).each do |batch_reference, transactions|
+              create_transmission_with(transactions, values, batch_reference)
             end
           end
 
@@ -92,8 +94,9 @@ module Fdsh
           Success(true)
         end
 
-        def generate_transmission_for(transactions, values, old_batch_reference = nil)
-          transmission_builder = ContentFileBuilder.new do |transaction, transmission_details|
+        def init_content_file_builder(values, old_batch_reference = nil)
+          ContentFileBuilder.new(transmission_kind: values[:report_type],
+                                 old_batch_reference: old_batch_reference) do |transaction, transmission_details|
             transaction.status = :transmitted
             transaction.transmit_action = :no_transmit
             transaction.save
@@ -103,13 +106,15 @@ module Fdsh
             )
             transmission_path.save
           end
+        end
 
+        def create_transmission_with(transactions, values, old_batch_reference = nil)
           ::Fdsh::Transmissions::BatchRequestDirector.new.call({
                                                                  transactions: transactions,
                                                                  transmission_kind: values[:report_type],
                                                                  old_batch_reference: old_batch_reference,
                                                                  outbound_folder_name: 'h41_transmissions',
-                                                                 transmission_builder: transmission_builder
+                                                                 transmission_builder: init_content_file_builder(values, old_batch_reference)
                                                                })
         end
       end

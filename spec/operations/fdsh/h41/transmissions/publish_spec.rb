@@ -55,6 +55,11 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       )
     end
 
+    let!(:insurance_polices) do
+      create_list(:h41_insurance_policy, 20, :with_aptc_csr_tax_households, transaction_xml: transaction_xml,
+                                                                            transmission: open_transmission)
+    end
+
     context 'for original transmission' do
       let(:input_params) do
         {
@@ -64,12 +69,6 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       end
 
       let!(:open_transmission) { FactoryBot.create(:h41_original_transmission) }
-
-      let!(:insurance_polices) do
-        create_list(:h41_insurance_policy, 20, :with_aptc_csr_tax_households, transaction_xml: transaction_xml,
-                                                                              transmission: open_transmission)
-      end
-
       let(:transaction_xml) { File.open(Rails.root.join("spec/test_payloads/h41/original.xml").to_s).read }
 
       before do
@@ -93,8 +92,8 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         expect(new_transmission.class).to eq open_transmission.class
       end
 
-      #   it 'should create content and manifest files' do
-      #   end
+      # it 'should create content and manifest files' do
+      # end
 
       it 'should update transmission to transmitted state' do
         open_transmission.transactions.each do |transaction|
@@ -108,11 +107,98 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       end
     end
 
-    # context 'for corrected' do
-    # end
+    context 'for corrected' do
+      let(:input_params) do
+        {
+          reporting_year: Date.today.year,
+          report_type: :corrected
+        }
+      end
 
-    # context 'for void' do
+      let!(:open_transmission) { FactoryBot.create(:h41_corrected_transmission) }
+      let(:transaction_xml) { File.open(Rails.root.join("spec/test_payloads/h41/corrected.xml").to_s).read }
 
-    # end
+      before do
+        @result = subject.call(input_params)
+        open_transmission.reload
+      end
+
+      it 'should generate corrected h41 successfully' do
+        expect(@result.success?).to be_truthy
+      end
+
+      it 'should change open transmission to transmitted' do
+        expect(open_transmission.status).to eq :transmitted
+      end
+
+      it 'should create new open transmission' do
+        new_transmission = Transmittable::Transmission.open.first
+
+        expect(new_transmission).not_to eq open_transmission
+        expect(new_transmission.reporting_year).to eq input_params[:reporting_year]
+        expect(new_transmission.class).to eq open_transmission.class
+      end
+
+      # it 'should create content and manifest files' do
+      # end
+
+      it 'should update transmission to transmitted state' do
+        open_transmission.transactions.each do |transaction|
+          expect(transaction.status).to eq :transmitted
+          expect(transaction.transmit_action).to eq :no_transmit
+        end
+      end
+
+      it 'should create transmission paths for batch id' do
+        expect(open_transmission.transmission_paths.count).to eq open_transmission.transactions.count
+      end
+    end
+
+    context 'for void' do
+      let(:input_params) do
+        {
+          reporting_year: Date.today.year,
+          report_type: :void
+        }
+      end
+
+      let!(:open_transmission) { FactoryBot.create(:h41_void_transmission) }
+      let(:transaction_xml) { File.open(Rails.root.join("spec/test_payloads/h41/void.xml").to_s).read }
+
+      before do
+        @result = subject.call(input_params)
+        open_transmission.reload
+      end
+
+      it 'should generate void h41 successfully' do
+        expect(@result.success?).to be_truthy
+      end
+
+      it 'should change open transmission to transmitted' do
+        expect(open_transmission.status).to eq :transmitted
+      end
+
+      it 'should create new open transmission' do
+        new_transmission = Transmittable::Transmission.open.first
+
+        expect(new_transmission).not_to eq open_transmission
+        expect(new_transmission.reporting_year).to eq input_params[:reporting_year]
+        expect(new_transmission.class).to eq open_transmission.class
+      end
+
+      # it 'should create content and manifest files' do
+      # end
+
+      it 'should update transmission to transmitted state' do
+        open_transmission.transactions.each do |transaction|
+          expect(transaction.status).to eq :transmitted
+          expect(transaction.transmit_action).to eq :no_transmit
+        end
+      end
+
+      it 'should create transmission paths for batch id' do
+        expect(open_transmission.transmission_paths.count).to eq open_transmission.transactions.count
+      end
+    end
   end
 end

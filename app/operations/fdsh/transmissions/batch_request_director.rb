@@ -18,9 +18,9 @@ module Fdsh
         values = yield create_transmission_variables(values)
         outbound_folder     = yield create_outbound_folder(values)
         outbound_folder     = yield create_batch_content_files(values, outbound_folder)
-        output              = yield create_batch_request_file(outbound_folder)
+        _output              = yield create_batch_request_file(outbound_folder)
 
-        Success(output)
+        Success(outbound_folder)
       end
 
       private
@@ -43,7 +43,12 @@ module Fdsh
       end
 
       def batched_request_for(transactions, offset)
-        transactions.skip(offset).limit(processing_batch_size).no_timeout if transactions.is_a?(Mongoid::Criteria)
+        if transactions.is_a?(Mongoid::Criteria)
+          transactions.skip(offset).limit(processing_batch_size).no_timeout
+        else
+          range = offset..(offset + processing_batch_size)
+          transactions[range]
+        end
       end
 
       def create_batch_content_files(values, outbound_folder)

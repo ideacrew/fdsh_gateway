@@ -8,11 +8,12 @@ module Fdsh
         PROCESSING_BATCH_SIZE = 5000
 
         attr_accessor :document
-        attr_reader :new_batch_reference, :old_batch_reference, :content_file_number
+        attr_reader :new_batch_reference, :old_batch_reference, :transmission_kind
 
         def initialize(params = {}, &block)
           @new_batch_reference = create_new_batch_reference
           @old_batch_reference = params[:old_batch_reference]
+          @transmission_kind = params[:transmission_kind]
           @transaction_event_block = block if block_given?
         end
 
@@ -56,7 +57,8 @@ module Fdsh
           Fdsh::H41::Request::CreateBatchRequestFile.new.call(
             outbound_folder: outbound_folder,
             new_batch_reference: new_batch_reference,
-            old_batch_reference: old_batch_reference
+            old_batch_reference: old_batch_reference,
+            transmission_kind: transmission_kind
           )
         end
       end
