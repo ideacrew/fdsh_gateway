@@ -27,6 +27,7 @@ module Fdsh
           unless params[:report_type] && H41_TRANSMISSION_TYPES.include?(params[:report_type])
             return Failure("report_type must be one #{H41_TRANSMISSION_TYPES.map(&:to_s).join(', ')}")
           end
+          # params[:excluded_policies]
 
           Success(params)
         end
