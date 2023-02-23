@@ -40,6 +40,7 @@ RUN apt-get update \
       nodejs \
       openssl \
       sshpass \
+      vim \
       unzip \
       zip \
       zlibc \
