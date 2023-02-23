@@ -34,6 +34,25 @@ module Fdsh
 
         protected
 
+        def build_transaction_xml(params)
+          attrs = params[:parsed_transaction]
+
+          # Handle BuildH41Xml for cases where a void comes in and we never transmitted original.
+          # DO NOT GENERATE THE XML. set this to empty string as we cannot send record_sequence_num of the original.
+          return '' if attrs[:transmit_action] == :no_transmit && attrs[:status] == :blocked && attrs[:transmission_type] == :void
+
+          Fdsh::H41::Request::BuildH41Xml.new.call(
+            {
+              agreement: params[:agreement],
+              family: params[:family],
+              insurance_policy: params[:insurance_policy],
+              tax_household: params[:tax_household],
+              transaction_type: params[:transaction_type],
+              record_sequence_num: find_record_sequence_num(params[:previous_transactions], params[:transaction_type])
+            }
+          ).success
+        end
+
         def create_aptc_csr_tax_household(policy, aptc_csr_thh_hash)
           policy.aptc_csr_tax_households.create(
             corrected: aptc_csr_thh_hash[:corrected],
@@ -123,25 +142,6 @@ module Fdsh
 
         def initialize_family_entity(payload)
           Success(::AcaEntities::Families::Family.new(payload))
-        end
-
-        def build_transaction_xml(params)
-          attrs = params[:parsed_transaction]
-
-          # Handle BuildH41Xml for cases where a void comes in and we never transmitted original.
-          # DO NOT GENERATE THE XML. set this to empty string as we cannot send record_sequence_num of the original.
-          return '' if attrs[:transmit_action] == :no_transmit && attrs[:status] == :blocked && attrs[:transmission_type] == :void
-
-          Fdsh::H41::Request::BuildH41Xml.new.call(
-            {
-              agreement: params[:agreement],
-              family: params[:family],
-              insurance_policy: params[:insurance_policy],
-              tax_household: params[:tax_household],
-              transaction_type: params[:transaction_type],
-              record_sequence_num: find_record_sequence_num(params[:previous_transactions], params[:transaction_type])
-            }
-          ).success
         end
 
         def parse_aptc_csr_tax_households(family, insurance_agreement, policy)
