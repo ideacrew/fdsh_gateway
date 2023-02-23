@@ -93,14 +93,7 @@ module Fdsh
         end
 
         def generate_transmission_for(transactions, values, old_batch_reference = nil)
-          batch_processor = H41BatchBuilder.new({
-                                                  transactions: transactions,
-                                                  report_type: values[:report_type],
-                                                  old_batch_reference: old_batch_reference,
-                                                  outbound_folder_name: 'h41_transmissions'
-                                                })
-
-          batch_processor.each do |transaction, transmission_details|
+          transmission_builder = ContentFileBuilder.new do |transaction, transmission_details|
             transaction.status = :transmitted
             transaction.transmit_action = :no_transmit
             transaction.save
@@ -110,6 +103,14 @@ module Fdsh
             )
             transmission_path.save
           end
+
+          ::Fdsh::Transmissions::BatchRequestDirector.new.call({
+                                                                 transactions: transactions,
+                                                                 transmission_kind: values[:report_type],
+                                                                 old_batch_reference: old_batch_reference,
+                                                                 outbound_folder_name: 'h41_transmissions',
+                                                                 transmission_builder: transmission_builder
+                                                               })
         end
       end
     end
