@@ -10,6 +10,7 @@ module Subscribers
         subscribe(:on_posted) do |delivery_info, metadata, response|
           logger.info "on_posted response: #{response}"
           subscriber_logger = subscriber_logger_for(:on_insurance_policies_posted)
+          subscriber_logger.info "JSON payload #{response}"
           response = JSON.parse(response, symbolize_names: true)
           logger.info "on_posted response: #{response}"
           subscriber_logger.info "on_posted response: #{response} with headers #{metadata}"
@@ -49,7 +50,7 @@ module Subscribers
               assistance_year: metadata[:headers]['assistance_year'].to_i,
               correlation_id: metadata[:correlation_id],
               month_of_year: month,
-              family: response
+              family: response[:family]
             }
           )
 
@@ -72,7 +73,7 @@ module Subscribers
               affected_policies: metadata[:headers]['affected_policies'],
               assistance_year: metadata[:headers]['assistance_year'],
               correlation_id: metadata[:correlation_id],
-              family: response
+              family: response[:family]
             }
           )
 
