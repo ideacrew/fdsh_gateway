@@ -35,7 +35,11 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
       end
 
       let(:transmitted_transactions) do
-        Transmittable::Transaction.update_all(status: :transmitted, transmit_action: :no_transmit)
+        original = Transmittable::TransactionsTransmissions.where(transmission: original_transmission).first
+        Transmittable::Transaction.each do |taction|
+          taction.update_attributes!(status: :transmitted, transmit_action: :no_transmit)
+          FactoryBot.create(:transmission_path, transmission: original, transaction: taction)
+        end
       end
 
       let(:transactions_for_first_subject) do
@@ -78,9 +82,11 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
           it 'updates transmit_pending transactions to no_transmit' do
             expect(original_first_transaction.status).to eq(:created)
             expect(original_first_transaction.transmit_action).to eq(:transmit)
+            expect(original_first_transaction.transactable.transaction_xml).not_to be_empty
             subject
             expect(original_first_transaction.reload.status).to eq(:superseded)
             expect(original_first_transaction.reload.transmit_action).to eq(:no_transmit)
+            expect(original_first_transaction.transactable.transaction_xml).not_to be_empty
           end
 
           it 'creates transactions for original transmission' do
@@ -100,6 +106,7 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
             subject
             expect(original_second_transaction.transmit_action).to eq(:transmit)
             expect(original_second_transaction.status).to eq(:created)
+            expect(original_second_transaction.transactable.transaction_xml).not_to be_empty
           end
         end
 
@@ -158,8 +165,10 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
           it 'will not update transmitted transactions' do
             expect(original_first_transaction.status).to eq(:superseded)
             expect(original_first_transaction.transmit_action).to eq(:no_transmit)
-            expect(void_first_transaction.status).to eq(:superseded)
+            expect(void_first_transaction.status).to eq(:blocked)
             expect(void_first_transaction.transmit_action).to eq(:no_transmit)
+            expect(void_first_transaction.transactable.transaction_xml).to eq('')
+            expect(void_first_transaction.transactable.transaction_xml).not_to be_nil
           end
 
           it 'creates transactions for void transmission' do
@@ -190,6 +199,7 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
             expect(original_first_transaction.transmit_action).to eq(:no_transmit)
             expect(void_first_transaction.status).to eq(:created)
             expect(void_first_transaction.transmit_action).to eq(:transmit)
+            expect(void_first_transaction.transactable.transaction_xml).not_to be_empty
           end
 
           it 'creates transactions for void transmission' do

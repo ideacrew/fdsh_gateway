@@ -34,6 +34,25 @@ module Fdsh
 
         protected
 
+        def build_transaction_xml(params)
+          attrs = params[:parsed_transaction]
+
+          # Handle BuildH41Xml for cases where a void comes in and we never transmitted original.
+          # DO NOT GENERATE THE XML. set this to empty string as we cannot send record_sequence_num of the original.
+          return '' if attrs[:transmit_action] == :no_transmit && attrs[:status] == :blocked && attrs[:transmission_type] == :void
+
+          Fdsh::H41::Request::BuildH41Xml.new.call(
+            {
+              agreement: params[:agreement],
+              family: params[:family],
+              insurance_policy: params[:insurance_policy],
+              tax_household: params[:tax_household],
+              transaction_type: params[:transaction_type],
+              record_sequence_num: find_record_sequence_num(params[:previous_transactions], params[:transaction_type])
+            }
+          ).success
+        end
+
         def create_aptc_csr_tax_household(policy, aptc_csr_thh_hash)
           policy.aptc_csr_tax_households.create(
             corrected: aptc_csr_thh_hash[:corrected],
@@ -54,7 +73,7 @@ module Fdsh
         end
 
         def create_transactions_transmissions(transmission, transaction)
-          Transmittable::TransactionsTransmissions.create(
+          ::Transmittable::TransactionsTransmissions.create(
             transmission: transmission,
             transaction: transaction
           )
@@ -74,17 +93,17 @@ module Fdsh
           )
         end
 
-        def find_record_sequence_num(_previous_transactions, transaction_type)
+        def find_record_sequence_num(previous_transactions, transaction_type)
           return nil if transaction_type == :original
 
-          'test|00001|123'
-          # TODO: Read record_sequence_num from TransmissionPath
-          # original_transaction = previous_transactions.transmitted.detect do |transaction|
-          #   transaction.transactable.original?
-          # end
-          # return nil if original_transaction.blank?
+          original_transaction = previous_transactions.transmitted.detect do |transaction|
+            transaction.transactable.original?
+          end
 
-          # ::H41::Transmissions::TransmissionPath.where(transaction_id: original_transaction.id).first.transmission_path
+          # Case where we never transmitted Original and the policy is canceled, then the transaction is void with transmit_action is :no_transmit
+          return nil if transaction_type == :void && original_transaction.blank?
+
+          ::H41::Transmissions::TransmissionPath.where(transaction_id: original_transaction.id).first.record_sequence_number_path
         end
 
         def find_transactions(policy, aptc_csr_thh)
@@ -130,32 +149,34 @@ module Fdsh
             previous_transactions = find_transactions(policy, aptc_csr_thh)
             update_previous_transactions(previous_transactions)
             transmission_type = find_transmission_type(policy, previous_transactions)
+            parsed_transaction = parse_transaction(transmission_type, previous_transactions)
 
             thhs_array << {
               corrected: transmission_type == :corrected,
               original: transmission_type == :original,
               void: transmission_type == :void,
               hbx_assigned_id: aptc_csr_thh.hbx_assigned_id,
-              transaction_xml: Fdsh::H41::Request::BuildH41Xml.new.call(
+              transaction_xml: build_transaction_xml(
                 {
                   agreement: insurance_agreement,
                   family: family,
                   insurance_policy: policy,
+                  parsed_transaction: parsed_transaction,
+                  previous_transactions: previous_transactions,
                   tax_household: aptc_csr_thh,
-                  transaction_type: transmission_type,
-                  record_sequence_num: find_record_sequence_num(previous_transactions, transmission_type)
+                  transaction_type: transmission_type
                 }
-              ).success,
-              transaction: parse_transaction(transmission_type, previous_transactions)
+              ),
+              transaction: parsed_transaction
             }
             thhs_array
           end
         end
 
         def parse_transaction(transmission_type, previous_transactions)
-          # If current transaction is void and we never transmitted this subject before, then status is :superseded, transmit_action is :no_transmit
+          # If current transaction is void and we never transmitted this subject before, then status is :blocked, transmit_action is :no_transmit
           if transmission_type == :void && previous_transactions.transmitted.none?
-            { transmit_action: :no_transmit, status: :superseded, transmission_type: transmission_type, started_at: Time.now }
+            { transmit_action: :no_transmit, status: :blocked, transmission_type: transmission_type, started_at: Time.now }
           else
             { transmit_action: :transmit, status: :created, transmission_type: transmission_type, started_at: Time.now }
           end
