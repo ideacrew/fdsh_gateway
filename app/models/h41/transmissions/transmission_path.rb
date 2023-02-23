@@ -14,8 +14,7 @@ module H41
       field :content_file_id, type: String
       field :record_sequence_number, type: String
 
-      # refactor below to return corrected/void sequence number with above fields
-      def transmission_path
+      def record_sequence_number_path
         [
           batch_reference, content_file_id, record_sequence_number
         ].join('|')
