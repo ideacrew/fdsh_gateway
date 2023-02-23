@@ -13,7 +13,12 @@ module Subscribers
           response = JSON.parse(response, symbolize_names: true)
           logger.info "on_posted response: #{response}"
           subscriber_logger.info "on_posted response: #{response}"
-          process_insurance_policies_posted_event(subscriber_logger, response, metadata) unless Rails.env.test?
+
+          unless Rails.env.test?
+            process_insurance_policies_posted_event_for_h41(subscriber_logger, response, metadata)
+
+            process_insurance_policies_posted_event_for_h36(subscriber_logger, response, metadata)
+          end
 
           ack(delivery_info.delivery_tag)
         rescue StandardError, SystemStackError => e
@@ -31,9 +36,38 @@ module Subscribers
           end
         end
 
-        def process_insurance_policies_posted_event(subscriber_logger, response, headers)
+        def process_insurance_policies_posted_event_for_h36(subscriber_logger, response, headers)
+          subscriber_logger.info "process_h36_insurance_policies_posted_event: ------- start"
+          month = if headers['assistance_year'].to_i == Date.today.year - 1
+                    12 + Date.today.month
+                  else
+                    Date.today.month
+                  end
+
+          result = ::Fdsh::H36::IrsGroups::Enqueue.new.call(
+            {
+              assistance_year: headers['assistance_year'].to_i,
+              correlation_id: headers['correlation_id'],
+              month_of_year: month,
+              family: response
+            }
+          )
+
+          if result.success?
+            message = result.success
+            subscriber_logger.info "on_h36_insurance_policies_posted acked #{message.is_a?(Hash) ? message[:event] : message}"
+          else
+            subscriber_logger.info "process_h36_insurance_policies_posted_event: failure: #{error_messages(result)}"
+          end
+          subscriber_logger.info "process_h36_insurance_policies_posted_event: ------- end"
+        rescue StandardError => e
+          subscriber_logger.error "process_h36_insurance_policies_posted_event: error: #{e} backtrace: #{e.backtrace}"
+          subscriber_logger.error "process_h36_insurance_policies_posted_event: ------- end"
+        end
+
+        def process_insurance_policies_posted_event_for_h41(subscriber_logger, response, headers)
           subscriber_logger.info "process_insurance_policies_posted_event: ------- start"
-          result = H41::InsurancePolicies::Enqueue.new.call(
+          result = ::Fdsh::H41::InsurancePolicies::Enqueue.new.call(
             {
               affected_policies: headers['affected_policies'],
               assistance_year: headers['assistance_year'],
