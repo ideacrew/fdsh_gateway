@@ -18,9 +18,11 @@ module Transmittable
   # completed: processing of the object finished
   # nacked: negative_acknowledged, an outside service completed processing and indicated an error
   # pending: awaiting processing
+  # blocked: transaction status when we do not need to transmit the latest transaction, usually upon receiving void when we never transmitted before
   DEFAULT_TRANSACTION_STATUS_TYPES = %i[
     approved
     acked
+    blocked
     created
     completed
     denied
