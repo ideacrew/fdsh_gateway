@@ -21,11 +21,28 @@ module Fdsh
           @new_batch_reference = (Time.now + 1.hour).gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
         end
 
+        def subject_exclusions
+          return @subject_exclusions if defined? @subject_exclusions
+          @subject_exclusions = Transmittable::SubjectExclusion.by_subject_name('PostedFamily').active
+        end
+
+        def can_transmit?(transaction)
+          subject = transaction.transactable
+          insurance_policy = subject.insurance_policy
+          family = insurance_policy.posted_family
+
+          subject_exclusions.where(subject_id: family.family_hbx_id).none?
+        end
+
+        def record_denial(transaction)
+          transaction.update(status: :denied, transmit_action: :no_transmit)
+        end
+
         def new_document(content_file_number)
           @content_file_number = content_file_number
 
           @document = Nokogiri::XML::Builder.new do |xml|
-            xml['batchreq'].Form1095ATransmissionUpstream('xmlns:air5.0' => "urn:us:gov:treasury:irs:ext:aca:air:ty20a",
+            xml['batchreq'].Form1095ATransmissionUpstream('xmlns:airty20a' => "urn:us:gov:treasury:irs:ext:aca:air:ty20a",
                                                           'xmlns:irs' => "urn:us:gov:treasury:irs:common",
                                                           'xmlns:batchreq' => "urn:us:gov:treasury:irs:msg:form1095atransmissionupstreammessage",
                                                           'xmlns:batchresp' => "urn:us:gov:treasury:irs:msg:form1095atransmissionexchrespmessage",
