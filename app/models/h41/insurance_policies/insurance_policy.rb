@@ -7,7 +7,7 @@ module H41
       include Mongoid::Document
       include Mongoid::Timestamps
 
-      belongs_to :posted_family, class_name: 'H41::InsurancePolicies::PostedFamily'
+      belongs_to :posted_family, class_name: 'H41::InsurancePolicies::PostedFamily', index: true
       has_many :aptc_csr_tax_households, class_name: 'H41::InsurancePolicies::AptcCsrTaxHousehold'
 
       accepts_nested_attributes_for :aptc_csr_tax_households, :posted_family
