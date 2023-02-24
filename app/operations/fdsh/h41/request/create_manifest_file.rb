@@ -28,6 +28,8 @@ module Fdsh
 
         def validate(params)
           return Failure('outbound folder missing') unless params[:outbound_folder]
+          return Failure('outbound folder missing') unless params[:transmission_kind]
+          return Failure('old_batch_reference missing') unless params[:transmission_kind] != :original && params[:old_batch_reference]
 
           Success(params)
         end
@@ -57,12 +59,12 @@ module Fdsh
         end
 
         def construct_manifest_request(values)
-          @attachment_files = Dir.glob("#{Rails.root}/#{values[:outbound_folder]}/*.xml").sort
+          @attachment_files = Dir.glob("#{values[:outbound_folder]}/*.xml").sort
 
           manifest_request = {
             BatchMetadata: construct_batch_metadata(values),
             TransmissionMetadata: construct_transmission_metadata,
-            ServiceSpecificData: construct_service_specific_data,
+            ServiceSpecificData: construct_service_specific_data(values),
             Attachments: construct_attachments
           }
 
@@ -74,9 +76,20 @@ module Fdsh
             BatchID: values[:new_batch_reference] || Time.now.gmtime.strftime("%Y-%m-%dT%H:%M:%SZ"),
             BatchPartnerID: "02.ME*.SBE.001.001",
             BatchAttachmentTotalQuantity: @attachment_files.count,
-            BatchCategoryCode: "IRS_EOY_REQ",
+            BatchCategoryCode: batch_category_code(values[:transmission_kind]),
             BatchTransmissionQuantity: 1
           }
+        end
+
+        def batch_category_code(transmission_kind)
+          case transmission_kind
+          when :corrected
+            'IRS_EOY_SUBMIT_CORRECTED_RECORDS_REQ'
+          when :void
+            'IRS_EOY_SUBMIT_VOID_RECORDS_REQ'
+          else
+            'IRS_EOY_REQ'
+          end
         end
 
         def construct_transmission_metadata
@@ -86,10 +99,16 @@ module Fdsh
           }
         end
 
-        def construct_service_specific_data
-          {
+        def construct_service_specific_data(values)
+          service_data = {
             ReportPeriod: { Year: Date.today.year - 1 }
           }
+
+          if values[:transmission_kind] == :original
+            service_data
+          else
+            service_data.merge(OriginalBatchId: values[:old_batch_reference])
+          end
         end
 
         def construct_attachments
