@@ -10,11 +10,14 @@ module Fdsh
         H41_TRANSMISSION_TYPES = [:corrected, :original, :void].freeze
 
         def call(params)
-          values       = yield validate(params)
+          values = yield validate(params)
+          _excluded_families = yield ingest_subject_exclusions(values)
+          _expired_families = yield expire_subject_exclusions(values)
           transmission = yield find_open_transmission(values)
           transmission = yield start_processing(transmission)
           _new_transmission = yield create_new_open_transmission(transmission, values)
-          _output = yield publish(transmission, values)
+          _output = yield publish_h41_transmisson(transmission, values)
+          # _output = yield publish_pdf_reports(transmission, values)
 
           Success(transmission)
         end
@@ -27,9 +30,37 @@ module Fdsh
           unless params[:report_type] && H41_TRANSMISSION_TYPES.include?(params[:report_type])
             return Failure("report_type must be one #{H41_TRANSMISSION_TYPES.map(&:to_s).join(', ')}")
           end
-          # params[:excluded_policies]
+
+          params[:deny_list] ||= []
+          params[:allow_list] ||= []
 
           Success(params)
+        end
+
+        def ingest_subject_exclusions(values)
+          exclusion_records = Transmittable::SubjectExclusion.by_subject_name('PostedFamily').active
+
+          values[:deny_list].each do |family_hbx_id|
+            next if exclusion_records.where(subject_id: family_hbx_id).present?
+            Transmittable::SubjectExclusion.create(
+              subject_name: 'PostedFamily',
+              subject_id: family_hbx_id,
+              report_kind: :h41_1095a
+            )
+          end
+
+          Success(values[:deny_list])
+        end
+
+        def expire_subject_exclusions(values)
+          exclusion_records = Transmittable::SubjectExclusion.by_subject_name('PostedFamily').active
+
+          values[:allow_list].each do |family_hbx_id|
+            excluded_subject = exclusion_records.where(subject_id: family_hbx_id).first
+            excluded_subject&.update(end_at: Time.now)
+          end
+
+          Success(values[:allow_list])
         end
 
         def find_open_transmission(values)
@@ -82,7 +113,7 @@ module Fdsh
           end
         end
 
-        def publish(transmission, values)
+        def publish_h41_transmisson(transmission, values)
           if values[:report_type] == :original
             create_transmission_with(transmission.transactions.transmit_pending, values)
           else
