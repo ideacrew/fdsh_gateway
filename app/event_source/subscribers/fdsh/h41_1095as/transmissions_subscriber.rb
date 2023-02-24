@@ -15,7 +15,8 @@ module Subscribers
           payload = JSON.parse(payload, :symbolize_names => true)
 
           result = ::Fdsh::H41::BuildTransmission.new.call(
-            excluded_policies: payload[:excluded_policies],
+            deny_list: payload[:deny_list],
+            allow_list: payload[:allow_list],
             assistance_year: properties.assistance_year,
             report_types: properties.report_types
           )

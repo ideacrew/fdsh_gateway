@@ -69,7 +69,9 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       end
 
       let!(:open_transmission) { FactoryBot.create(:h41_original_transmission) }
-      let(:transaction_xml) { File.open(Rails.root.join("spec/test_payloads/h41/original.xml").to_s).read }
+      let(:transaction_xml) do
+        File.open(Rails.root.join("spec/test_payloads/h41/original.xml").to_s).read
+      end
 
       before do
         @result = subject.call(input_params)
@@ -198,6 +200,48 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
 
       it 'should create transmission paths for batch id' do
         expect(open_transmission.transmission_paths.count).to eq open_transmission.transactions.count
+      end
+    end
+
+    context 'when allow and deny lists provided' do
+
+      let(:input_params) do
+        {
+          reporting_year: Date.today.year,
+          report_type: :corrected,
+          allow_list: allow_list,
+          deny_list: deny_list
+        }
+      end
+
+      let(:deny_list) { ['444232', '333423'] }
+      let(:allow_list) { ['553231', '577742'] }
+
+      let!(:active_exclusions) do
+        create(:subject_exclusion, :active, subject_name: 'PostedFamily', subject_id: '553231')
+      end
+
+      let!(:expired_exclusions) do
+        create(:subject_exclusion, :expired, subject_name: 'PostedFamily', subject_id: '333423')
+      end
+
+      let!(:open_transmission) { FactoryBot.create(:h41_corrected_transmission) }
+      let(:transaction_xml) { File.open(Rails.root.join("spec/test_payloads/h41/corrected.xml").to_s).read }
+
+      before do
+
+        open_transmission.reload
+      end
+
+      it 'should ingest deny list and allow list' do
+        expect(Transmittable::SubjectExclusion.active.map(&:subject_id)).to match_array(['553231'])
+        expect(Transmittable::SubjectExclusion.expired.map(&:subject_id)).to match_array(['333423'])
+
+        result = subject.call(input_params)
+
+        expect(result.success?).to be_truthy
+        expect(Transmittable::SubjectExclusion.active.map(&:subject_id)).to match_array(deny_list)
+        expect(Transmittable::SubjectExclusion.expired.map(&:subject_id)).to match_array(['553231', '333423'])
       end
     end
   end

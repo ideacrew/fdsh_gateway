@@ -61,10 +61,14 @@ module Fdsh
           record_sequence = 0
 
           batched_requests.each do |transaction|
-            record_sequence += 1
             subject = transaction.transactable
-            transaction_xml = Nokogiri.XML(subject.transaction_xml, &:noblanks)
-            transmission_builder.append_xml(transaction, transaction_xml, record_sequence)
+            if transmission_builder.can_transmit?(transaction)
+              record_sequence += 1
+              transaction_xml = Nokogiri.XML(subject.transaction_xml, &:noblanks)
+              transmission_builder.append_xml(transaction, transaction_xml, record_sequence)
+            else
+              transmission_builder.record_denial(transaction)
+            end
           end
 
           query_offset += processing_batch_size
