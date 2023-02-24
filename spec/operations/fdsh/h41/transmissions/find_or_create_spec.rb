@@ -31,6 +31,25 @@ RSpec.describe Fdsh::H41::Transmissions::FindOrCreate do
         end
       end
 
+      context 'without a H41 transmission' do
+        let(:previous_year) { Date.today.year - 1 }
+        let(:input_params) do
+          {
+            reporting_year: previous_year,
+            status: :transmitted,
+            transmission_type: :void
+          }
+        end
+
+        it 'creates an H41 transmission' do
+          expect(::H41::Transmissions::Outbound::VoidTransmission.transmitted.count).to be_zero
+          subject
+          expect(
+            ::H41::Transmissions::Outbound::VoidTransmission.transmitted.by_year(previous_year).count
+          ).to eq(1)
+        end
+      end
+
       context 'with an open H41 transmission' do
         let!(:h41_original_transmission) { FactoryBot.create(:h41_original_transmission) }
 

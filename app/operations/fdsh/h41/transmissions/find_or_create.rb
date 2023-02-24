@@ -20,8 +20,8 @@ module Fdsh
 
         private
 
-        def create(transmission_type, reporting_year)
-          transmission = case transmission_type
+        def create(values)
+          transmission = case values[:transmission_type]
                          when :corrected
                            ::H41::Transmissions::Outbound::CorrectedTransmission.new
                          when :original
@@ -29,8 +29,8 @@ module Fdsh
                          else
                            ::H41::Transmissions::Outbound::VoidTransmission.new
                          end
-          transmission.reporting_year = reporting_year
-          transmission.status = :open
+          transmission.reporting_year = values[:reporting_year]
+          transmission.status = values[:status]
           transmission.save!
           transmission
         end
@@ -53,9 +53,7 @@ module Fdsh
         def find_or_create(transmission, values)
           return Success(transmission) if transmission.present?
 
-          Success(
-            create(values[:transmission_type], values[:reporting_year])
-          )
+          Success(create(values))
         end
 
         def validate(params)
