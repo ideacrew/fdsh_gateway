@@ -59,7 +59,11 @@ def process_h41_transactions
   ]
   @counter = 0
   @eligible_h41_transactions = H41Transaction.all.non_migrated
-  # @eligible_h41_transactions = H41Transaction.where(:policy_hbx_id.in => ::Transmittable::Transaction.where(transactable_type: 'H41::InsurancePolicies::AptcCsrTaxHousehold').map(&:transactable).flat_map(&:insurance_policy).flat_map(&:policy_hbx_id))
+  @eligible_h41_transactions = H41Transaction.where(
+    :policy_hbx_id.in => ::Transmittable::Transaction.where(
+      transactable_type: 'H41::InsurancePolicies::AptcCsrTaxHousehold'
+    ).map(&:transactable).flat_map(&:insurance_policy).flat_map(&:policy_hbx_id)
+  )
   find_h41_original_transmissions
   update_transmitted_transactions
 rescue StandardError => e
@@ -139,7 +143,8 @@ def update_transmitted_transactions
           record_sequence_num, file_id = fetch_transmission_path_attrs(old_transaction, aptc_csr_tax_household, policy)
 
           if record_sequence_num.blank? || file_id.blank?
-            @logger.info "Could not find record_sequence_num & file_id for old_transaction policy_hbx_id: #{old_transaction.policy_hbx_id}, primary_hbx_id: #{old_transaction.primary_hbx_id},family_hbx_id: #{old_transaction.family_hbx_id}"
+            @logger.info "Could not find record_sequence_num & file_id for old_transaction policy_hbx_id: #{
+              old_transaction.policy_hbx_id}, primary_hbx_id: #{old_transaction.primary_hbx_id},family_hbx_id: #{old_transaction.family_hbx_id}"
             next
           end
 
