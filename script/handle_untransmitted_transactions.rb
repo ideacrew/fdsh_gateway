@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-# This script moves all H41 un-transmitted original transactions of 2022 original transmitted transmission to 2022 original open transmission.
-# bundle exec rails runner script/move_h41_untransmitted_transactions_to_open_transmission.rb
+# This script clones all H41 untransmitted original transactions of 2022 original transmitted transmission to 2022 original open transmission and
+# Updates untransmitted transactions of transmitted transmission status: :superseded, transmit_action: :no_transmit
+# bundle exec rails runner script/handle_untransmitted_transactions.rb
 
 require 'csv'
 
