@@ -11,7 +11,7 @@ module Fdsh
 
         def call(params)
           values = yield validate(params)
-          _excluded_families = yield update_subject_exclusions(values)
+          _excluded_families = yield ingest_subject_exclusions(values)
           _expired_families = yield expire_subject_exclusions(values)
           transmission = yield find_open_transmission(values)
           transmission = yield start_processing(transmission)
@@ -37,7 +37,7 @@ module Fdsh
           Success(params)
         end
 
-        def update_subject_exclusions(values)
+        def ingest_subject_exclusions(values)
           exclusion_records = Transmittable::SubjectExclusion.by_subject_name('PostedFamily').active
 
           values[:deny_list].each do |family_hbx_id|
