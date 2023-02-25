@@ -6,7 +6,7 @@ require "csv"
 
 @tax_year = ARGV[0].to_i
 
-@fields = %w(PLAN_YEAR TRANSACTION_TYPE TRANSACTION_DATETIME TRANSACTION_STATUS TRANSMISSION_STATUS FAMILY_HBX_ID
+@fields = %w[PLAN_YEAR TRANSACTION_TYPE TRANSACTION_DATETIME TRANSACTION_STATUS TRANSMISSION_STATUS FAMILY_HBX_ID
              CONTRACT_HOLDER_ID PRIMARY_PERSON_ID MARKETPLACE_ID POLICY_ID ISSUER_NAME RECIPIENT_NAME RECIPIENT_SSN
              RECIPIENT_DOB SPOUSE_NAME SPOUSE_SSN
              SPOUSE_DOB POLICY_START POLICY_END STREET_ADDRESS CITY
@@ -21,8 +21,7 @@ require "csv"
              PREMIUM_3 SLCSP_3 APTC_3 PREMIUM_4 SLCSP_4 APTC_4 PREMIUM_5 SLCSP_5 APTC_5 PREMIUM_6
              SLCSP_6 APTC_6 PREMIUM_7 SLCSP_7 APTC_7 PREMIUM_8 SLCSP_8 APTC_8 PREMIUM_9 SLCSP_9 APTC_9
              PREMIUM_10 SLCSP_10 APTC_10 PREMIUM_11 SLCSP_11 APTC_11 PREMIUM_12 SLCSP_12 APTC_12 PREMIUM_13 SLCSP_13
-             APTC_13)
-
+             APTC_13]
 
 def address
   if @recipient.person
@@ -110,7 +109,7 @@ void_transmissions = H41::Transmissions::Outbound::VoidTransmission.by_year(@tax
   transactions_count = transactions.count
   transactions_per_iteration = transactions_count > 20_000.0 ? 20_000.0 : transactions_count
 
-  number_of_iterations = ( transactions_count / transactions_per_iteration).ceil
+  number_of_iterations = (transactions_count / transactions_per_iteration).ceil
   counter = 0
 
   while counter < number_of_iterations
@@ -121,7 +120,10 @@ void_transmissions = H41::Transmissions::Outbound::VoidTransmission.by_year(@tax
   end
 end
 
-
+# rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/CyclomaticComplexity
+# rubocop:disable Metrics/MethodLength
+# rubocop:disable Metrics/PerceivedComplexity
 def process_aptc_csr_tax_households(transactions, file_name, offset_count)
   CSV.open(file_name, 'w', force_quotes: true) do |csv|
     csv << @fields
@@ -201,8 +203,12 @@ def process_aptc_csr_tax_households(transactions, file_name, offset_count)
         [format("%.2f", Money.new(annual_premiums.total_premium.cents).to_f),
          format("%.2f", Money.new(annual_premiums.slcsp_benchmark_premium.cents).to_f),
          format("%.2f", Money.new(annual_premiums.tax_credit.cents).to_f)])
-    rescue => e
+    rescue StandardError => e
       logger.info "Unable to populate data for irs_group #{transaction.transactable.hbx_assigned_id} due to #{e.backtrace}"
     end
   end
+  # rubocop:enable Metrics/AbcSize
+  # rubocop:enable Metrics/CyclomaticComplexity
+  # rubocop:enable Metrics/MethodLength
+  # rubocop:enable Metrics/PerceivedComplexity
 end
