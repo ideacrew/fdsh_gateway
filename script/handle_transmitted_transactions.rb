@@ -75,11 +75,11 @@ def multi_thh_policies_hbx_ids_in_content_files
 end
 
 # rubocop:disable Metrics
-def process_h41_transactions(file_name, h41s_per_iteration, field_names)
+def process_h41_transactions(file_name, h41s_per_iteration, field_names, offset_count)
   CSV.open(file_name, 'w', force_quotes: true) do |csv|
     csv << field_names
 
-    H41Transaction.all.non_migrated.limit(h41s_per_iteration).no_timeout.each do |old_transaction|
+    @h41_transactions.limit(h41s_per_iteration).offset(offset_count).no_timeout.each do |old_transaction|
       @logger.info "----- Processing H41Transaction FamilyHbxID: #{old_transaction.family_hbx_id}"
       policy = ::H41::InsurancePolicies::InsurancePolicy.where(policy_hbx_id: old_transaction.policy_hbx_id).first
       if policy.blank?
@@ -196,7 +196,8 @@ start_time = DateTime.current
 @all_file_paths = Dir["#{Rails.root}/SBE00ME.DSH.EOYIN.D230210.T214339000.P.IN.SUBMIT.20230210/EOY_Request_*.xml"]
 find_matching_nodes_for_multi_thh_cases
 find_h41_original_transmissions
-total_count = H41Transaction.all.non_migrated.count
+@h41_transactions = H41Transaction.all.non_migrated
+total_count = @h41_transactions.count
 h41s_per_iteration = 5_000.0
 number_of_iterations = (total_count / h41s_per_iteration).ceil
 counter = 0
@@ -216,6 +217,7 @@ field_names = %w[
 while counter < number_of_iterations
   file_name = "#{Rails.root}/handle_transmitted_transactions_#{counter + 1}_#{Date.today.strftime('%Y_%m_%d')}.csv"
   @logger.info "Total number of non_migrated H41Transactions: #{total_count}"
+  offset_count = h41s_per_iteration * counter
   process_h41_transactions(file_name, h41s_per_iteration, field_names)
   @logger.info "---------- Processed #{counter.next.ordinalize} #{h41s_per_iteration} h41 transactions"
   counter += 1

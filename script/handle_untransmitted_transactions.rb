@@ -17,13 +17,10 @@ def find_h41_transmission(status)
 end
 
 # rubocop:disable Metrics
-def process_untransmitted_transactions(file_name, transactions_per_iteration, field_names, open_2022_transission)
-  eligible_h41_transactions = find_h41_transmission(:transmitted).transactions.transmit_pending
-
+def process_untransmitted_transactions(file_name, transactions_per_iteration, field_names, open_2022_transission, offset_count)
   CSV.open(file_name, 'w', force_quotes: true) do |csv|
     csv << field_names
-    @logger.info "Total number of untransmitted transactions: #{eligible_h41_transactions.count}"
-    eligible_h41_transactions.limit(transactions_per_iteration).no_timeout.each do |old_transaction|
+    @eligible_h41_transactions.limit(transactions_per_iteration).offset(offset_count).no_timeout.each do |old_transaction|
       @logger.info "----- Processing transaction transmit_action: #{old_transaction.transmit_action}, status: #{old_transaction.status}"
       old_transaction.update_attributes!(status: :superseded, transmit_action: :no_transmit)
       old_aptc_csr_thh = old_transaction.transactable
@@ -87,7 +84,8 @@ end
 start_time = DateTime.current
 @logger = Logger.new("#{Rails.root}/move_untransmitted_transcations_#{Date.today.strftime('%Y_%m_%d')}.log")
 @logger.info "Data Migration start_time: #{start_time}"
-total_count = find_h41_transmission(:transmitted).transactions.transmit_pending.count
+@eligible_h41_transactions = find_h41_transmission(:transmitted).transactions.transmit_pending
+total_count = @eligible_h41_transactions.transmit_pending.count
 open_2022_transission = find_h41_transmission(:open)
 transactions_per_iteration = 5_000.0
 number_of_iterations = (total_count / transactions_per_iteration).ceil
@@ -107,7 +105,8 @@ field_names = %w[
 while counter < number_of_iterations
   file_name = "#{Rails.root}/move_untransmitted_transcations_#{counter + 1}_#{Date.today.strftime('%Y_%m_%d')}.csv"
   @logger.info "Total number of untransmitted transactions: #{total_count}"
-  process_untransmitted_transactions(file_name, transactions_per_iteration, field_names, open_2022_transission)
+  offset_count = transactions_per_iteration * counter
+  process_untransmitted_transactions(file_name, transactions_per_iteration, field_names, open_2022_transission, offset_count)
   @logger.info "---------- Processed #{counter.next.ordinalize} #{transactions_per_iteration} untransmitted transactions"
   counter += 1
 end
