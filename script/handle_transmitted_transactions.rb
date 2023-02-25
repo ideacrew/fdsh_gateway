@@ -218,7 +218,7 @@ while counter < number_of_iterations
   file_name = "#{Rails.root}/handle_transmitted_transactions_#{counter + 1}_#{Date.today.strftime('%Y_%m_%d')}.csv"
   @logger.info "Total number of non_migrated H41Transactions: #{total_count}"
   offset_count = h41s_per_iteration * counter
-  process_h41_transactions(file_name, h41s_per_iteration, field_names)
+  process_h41_transactions(file_name, h41s_per_iteration, field_names, offset_count)
   @logger.info "---------- Processed #{counter.next.ordinalize} #{h41s_per_iteration} h41 transactions"
   counter += 1
 end
