@@ -111,9 +111,10 @@ void_transmissions = H41::Transmissions::Outbound::VoidTransmission.by_year(@tax
 
   number_of_iterations = (transactions_count / transactions_per_iteration).ceil
   counter = 0
+  @logger = Logger.new("#{Rails.root}/log/1095A-FormData_errors_#{@transmission._id}_#{Date.today.strftime('%m/%d/%Y_%H:%M')}.log")
 
   while counter < number_of_iterations
-    file_name = "#{Rails.root}/ME-2022-1095A-FormData_#{@transmission_type}_#{counter}_#{DateTime.now.strftime('%Y%M%d')}.csv"
+    file_name = "#{Rails.root}/1095A-FormData_#{@transmission._id}_#{@transmission_type}_#{counter}_#{DateTime.now.strftime('%m/%d/%Y_%H:%M')}.csv"
     offset_count = transactions_per_iteration * counter
     process_aptc_csr_tax_households(transactions, file_name, offset_count)
     counter += 1
@@ -127,7 +128,6 @@ end
 def process_aptc_csr_tax_households(transactions, file_name, offset_count)
   CSV.open(file_name, 'w', force_quotes: true) do |csv|
     csv << @fields
-    logger = Logger.new("#{Rails.root}/log/me_2022_form_data_error_#{offset}_#{Date.today.strftime('%Y_%m_%d')}.log")
     transactions.offset(offset_count).limit(20_000).no_timeout.each do |transaction|
       subject = transaction.transactable
       insurance_policy = subject.insurance_policy
@@ -135,9 +135,10 @@ def process_aptc_csr_tax_households(transactions, file_name, offset_count)
       family_cv = posted_family.family_cv
 
       if family_cv.blank?
-        logger.info "No family cv attached for subject #{subject.hbx_assigned_id}"
+        @logger.info "No family cv attached for subject #{subject.hbx_assigned_id}"
         next
       end
+
       family_hash = JSON.parse(family_cv, symbolize_names: true)
       family = AcaEntities::Families::Family.new(family_hash)
 
@@ -145,7 +146,7 @@ def process_aptc_csr_tax_households(transactions, file_name, offset_count)
       contract_holder = agreements.first.contract_holder
       policies = agreements.flat_map(&:insurance_policies)
       valid_policy = policies.detect do |policy|
-        policy.policy_id == policy_hbx_id
+        policy.policy_id == insurance_policy.policy_hbx_id
       end
       insurance_provider = valid_policy.insurance_provider
       valid_tax_household = valid_policy.aptc_csr_tax_households.detect do |tax_household|
@@ -204,7 +205,7 @@ def process_aptc_csr_tax_households(transactions, file_name, offset_count)
          format("%.2f", Money.new(annual_premiums.slcsp_benchmark_premium.cents).to_f),
          format("%.2f", Money.new(annual_premiums.tax_credit.cents).to_f)])
     rescue StandardError => e
-      logger.info "Unable to populate data for irs_group #{transaction.transactable.hbx_assigned_id} due to #{e.backtrace}"
+      @logger.info "Unable to populate data for irs_group #{transaction.transactable.hbx_assigned_id} due to #{e.backtrace}"
     end
   end
   # rubocop:enable Metrics/AbcSize
