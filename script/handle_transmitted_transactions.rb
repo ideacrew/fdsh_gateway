@@ -41,11 +41,31 @@ def find_h41_transmission(transmission_type, reporting_year, status)
   ).success
 end
 
+def build_policy_sequence_number_hash
+  @single_thh_xmls_info = {}
+  all_file_paths.each do |file_path|
+    content_file_xml_string = File.read(file_path)
+    xml_doc = Nokogiri::XML(content_file_xml_string).xpath("//batchreq:Form1095ATransmissionUpstream").first
+    xml_doc.xpath("//airty20a:Form1095AUpstreamDetail").each do |content_node|
+      policy_id = content_node.xpath('./airty20a:Policy/airty20a:MarketPlacePolicyNum').text
+
+      @single_thh_xmls_info[policy_id] = [
+        content_node.xpath('./airty20a:RecordSequenceNum').text,
+        File.basename(file_path).split('_')[2]
+      ]
+    end
+  end
+end
+
+def all_file_paths
+  Dir["#{Rails.root}/SBE00ME.DSH.EOYIN.D230210.T214339000.P.IN.SUBMIT.20230210/EOY_Request_*.xml"]
+end
+
 def find_matching_nodes_for_multi_thh_cases
   policies_with_multi_thhs = H41Transaction.all.non_migrated.exists({ :'aptc_csr_tax_households.1' => true }).pluck(:policy_hbx_id)
 
   @multiple_thh_xmls_info = {}
-  @all_file_paths.each do |file_path|
+  all_file_paths.each do |file_path|
     content_file_xml_string = File.read(file_path)
     xml_doc = Nokogiri::XML(content_file_xml_string).xpath("//batchreq:Form1095ATransmissionUpstream").first
     xml_doc.xpath("//airty20a:Form1095AUpstreamDetail").each do |content_node|
@@ -68,7 +88,7 @@ def find_matching_nodes_for_multi_thh_cases
 end
 
 def process_h41_transactions
-  @all_file_paths = Dir["#{Rails.root}/SBE00ME.DSH.EOYIN.D230210.T214339000.P.IN.SUBMIT.20230210/EOY_Request_*.xml"]
+  build_policy_sequence_number_hash
   find_matching_nodes_for_multi_thh_cases
   find_h41_original_transmissions
   counter = 0
@@ -88,30 +108,9 @@ rescue StandardError => e
   @logger.info "Error raised message: #{e}, backtrace: #{e.backtrace}"
 end
 
-def fetch_transmission_path_attrs_single_thh(policy_hbx_id)
-  expected_file_path = find_content_file_path(policy_hbx_id)
-  return [nil, nil] if expected_file_path.nil?
-
-  record_sequence_element_start = '<airty20a:RecordSequenceNum>'
-  record_sequence_element_end = '</airty20a:RecordSequenceNum>'
-  record_sequence_num_extention = @content_file_xml_string[/#{record_sequence_element_start}#{policy_hbx_id}(.*?)#{record_sequence_element_end}/m, 1]
-  [policy_hbx_id + record_sequence_num_extention, File.basename(expected_file_path).split('_')[2]]
-end
-
-def find_content_file_path(policy_hbx_id)
-  market_place_policy_num_start_ele = '<airty20a:MarketPlacePolicyNum>'
-  market_place_policy_num_end_ele = '</airty20a:MarketPlacePolicyNum>'
-  market_place_policy_snippet = "#{market_place_policy_num_start_ele}#{policy_hbx_id}#{market_place_policy_num_end_ele}"
-
-  @all_file_paths.detect do |file_path|
-    @content_file_xml_string = File.read(file_path)
-    @content_file_xml_string.match?(market_place_policy_snippet)
-  end
-end
-
 def fetch_transmission_path_attrs(old_transaction, aptc_csr_tax_household, policy_hbx_id)
   if old_transaction.aptc_csr_tax_households.count == 1
-    fetch_transmission_path_attrs_single_thh(policy_hbx_id)
+    @single_thh_xmls_info[policy_hbx_id.to_s] || [nil, nil]
   else
     return [nil, nil] if @multi_thh_policies_hbx_ids_in_content_files.exclude?(policy_hbx_id)
 
