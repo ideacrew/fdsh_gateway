@@ -74,13 +74,13 @@ def process_h41_transactions
   counter = 0
   eligible_h41_transactions = H41Transaction.all
   total_count = eligible_h41_transactions.count
-  h41s_per_iteration = 5_000.0
+  h41s_per_iteration = 1_000.0
   number_of_iterations = (total_count / h41s_per_iteration).ceil
   counter = 0
   @logger.info "Total number of non_migrated H41Transactions: #{total_count}"
   while counter < number_of_iterations
     offset_count = h41s_per_iteration * counter
-    update_transmitted_transactions(eligible_h41_transactions, offset_count)
+    update_transmitted_transactions(eligible_h41_transactions, offset_count, h41s_per_iteration)
     @logger.info "---------- Processed #{counter.next.ordinalize} #{h41s_per_iteration} h41 transactions"
     counter += 1
   end
@@ -147,8 +147,8 @@ def matching_thh_info?(node, aptc_csr_tax_household)
 end
 
 # rubocop:disable Metrics
-def update_transmitted_transactions(eligible_h41_transactions, offset_count)
-  eligible_h41_transactions.offset(offset_count).limit(5_000.0).no_timeout.each do |old_transaction|
+def update_transmitted_transactions(eligible_h41_transactions, offset_count, h41s_per_iteration)
+  eligible_h41_transactions.offset(offset_count).limit(h41s_per_iteration).no_timeout.each do |old_transaction|
     next old_transaction if old_transaction.is_migrated?
 
     @logger.info "----- Processing H41Transaction FamilyHbxID: #{old_transaction.family_hbx_id}"
