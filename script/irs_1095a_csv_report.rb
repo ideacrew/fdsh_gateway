@@ -3,6 +3,7 @@
 # bundle exec rails runner script/irs_1095a_csv_report.rb "2022" (pass in year)
 
 require "csv"
+require "money"
 
 @tax_year = ARGV[0].to_i
 
@@ -108,13 +109,18 @@ void_transmissions = H41::Transmissions::Outbound::VoidTransmission.by_year(@tax
   transactions = transmission.transactions.where(:status.in => [:created, :transmitted, :denied])
   transactions_count = transactions.count
   transactions_per_iteration = transactions_count > 20_000.0 ? 20_000.0 : transactions_count
+  @logger = Logger.new("#{Rails.root}/log/1095A-FormData_errors_#{@transmission._id}_#{Date.today.strftime('%Y_%m_%d_%H_%M')}.log")
+
+  if transactions_count == 0
+    @logger.info "No transactions for transmission id #{@transmission._id}"
+    next
+  end
 
   number_of_iterations = (transactions_count / transactions_per_iteration).ceil
   counter = 0
-  @logger = Logger.new("#{Rails.root}/log/1095A-FormData_errors_#{@transmission._id}_#{Date.today.strftime('%m/%d/%Y_%H:%M')}.log")
 
   while counter < number_of_iterations
-    file_name = "#{Rails.root}/1095A-FormData_#{@transmission._id}_#{@transmission_type}_#{counter}_#{DateTime.now.strftime('%m/%d/%Y_%H:%M')}.csv"
+    file_name = "#{Rails.root}/1095A-FormData_#{@transmission._id}_#{@transmission_type}_#{counter}_#{DateTime.now.strftime('%Y_%m_%d_%H_%M')}.csv"
     offset_count = transactions_per_iteration * counter
     process_aptc_csr_tax_households(transactions, file_name, offset_count)
     counter += 1
@@ -140,7 +146,8 @@ def process_aptc_csr_tax_households(transactions, file_name, offset_count)
       end
 
       family_hash = JSON.parse(family_cv, symbolize_names: true)
-      family = AcaEntities::Families::Family.new(family_hash)
+      contract = AcaEntities::Contracts::Families::FamilyContract.new.call(family_hash)
+      family = AcaEntities::Families::Family.new(contract.to_h)
 
       agreements = family.households.first.insurance_agreements
       contract_holder = agreements.first.contract_holder
@@ -150,7 +157,7 @@ def process_aptc_csr_tax_households(transactions, file_name, offset_count)
       end
       insurance_provider = valid_policy.insurance_provider
       valid_tax_household = valid_policy.aptc_csr_tax_households.detect do |tax_household|
-        tax_household.hbx_assigned_id = subject.hbx_assigned_id
+        tax_household.hbx_assigned_id == subject.hbx_assigned_id
       end
       next if valid_tax_household.blank?
 
@@ -205,11 +212,11 @@ def process_aptc_csr_tax_households(transactions, file_name, offset_count)
          format("%.2f", Money.new(annual_premiums.slcsp_benchmark_premium.cents).to_f),
          format("%.2f", Money.new(annual_premiums.tax_credit.cents).to_f)])
     rescue StandardError => e
-      @logger.info "Unable to populate data for irs_group #{transaction.transactable.hbx_assigned_id} due to #{e.backtrace}"
+      @logger.info "Unable to populate data for subject #{transaction.transactable.hbx_assigned_id} due to #{e}"
     end
   end
-  # rubocop:enable Metrics/AbcSize
-  # rubocop:enable Metrics/CyclomaticComplexity
-  # rubocop:enable Metrics/MethodLength
-  # rubocop:enable Metrics/PerceivedComplexity
 end
+# rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/CyclomaticComplexity
+# rubocop:enable Metrics/MethodLength
+# rubocop:enable Metrics/PerceivedComplexity
