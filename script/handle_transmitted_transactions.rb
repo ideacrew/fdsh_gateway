@@ -161,11 +161,15 @@ def update_transmitted_transactions
       @logger.info "---------- Processed #{@counter} of old_transactions" if @counter % 1000 == 0
       @logger.info "----- Processing H41Transaction FamilyHbxID: #{old_transaction.family_hbx_id}"
       policy = ::H41::InsurancePolicies::InsurancePolicy.where(policy_hbx_id: old_transaction.policy_hbx_id).first
+      if policy.blank?
+        @logger.info "Could not find InsurancePolicy with policy_hbx_id: #{
+          old_transaction.policy_hbx_id}, primary_hbx_id: #{old_transaction.primary_hbx_id}, family_hbx_id: #{old_transaction.family_hbx_id}"
+        next
+      end
+
       posted_family = policy.posted_family
       policy.aptc_csr_tax_households.each do |aptc_csr_tax_household|
-
         record_sequence_num, file_id = fetch_transmission_path_attrs(old_transaction, aptc_csr_tax_household, policy.policy_hbx_id)
-
         if record_sequence_num.blank? || file_id.blank?
           @logger.info "Could not find record_sequence_num & file_id for old_transaction policy_hbx_id: #{
             old_transaction.policy_hbx_id}, primary_hbx_id: #{old_transaction.primary_hbx_id},family_hbx_id: #{old_transaction.family_hbx_id}"
