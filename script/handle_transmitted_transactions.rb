@@ -6,8 +6,6 @@
 
 # Before we run this script, we need to upload CMS folder named "SBE00ME.DSH.EOYIN.D230210.T214339000.P.IN.SUBMIT.20230210" at the root
 
-require 'csv'
-
 def create_h41_open_transmission(transmission_type, reporting_year)
   ::Fdsh::H41::Transmissions::FindOrCreate.new.call(
     {
@@ -72,23 +70,20 @@ end
 def process_h41_transactions
   @all_file_paths = Dir["#{Rails.root}/SBE00ME.DSH.EOYIN.D230210.T214339000.P.IN.SUBMIT.20230210/EOY_Request_*.xml"]
   find_matching_nodes_for_multi_thh_cases
-  @file_name = "#{Rails.root}/handle_transmitted_transactions_#{Date.today.strftime('%Y_%m_%d')}.csv"
-  @field_names = %w[
-    h41_transaction_primary_hbx_id
-    h41_transaction_family_hbx_id
-    h41_transaction_policy_hbx_id
-    posted_family_primary_hbx_id
-    posted_family_family_hbx_id
-    insurance_policy_hbx_id
-    insurance_policy_assistance_year
-    aptc_csr_thh_hbx_assigned_id
-    posted_family_transmission_path
-  ]
-  @counter = 0
-  @eligible_h41_transactions = H41Transaction.all.non_migrated
-
   find_h41_original_transmissions
-  update_transmitted_transactions
+  counter = 0
+  eligible_h41_transactions = H41Transaction.all
+  total_count = eligible_h41_transactions.count
+  h41s_per_iteration = 5_000.0
+  number_of_iterations = (total_count / h41s_per_iteration).ceil
+  counter = 0
+  @logger.info "Total number of non_migrated H41Transactions: #{total_count}"
+  while counter < number_of_iterations
+    offset_count = h41s_per_iteration * counter
+    update_transmitted_transactions(eligible_h41_transactions, offset_count)
+    @logger.info "---------- Processed #{counter.next.ordinalize} #{h41s_per_iteration} h41 transactions"
+    counter += 1
+  end
 rescue StandardError => e
   @logger.info "Error raised message: #{e}, backtrace: #{e.backtrace}"
 end
@@ -152,59 +147,43 @@ def matching_thh_info?(node, aptc_csr_tax_household)
 end
 
 # rubocop:disable Metrics
-def update_transmitted_transactions
-  CSV.open(@file_name, 'w', force_quotes: true) do |csv|
-    csv << @field_names
-    @logger.info "Total number of non_migrated H41Transactions: #{@eligible_h41_transactions.count}"
-    @eligible_h41_transactions.no_timeout.each do |old_transaction|
-      @counter += 1
-      @logger.info "---------- Processed #{@counter} of old_transactions" if @counter % 1000 == 0
-      @logger.info "----- Processing H41Transaction FamilyHbxID: #{old_transaction.family_hbx_id}"
-      policy = ::H41::InsurancePolicies::InsurancePolicy.where(policy_hbx_id: old_transaction.policy_hbx_id).first
-      if policy.blank?
-        @logger.info "Could not find InsurancePolicy with policy_hbx_id: #{
-          old_transaction.policy_hbx_id}, primary_hbx_id: #{old_transaction.primary_hbx_id}, family_hbx_id: #{old_transaction.family_hbx_id}"
+def update_transmitted_transactions(eligible_h41_transactions, offset_count)
+  eligible_h41_transactions.offset(offset_count).limit(5_000.0).no_timeout.each do |old_transaction|
+    next old_transaction if old_transaction.is_migrated?
+
+    @logger.info "----- Processing H41Transaction FamilyHbxID: #{old_transaction.family_hbx_id}"
+    policy = ::H41::InsurancePolicies::InsurancePolicy.where(policy_hbx_id: old_transaction.policy_hbx_id).first
+    if policy.blank?
+      @logger.info "Could not find InsurancePolicy with policy_hbx_id: #{
+        old_transaction.policy_hbx_id}, primary_hbx_id: #{old_transaction.primary_hbx_id}, family_hbx_id: #{old_transaction.family_hbx_id}"
+      next
+    end
+
+    policy.aptc_csr_tax_households.each do |aptc_csr_tax_household|
+      record_sequence_num, file_id = fetch_transmission_path_attrs(old_transaction, aptc_csr_tax_household, policy.policy_hbx_id)
+      if record_sequence_num.blank? || file_id.blank?
+        @logger.info "Could not find record_sequence_num & file_id for old_transaction policy_hbx_id: #{
+          old_transaction.policy_hbx_id}, primary_hbx_id: #{old_transaction.primary_hbx_id},family_hbx_id: #{old_transaction.family_hbx_id}"
         next
       end
 
-      posted_family = policy.posted_family
-      policy.aptc_csr_tax_households.each do |aptc_csr_tax_household|
-        record_sequence_num, file_id = fetch_transmission_path_attrs(old_transaction, aptc_csr_tax_household, policy.policy_hbx_id)
-        if record_sequence_num.blank? || file_id.blank?
-          @logger.info "Could not find record_sequence_num & file_id for old_transaction policy_hbx_id: #{
-            old_transaction.policy_hbx_id}, primary_hbx_id: #{old_transaction.primary_hbx_id},family_hbx_id: #{old_transaction.family_hbx_id}"
-          next
-        end
-
-        aptc_csr_tax_household.transactions.each do |transaction|
-          transaction.update_attributes!({ status: :transmitted, transmit_action: :no_transmit })
-          transmission_path = ::H41::Transmissions::TransmissionPath.create(
-            batch_reference: "2023-02-10T21:43:39Z",
-            content_file_id: file_id,
-            record_sequence_number: record_sequence_num,
-            transaction: transaction,
-            transmission: @old_original_transmission
-          )
-          csv << [
-            old_transaction.primary_hbx_id,
-            old_transaction.family_hbx_id,
-            old_transaction.policy_hbx_id,
-            posted_family.contract_holder_id,
-            posted_family.family_hbx_id,
-            policy.policy_hbx_id,
-            policy.assistance_year,
-            aptc_csr_tax_household.hbx_assigned_id,
-            transmission_path.record_sequence_number_path
-          ]
-        end
+      aptc_csr_tax_household.transactions.each do |transaction|
+        transaction.update_attributes!({ status: :transmitted, transmit_action: :no_transmit })
+        ::H41::Transmissions::TransmissionPath.create(
+          batch_reference: "2023-02-10T21:43:39Z",
+          content_file_id: file_id,
+          record_sequence_number: record_sequence_num,
+          transaction: transaction,
+          transmission: @old_original_transmission
+        )
       end
-
-      @logger.info "Processed old_transaction with primary_hbx_id: #{old_transaction.primary_hbx_id}, family_hbx_id: #{old_transaction.family_hbx_id}"
-      old_transaction.update_attributes!(is_migrated: true)
-    rescue StandardError => e
-      @logger.info "Error raised processing old_transaction with family_hbx_id: #{
-        old_transaction.family_hbx_id}, error: #{e}, backtrace: #{e.backtrace}"
     end
+
+    @logger.info "Processed old_transaction with primary_hbx_id: #{old_transaction.primary_hbx_id}, family_hbx_id: #{old_transaction.family_hbx_id}"
+    old_transaction.update_attributes!(is_migrated: true)
+  rescue StandardError => e
+    @logger.info "Error raised processing old_transaction with family_hbx_id: #{
+      old_transaction.family_hbx_id}, error: #{e}, backtrace: #{e.backtrace}"
   end
 end
 # rubocop:enable Metrics
