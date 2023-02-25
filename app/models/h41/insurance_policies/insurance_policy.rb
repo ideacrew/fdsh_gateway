@@ -15,6 +15,8 @@ module H41
       field :policy_hbx_id, type: String
       field :assistance_year, type: Integer
 
+      index({ policy_hbx_id: 1 })
+      index({ assistance_year: 1 })
       index({ assistance_year: 1, policy_hbx_id: 1 })
     end
   end

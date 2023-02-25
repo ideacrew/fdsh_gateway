@@ -19,6 +19,7 @@ module H41
 
       index({ correlation_id: 1 })
       index({ contract_holder_id: 1 })
+      index({ family_hbx_id: 1 })
     end
   end
 end
