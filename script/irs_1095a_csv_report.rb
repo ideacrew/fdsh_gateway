@@ -99,34 +99,6 @@ def fetch_premium_values(months_of_year)
   end
 end
 
-original_transmissions = H41::Transmissions::Outbound::OriginalTransmission.by_year(@tax_year).to_a
-corrected_transmissions = H41::Transmissions::Outbound::CorrectedTransmission.by_year(@tax_year).to_a
-void_transmissions = H41::Transmissions::Outbound::VoidTransmission.by_year(@tax_year).to_a
-
-[original_transmissions, corrected_transmissions, void_transmissions].flatten.each do |transmission|
-  @transmission = transmission
-  @transmission_type = fetch_transmission_type
-  transactions = transmission.transactions.where(:status.in => [:created, :transmitted, :denied])
-  transactions_count = transactions.count
-  transactions_per_iteration = transactions_count > 20_000.0 ? 20_000.0 : transactions_count
-  @logger = Logger.new("#{Rails.root}/log/1095A-FormData_errors_#{@transmission._id}_#{Date.today.strftime('%Y_%m_%d_%H_%M')}.log")
-
-  if transactions_count == 0
-    @logger.info "No transactions for transmission id #{@transmission._id}"
-    next
-  end
-
-  number_of_iterations = (transactions_count / transactions_per_iteration).ceil
-  counter = 0
-
-  while counter < number_of_iterations
-    file_name = "#{Rails.root}/1095A-FormData_#{@transmission._id}_#{@transmission_type}_#{counter}_#{DateTime.now.strftime('%Y_%m_%d_%H_%M')}.csv"
-    offset_count = transactions_per_iteration * counter
-    process_aptc_csr_tax_households(transactions, file_name, offset_count)
-    counter += 1
-  end
-end
-
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Metrics/CyclomaticComplexity
 # rubocop:disable Metrics/MethodLength
@@ -220,3 +192,31 @@ end
 # rubocop:enable Metrics/CyclomaticComplexity
 # rubocop:enable Metrics/MethodLength
 # rubocop:enable Metrics/PerceivedComplexity
+
+original_transmissions = H41::Transmissions::Outbound::OriginalTransmission.by_year(@tax_year).to_a
+corrected_transmissions = H41::Transmissions::Outbound::CorrectedTransmission.by_year(@tax_year).to_a
+void_transmissions = H41::Transmissions::Outbound::VoidTransmission.by_year(@tax_year).to_a
+
+[original_transmissions, corrected_transmissions, void_transmissions].flatten.each do |transmission|
+  @transmission = transmission
+  @transmission_type = fetch_transmission_type
+  transactions = transmission.transactions.where(:status.in => [:created, :transmitted, :denied])
+  transactions_count = transactions.count
+  transactions_per_iteration = transactions_count > 20_000.0 ? 20_000.0 : transactions_count
+  @logger = Logger.new("#{Rails.root}/log/1095A-FormData_errors_#{@transmission._id}_#{Date.today.strftime('%Y_%m_%d_%H_%M')}.log")
+
+  if transactions_count == 0
+    @logger.info "No transactions for transmission id #{@transmission._id}"
+    next
+  end
+
+  number_of_iterations = (transactions_count / transactions_per_iteration).ceil
+  counter = 0
+
+  while counter < number_of_iterations
+    file_name = "#{Rails.root}/1095A-FormData_#{@transmission._id}_#{@transmission_type}_#{counter}_#{DateTime.now.strftime('%Y_%m_%d_%H_%M')}.csv"
+    offset_count = transactions_per_iteration * counter
+    process_aptc_csr_tax_households(transactions, file_name, offset_count)
+    counter += 1
+  end
+end
