@@ -27,6 +27,7 @@ gem 'hiredis'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.7'
 
+gem 'money-rails', '~> 1.15'
 gem 'mongoid',             '~> 7.3.1'
 
 # Use Puma as the app server
