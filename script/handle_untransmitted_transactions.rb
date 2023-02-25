@@ -17,30 +17,13 @@ def find_h41_transmission(status)
 end
 
 # rubocop:disable Metrics
-def process_untransmitted_transactions
-  file_name = "#{Rails.root}/move_untransmitted_transcations_#{Date.today.strftime('%Y_%m_%d')}.csv"
-  field_names = %w[
-    old_transaction_status
-    old_transaction_transmit_action
-    old_transaction_transmission_reporting_year
-    old_transaction_transmission_type
-    new_transaction_status
-    new_transaction_transmit_action
-    new_transaction_transmission_reporting_year
-    new_transaction_transmission_type
-  ]
-
-  counter = 0
-  transmitted_transmission = find_h41_transmission(:transmitted)
-  eligible_h41_transactions = transmitted_transmission.transactions.transmit_pending
-  open_2022_transission = find_h41_transmission(:open)
+def process_untransmitted_transactions(file_name, transactions_per_iteration, field_names, open_2022_transission)
+  eligible_h41_transactions = find_h41_transmission(:transmitted).transactions.transmit_pending
 
   CSV.open(file_name, 'w', force_quotes: true) do |csv|
     csv << field_names
     @logger.info "Total number of untransmitted transactions: #{eligible_h41_transactions.count}"
-    eligible_h41_transactions.no_timeout.each do |old_transaction|
-      counter += 1
-      @logger.info "---------- Processed #{counter} no. of transactions" if counter % 100 == 0
+    eligible_h41_transactions.limit(transactions_per_iteration).no_timeout.each do |old_transaction|
       @logger.info "----- Processing transaction transmit_action: #{old_transaction.transmit_action}, status: #{old_transaction.status}"
       old_transaction.update_attributes!(status: :superseded, transmit_action: :no_transmit)
       old_aptc_csr_thh = old_transaction.transactable
@@ -104,6 +87,30 @@ end
 start_time = DateTime.current
 @logger = Logger.new("#{Rails.root}/move_untransmitted_transcations_#{Date.today.strftime('%Y_%m_%d')}.log")
 @logger.info "Data Migration start_time: #{start_time}"
-process_untransmitted_transactions
+total_count = find_h41_transmission(:transmitted).transactions.transmit_pending.count
+open_2022_transission = find_h41_transmission(:open)
+transactions_per_iteration = 5_000.0
+number_of_iterations = (total_count / transactions_per_iteration).ceil
+counter = 0
+
+field_names = %w[
+  old_transaction_status
+  old_transaction_transmit_action
+  old_transaction_transmission_reporting_year
+  old_transaction_transmission_type
+  new_transaction_status
+  new_transaction_transmit_action
+  new_transaction_transmission_reporting_year
+  new_transaction_transmission_type
+]
+
+while counter < number_of_iterations
+  file_name = "#{Rails.root}/move_untransmitted_transcations_#{counter + 1}_#{Date.today.strftime('%Y_%m_%d')}.csv"
+  @logger.info "Total number of untransmitted transactions: #{total_count}"
+  process_untransmitted_transactions(file_name, transactions_per_iteration, field_names, open_2022_transission)
+  @logger.info "---------- Processed #{counter.next.ordinalize} #{transactions_per_iteration} untransmitted transactions"
+  counter += 1
+end
+
 end_time = DateTime.current
 @logger.info "Data Migration end_time: #{end_time}, total_time_taken_in_minutes: #{((end_time - start_time) * 24 * 60).to_i}"
