@@ -292,10 +292,18 @@ RSpec.shared_context 'family response', :shared_context => :metadata do
     ]
   end
 
+  let(:policy_id_1) do
+    "100001"
+  end
+
+  let(:policy_id_2) do
+    "100102"
+  end
+
   let(:insurance_policies) do
     [
       {
-        policy_id: "100001",
+        policy_id: policy_id_1,
         insurance_product: insurance_product,
         insurance_provider: insurance_provider,
         aasm_state: policy_aasm_state,
@@ -309,7 +317,7 @@ RSpec.shared_context 'family response', :shared_context => :metadata do
         aptc_csr_tax_households: aptc_csr_tax_households
       },
       {
-        policy_id: "100102",
+        policy_id: policy_id_2,
         insurance_product: insurance_product,
         insurance_provider: insurance_provider,
         aasm_state: policy_aasm_state,
@@ -379,10 +387,18 @@ RSpec.shared_context 'family response', :shared_context => :metadata do
     }
   end
 
+  let(:aptc_csr_tax_household_id_1) do
+    "82876288"
+  end
+
+  let(:aptc_csr_tax_household_id_2) do
+    "82876210"
+  end
+
   let(:aptc_csr_tax_households) do
     [
       {
-        hbx_assigned_id: "82876288",
+        hbx_assigned_id: aptc_csr_tax_household_id_1,
         tax_household_members: [
           family_member_reference: {
             family_member_hbx_id: '1000595',
@@ -429,7 +445,7 @@ RSpec.shared_context 'family response', :shared_context => :metadata do
   let(:aptc_csr_tax_households1) do
     [
       {
-        hbx_assigned_id: "82876210",
+        hbx_assigned_id: aptc_csr_tax_household_id_2,
         tax_household_members: [
           family_member_reference: {
             family_member_hbx_id: '1000595',
