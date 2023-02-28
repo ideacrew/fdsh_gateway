@@ -14,7 +14,7 @@ module Transmittable
     # :transmitted will be the value for status if the transaction is already tranmitted
     field :status, type: Symbol, default: :created
 
-    field :transaction_errors, type: Hash
+    field :transaction_errors, type: Hash, default: {}
 
     # An optional field to persist Transaction-related attributes, e.g., foreign key, associated documents
     # @example
@@ -53,6 +53,12 @@ module Transmittable
     def transmission
       transaction_transmission = transactions_transmissions.where(transaction_id: self.id).first
       transaction_transmission.transmission
+    end
+
+    def transaction_errors=(value)
+      raise(ArgumentError, "#{value} must be of type Hash") unless value.is_a?(Hash)
+
+      write_attribute(:transaction_errors, transaction_errors.merge(value))
     end
   end
 end

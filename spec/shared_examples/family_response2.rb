@@ -64,6 +64,8 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
 
   let(:person_name_1) { { first_name: 'John', last_name: 'Smith' } }
 
+  let(:city) { 'Augusta' }
+
   let(:family_member_1) do
     {
       is_primary_applicant: true,
@@ -80,7 +82,7 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
         person_health: { is_tobacco_user: 'unknown' },
         is_active: true,
         is_disabled: false,
-        addresses: [{ kind: 'mailing', address_1: '742 Washington Ave, 1', state: 'ME', city: 'Augusta', zip: '67662' }],
+        addresses: [{ kind: 'mailing', address_1: '742 Washington Ave, 1', state: 'ME', city: city, zip: '67662' }],
         verification_types: verification_types
       }
     }
@@ -102,7 +104,7 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
         person_health: { is_tobacco_user: 'unknown' },
         is_active: true,
         is_disabled: false,
-        addresses: [{ kind: 'mailing', address_1: '742 Washington Ave, 1', state: 'ME', city: 'Augusta', zip: '67662' }],
+        addresses: [{ kind: 'mailing', address_1: '742 Washington Ave, 1', state: 'ME', city: city, zip: '67662' }],
         verification_types: verification_types
       }
     }
@@ -206,7 +208,7 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
         address_1: '742 Washington Ave, 1',
         address_2: '742 Washington Ave, 2',
         address_3: '',
-        city: 'Awesome city',
+        city: city,
         county_name: 'Awesome county',
         state: 'DC',
         zip: '20002'
@@ -232,7 +234,7 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
               address_1: '742 Washington Ave, 1',
               address_2: '742 Washington Ave, 2',
               address_3: '',
-              city: 'Awesome city',
+              city: city,
               county_name: 'Awesome county',
               state: 'DC',
               zip: '20002'
@@ -316,7 +318,7 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
           address_1: '742 Washington Ave, 1',
           address_2: '742 Washington Ave, 2',
           address_3: '',
-          city: 'Awesome city',
+          city: city,
           county_name: 'Awesome county',
           state_abbreviation: 'DC',
           zip_code: '20002'
