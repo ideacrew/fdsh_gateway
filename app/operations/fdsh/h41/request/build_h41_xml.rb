@@ -60,7 +60,7 @@ module Fdsh
 
         def encode_request_xml(xml_string)
           encoding_result = Try do
-            ::Fdsh::Transmissions::XmlSanitizer.new.call(xml_string)
+            ::Fdsh::Transmissions::XmlSanitizer.new.call(xml_string: xml_string)
           end
 
           encoding_result.or do |e|
