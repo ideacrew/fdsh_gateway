@@ -5,6 +5,10 @@ require 'spec_helper'
 RSpec.describe Fdsh::H41::Transmissions::Publish do
   subject { described_class.new }
 
+  before :each do
+    FileUtils.rm_rf(Rails.root.join("h41_transmissions").to_s)
+  end
+
   after :each do
     DatabaseCleaner.clean
   end
@@ -60,7 +64,11 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
                                                                             transmission: open_transmission)
     end
 
-    context 'for original transmission' do
+    let(:outbound_folder) do
+      Rails.root.join("h41_transmissions").to_s
+    end
+
+    context 'for original' do
       let(:input_params) do
         {
           reporting_year: Date.today.year,
@@ -94,8 +102,13 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         expect(new_transmission.class).to eq open_transmission.class
       end
 
-      # it 'should create content and manifest files' do
-      # end
+      it 'should transmission batch file' do
+        file_names = Dir.glob("#{outbound_folder}/*").collect do |file|
+          File.basename(file)
+        end
+        expect(file_names.count).to eq 1
+        expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P\.IN/)
+      end
 
       it 'should update transmission to transmitted state' do
         open_transmission.transactions.each do |transaction|
@@ -104,7 +117,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         end
       end
 
-      it 'should create transmission paths for batch id' do
+      it 'should create transmission paths' do
         expect(open_transmission.transmission_paths.count).to eq open_transmission.transactions.count
       end
     end
@@ -141,8 +154,13 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         expect(new_transmission.class).to eq open_transmission.class
       end
 
-      # it 'should create content and manifest files' do
-      # end
+      it 'should transmission batch file' do
+        file_names = Dir.glob("#{outbound_folder}/*").collect do |file|
+          File.basename(file)
+        end
+        expect(file_names.count).to eq 1
+        expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P\.IN/)
+      end
 
       it 'should update transmission to transmitted state' do
         open_transmission.transactions.each do |transaction|
@@ -151,7 +169,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         end
       end
 
-      it 'should create transmission paths for batch id' do
+      it 'should create transmission paths' do
         expect(open_transmission.transmission_paths.count).to eq open_transmission.transactions.count
       end
     end
@@ -188,8 +206,13 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         expect(new_transmission.class).to eq open_transmission.class
       end
 
-      # it 'should create content and manifest files' do
-      # end
+      it 'should transmission batch file' do
+        file_names = Dir.glob("#{outbound_folder}/*").collect do |file|
+          File.basename(file)
+        end
+        expect(file_names.count).to eq 1
+        expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P\.IN/)
+      end
 
       it 'should update transmission to transmitted state' do
         open_transmission.transactions.each do |transaction|
@@ -198,7 +221,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         end
       end
 
-      it 'should create transmission paths for batch id' do
+      it 'should create transmission paths' do
         expect(open_transmission.transmission_paths.count).to eq open_transmission.transactions.count
       end
     end
