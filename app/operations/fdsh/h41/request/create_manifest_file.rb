@@ -29,7 +29,7 @@ module Fdsh
         def validate(params)
           return Failure('outbound folder missing') unless params[:outbound_folder]
           return Failure('outbound folder missing') unless params[:transmission_kind]
-          return Failure('old_batch_reference missing') unless params[:transmission_kind] != :original && params[:old_batch_reference]
+          return Failure('old_batch_reference missing') if params[:transmission_kind] != :original && params[:old_batch_reference].blank?
 
           Success(params)
         end
