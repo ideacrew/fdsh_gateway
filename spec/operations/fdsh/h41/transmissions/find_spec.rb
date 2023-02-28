@@ -18,18 +18,44 @@ RSpec.describe Fdsh::H41::Transmissions::Find do
       let(:input_params) do
         {
           reporting_year: Date.today.year,
-          status: :open,
-          transmission_type: :original
+          status: status,
+          transmission_type: transmission_type
         }
       end
 
-      context 'with an open H41 transmission' do
+      context 'with an original open H41 transmission' do
+        let(:status) { :open }
+        let(:transmission_type) { :original }
         let!(:h41_original_transmission) { FactoryBot.create(:h41_original_transmission) }
 
         it 'returns the existing open H41 transmission' do
           expect(::H41::Transmissions::Outbound::OriginalTransmission.open.count).to eq(1)
           subject
           expect(::H41::Transmissions::Outbound::OriginalTransmission.open.count).to eq(1)
+        end
+      end
+
+      context 'with an corrected open H41 transmission' do
+        let(:status) { :open }
+        let(:transmission_type) { :corrected }
+        let!(:h41_corrected_transmission) { FactoryBot.create(:h41_corrected_transmission) }
+
+        it 'returns the existing open H41 transmission' do
+          expect(::H41::Transmissions::Outbound::CorrectedTransmission.open.count).to eq(1)
+          subject
+          expect(::H41::Transmissions::Outbound::CorrectedTransmission.open.count).to eq(1)
+        end
+      end
+
+      context 'with an void transmitted H41 transmission' do
+        let(:status) { :transmitted }
+        let(:transmission_type) { :void }
+        let!(:h41_void_transmission) { FactoryBot.create(:h41_void_transmission, status: :transmitted) }
+
+        it 'returns the existing open H41 transmission' do
+          expect(::H41::Transmissions::Outbound::VoidTransmission.transmitted.count).to eq(1)
+          subject
+          expect(::H41::Transmissions::Outbound::VoidTransmission.transmitted.count).to eq(1)
         end
       end
     end

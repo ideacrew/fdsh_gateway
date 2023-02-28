@@ -5,6 +5,10 @@ require 'spec_helper'
 RSpec.describe Fdsh::H41::Transmissions::Publish do
   subject { described_class.new }
 
+  before :each do
+    FileUtils.rm_rf(Rails.root.join("h41_transmissions").to_s)
+  end
+
   after :each do
     DatabaseCleaner.clean
   end
@@ -60,7 +64,11 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
                                                                             transmission: open_transmission)
     end
 
-    context 'for original transmission' do
+    let(:outbound_folder) do
+      Rails.root.join("h41_transmissions").to_s
+    end
+
+    context 'for original' do
       let(:input_params) do
         {
           reporting_year: Date.today.year,
@@ -69,7 +77,9 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       end
 
       let!(:open_transmission) { FactoryBot.create(:h41_original_transmission) }
-      let(:transaction_xml) { File.open(Rails.root.join("spec/test_payloads/h41/original.xml").to_s).read }
+      let(:transaction_xml) do
+        File.open(Rails.root.join("spec/test_payloads/h41/original.xml").to_s).read
+      end
 
       before do
         @result = subject.call(input_params)
@@ -92,8 +102,13 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         expect(new_transmission.class).to eq open_transmission.class
       end
 
-      # it 'should create content and manifest files' do
-      # end
+      it 'should transmission batch file' do
+        file_names = Dir.glob("#{outbound_folder}/*").collect do |file|
+          File.basename(file)
+        end
+        expect(file_names.count).to eq 1
+        expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P\.IN/)
+      end
 
       it 'should update transmission to transmitted state' do
         open_transmission.transactions.each do |transaction|
@@ -102,7 +117,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         end
       end
 
-      it 'should create transmission paths for batch id' do
+      it 'should create transmission paths' do
         expect(open_transmission.transmission_paths.count).to eq open_transmission.transactions.count
       end
     end
@@ -139,8 +154,13 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         expect(new_transmission.class).to eq open_transmission.class
       end
 
-      # it 'should create content and manifest files' do
-      # end
+      it 'should transmission batch file' do
+        file_names = Dir.glob("#{outbound_folder}/*").collect do |file|
+          File.basename(file)
+        end
+        expect(file_names.count).to eq 1
+        expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P\.IN/)
+      end
 
       it 'should update transmission to transmitted state' do
         open_transmission.transactions.each do |transaction|
@@ -149,7 +169,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         end
       end
 
-      it 'should create transmission paths for batch id' do
+      it 'should create transmission paths' do
         expect(open_transmission.transmission_paths.count).to eq open_transmission.transactions.count
       end
     end
@@ -186,8 +206,13 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         expect(new_transmission.class).to eq open_transmission.class
       end
 
-      # it 'should create content and manifest files' do
-      # end
+      it 'should transmission batch file' do
+        file_names = Dir.glob("#{outbound_folder}/*").collect do |file|
+          File.basename(file)
+        end
+        expect(file_names.count).to eq 1
+        expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P\.IN/)
+      end
 
       it 'should update transmission to transmitted state' do
         open_transmission.transactions.each do |transaction|
@@ -196,8 +221,50 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         end
       end
 
-      it 'should create transmission paths for batch id' do
+      it 'should create transmission paths' do
         expect(open_transmission.transmission_paths.count).to eq open_transmission.transactions.count
+      end
+    end
+
+    context 'when allow and deny lists provided' do
+
+      let(:input_params) do
+        {
+          reporting_year: Date.today.year,
+          report_type: :corrected,
+          allow_list: allow_list,
+          deny_list: deny_list
+        }
+      end
+
+      let(:deny_list) { ['444232', '333423'] }
+      let(:allow_list) { ['553231', '577742'] }
+
+      let!(:active_exclusions) do
+        create(:subject_exclusion, :active, subject_name: 'PostedFamily', subject_id: '553231')
+      end
+
+      let!(:expired_exclusions) do
+        create(:subject_exclusion, :expired, subject_name: 'PostedFamily', subject_id: '333423')
+      end
+
+      let!(:open_transmission) { FactoryBot.create(:h41_corrected_transmission) }
+      let(:transaction_xml) { File.open(Rails.root.join("spec/test_payloads/h41/corrected.xml").to_s).read }
+
+      before do
+
+        open_transmission.reload
+      end
+
+      it 'should ingest deny list and allow list' do
+        expect(Transmittable::SubjectExclusion.active.map(&:subject_id)).to match_array(['553231'])
+        expect(Transmittable::SubjectExclusion.expired.map(&:subject_id)).to match_array(['333423'])
+
+        result = subject.call(input_params)
+
+        expect(result.success?).to be_truthy
+        expect(Transmittable::SubjectExclusion.active.map(&:subject_id)).to match_array(deny_list)
+        expect(Transmittable::SubjectExclusion.expired.map(&:subject_id)).to match_array(['553231', '333423'])
       end
     end
   end

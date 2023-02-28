@@ -53,7 +53,8 @@ module Fdsh
 
         def encode_xml_and_schema_validate(payload)
           xml_string = ::AcaEntities::Serializers::Xml::Fdsh::H41::Form1095ATransmissionUpstream.domain_to_mapper(payload).to_xml
-          validation = AcaEntities::Serializers::Xml::Fdsh::H41::Operations::ValidateH41RequestPayloadXml.new.call(xml_string)
+          sanitized_xml = ::Fdsh::Transmissions::XmlSanitizer.new.call(xml_string: xml_string).success
+          validation = AcaEntities::Serializers::Xml::Fdsh::H41::Operations::ValidateH41RequestPayloadXml.new.call(sanitized_xml)
 
           validation.success? ? Success(xml_string) : Failure("Invalid H41 xml due to #{validation.failure}")
         end

@@ -61,15 +61,13 @@ module Transmittable
     field :started_at, type: DateTime, default: -> { Time.now }
     field :ended_at, type: DateTime
 
+    # Indexes
+    index({ status: 1 })
+
     # Scopes
     scope :open, -> { where(status: :open) }
     scope :pending, -> { where(status: :pending) }
     scope :transmitted, -> { where(status: :transmitted) }
-
-    # Indexes
-    index({ 'open' => 1 })
-    index({ 'pending' => 1 })
-    index({ 'transmitted' => 1 })
 
     # @example
     def initialize(args = nil)

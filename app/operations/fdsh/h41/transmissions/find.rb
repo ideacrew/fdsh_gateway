@@ -26,7 +26,7 @@ module Fdsh
         end
 
         def find(values)
-          open_transmission = find_open_transmission(values[:transmission_type], values[:reporting_year])
+          open_transmission = find_open_transmission(values)
 
           if open_transmission.present?
             define_missing_constants
@@ -38,14 +38,20 @@ module Fdsh
           end
         end
 
-        def find_open_transmission(transmission_type, reporting_year)
-          case transmission_type
+        def find_open_transmission(values)
+          case values[:transmission_type]
           when :corrected
-            ::H41::Transmissions::Outbound::CorrectedTransmission.open.by_year(reporting_year).first
+            ::H41::Transmissions::Outbound::CorrectedTransmission.where(
+              status: values[:status]
+            ).by_year(values[:reporting_year]).first
           when :original
-            ::H41::Transmissions::Outbound::OriginalTransmission.open.by_year(reporting_year).first
+            ::H41::Transmissions::Outbound::OriginalTransmission.where(
+              status: values[:status]
+            ).by_year(values[:reporting_year]).first
           else
-            ::H41::Transmissions::Outbound::VoidTransmission.open.by_year(reporting_year).first
+            ::H41::Transmissions::Outbound::VoidTransmission.where(
+              status: values[:status]
+            ).by_year(values[:reporting_year]).first
           end
         end
 

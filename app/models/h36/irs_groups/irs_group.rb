@@ -19,8 +19,6 @@ module H36
       index({ correlation_id: 1 })
       index({ contract_holder_id: 1 })
       index({ family_hbx_id: 1 })
-      index({ family_cv: 1 })
-      index({ family_hbx_id: 1, family_cv: 1 })
     end
   end
 end

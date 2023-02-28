@@ -12,6 +12,7 @@ module Fdsh
       #   5. Find H41 Transmissions(Corrected, Original, and Void) for given reporting year
       #   6. creates database model Transmittable::TransactionsTransmissions, the join table between Transactions and H41 Transmissions
       #   7. Updates all the :untransmitted transactions that map to the subject
+      # rubocop:disable Metrics/ClassLength
       class Enqueue
         include Dry::Monads[:result, :do]
 
@@ -41,7 +42,7 @@ module Fdsh
           # DO NOT GENERATE THE XML. set this to empty string as we cannot send record_sequence_num of the original.
           return '' if attrs[:transmit_action] == :no_transmit && attrs[:status] == :blocked && attrs[:transmission_type] == :void
 
-          Fdsh::H41::Request::BuildH41Xml.new.call(
+          build_result = Fdsh::H41::Request::BuildH41Xml.new.call(
             {
               agreement: params[:agreement],
               family: params[:family],
@@ -50,7 +51,11 @@ module Fdsh
               transaction_type: params[:transaction_type],
               record_sequence_num: find_record_sequence_num(params[:previous_transactions], params[:transaction_type])
             }
-          ).success
+          )
+
+          @transaction_errors_hash = { transaction_xml: error_messages(build_result) } if build_result.failure?
+
+          build_result.success
         end
 
         def create_aptc_csr_tax_household(policy, aptc_csr_thh_hash)
@@ -79,8 +84,24 @@ module Fdsh
           )
         end
 
+        def error_messages(build_result)
+          if build_result.failure.is_a?(Dry::Validation::Result)
+            build_result.failure.errors.to_h
+          else
+            build_result.failure
+          end
+        end
+
         def fetch_affected_policies(insurance_policies, affected_policy_hbx_ids)
           insurance_policies.select { |policy| affected_policy_hbx_ids.include?(policy.policy_id)  }
+        end
+
+        def fetch_status(status)
+          @transaction_errors_hash.present? ? :errored : status
+        end
+
+        def fetch_transmit_action(transmit_action)
+          @transaction_errors_hash.present? ? :no_transmit : transmit_action
         end
 
         def find_transmission(transmission_type, reporting_year)
@@ -149,7 +170,7 @@ module Fdsh
             previous_transactions = find_transactions(policy, aptc_csr_thh)
             update_previous_transactions(previous_transactions)
             transmission_type = find_transmission_type(policy, previous_transactions)
-            parsed_transaction = parse_transaction(transmission_type, previous_transactions)
+            transaction_hash = parse_transaction(transmission_type, previous_transactions)
 
             thhs_array << {
               corrected: transmission_type == :corrected,
@@ -161,13 +182,13 @@ module Fdsh
                   agreement: insurance_agreement,
                   family: family,
                   insurance_policy: policy,
-                  parsed_transaction: parsed_transaction,
+                  parsed_transaction: transaction_hash,
                   previous_transactions: previous_transactions,
                   tax_household: aptc_csr_thh,
                   transaction_type: transmission_type
                 }
               ),
-              transaction: parsed_transaction
+              transaction: transaction_hash
             }
             thhs_array
           end
@@ -212,8 +233,9 @@ module Fdsh
               aptc_csr_tax_household = create_aptc_csr_tax_household(policy, aptc_csr_thh_hash)
 
               transaction = aptc_csr_tax_household.transactions.create(
-                transmit_action: aptc_csr_thh_hash[:transaction][:transmit_action],
-                status: aptc_csr_thh_hash[:transaction][:status],
+                transmit_action: fetch_transmit_action(aptc_csr_thh_hash[:transaction][:transmit_action]),
+                transaction_errors: @transaction_errors_hash || {},
+                status: fetch_status(aptc_csr_thh_hash[:transaction][:status]),
                 started_at: aptc_csr_thh_hash[:transaction][:started_at]
               )
 
@@ -258,6 +280,7 @@ module Fdsh
           end
         end
       end
+      # rubocop:enable Metrics/ClassLength
     end
   end
 end
