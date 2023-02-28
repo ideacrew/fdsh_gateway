@@ -60,8 +60,7 @@ module Fdsh
 
         def encode_request_xml(xml_string)
           encoding_result = Try do
-            xml_doc = Nokogiri::XML(xml_string)
-            xml_doc.to_xml(:indent => 2, :encoding => 'UTF-8')
+            ::Fdsh::Transmissions::XmlSanitizer.new.call(xml_string: xml_string)
           end
 
           encoding_result.or do |e|
