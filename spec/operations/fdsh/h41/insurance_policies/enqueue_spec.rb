@@ -67,6 +67,23 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
         original_transactions_transmissions_transactions.first
       end
 
+      # This results in creation of an errored transaction with transaction_errors
+      context 'with invalid city' do
+        let(:city) { '04001' }
+
+        it 'adds transaction_errors to the transaction object' do
+          subject
+          expect(original_first_transaction.transaction_errors).not_to be_empty
+          expect(original_first_transaction.transaction_errors.keys).to include('transaction_xml')
+        end
+
+        it 'creates transaction in errored status and no_transmit transmit_action' do
+          subject
+          expect(original_first_transaction.status).to eq(:errored)
+          expect(original_first_transaction.transmit_action).to eq(:no_transmit)
+        end
+      end
+
       context 'with submitted policy' do
         context 'with transmit_pending transactions' do
           before { described_class.new.call(input_params) }
