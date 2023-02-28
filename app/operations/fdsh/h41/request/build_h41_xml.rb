@@ -53,14 +53,16 @@ module Fdsh
 
         def encode_xml_and_schema_validate(payload)
           xml_string = ::AcaEntities::Serializers::Xml::Fdsh::H41::Form1095ATransmissionUpstream.domain_to_mapper(payload).to_xml
-          validation = AcaEntities::Serializers::Xml::Fdsh::H41::Operations::ValidateH41RequestPayloadXml.new.call(xml_string)
+          sanitized_xml = ::Fdsh::Transmissions::XmlSanitizer.new.call(xml_string: xml_string).success
+          validation = AcaEntities::Serializers::Xml::Fdsh::H41::Operations::ValidateH41RequestPayloadXml.new.call(sanitized_xml)
 
           validation.success? ? Success(xml_string) : Failure("Invalid H41 xml due to #{validation.failure}")
         end
 
         def encode_request_xml(xml_string)
           encoding_result = Try do
-            ::Fdsh::Transmissions::XmlSanitizer.new.call(xml_string: xml_string)
+            xml_doc = Nokogiri::XML(xml_string)
+            xml_doc.to_xml(:indent => 2, :encoding => 'UTF-8')
           end
 
           encoding_result.or do |e|

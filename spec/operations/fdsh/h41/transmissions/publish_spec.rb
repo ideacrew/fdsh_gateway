@@ -5,6 +5,10 @@ require 'spec_helper'
 RSpec.describe Fdsh::H41::Transmissions::Publish do
   subject { described_class.new }
 
+  before :each do
+    FileUtils.rm_rf(Rails.root.join("h41_transmissions").to_s)
+  end
+
   after :each do
     DatabaseCleaner.clean
   end
