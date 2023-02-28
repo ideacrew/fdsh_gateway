@@ -39,20 +39,22 @@ module Fdsh
         end
 
         def find_open_transmission(values)
-          case values[:transmission_type]
-          when :corrected
-            ::H41::Transmissions::Outbound::CorrectedTransmission.where(
-              status: values[:status]
-            ).by_year(values[:reporting_year]).first
-          when :original
-            ::H41::Transmissions::Outbound::OriginalTransmission.where(
-              status: values[:status]
-            ).by_year(values[:reporting_year]).first
-          else
-            ::H41::Transmissions::Outbound::VoidTransmission.where(
-              status: values[:status]
-            ).by_year(values[:reporting_year]).first
-          end
+          open_tranmssions = case values[:transmission_type]
+                             when :corrected
+                               ::H41::Transmissions::Outbound::CorrectedTransmission.where(
+                                 status: values[:status]
+                               ).by_year(values[:reporting_year]).order(:created_at.asc)
+                             when :original
+                               ::H41::Transmissions::Outbound::OriginalTransmission.where(
+                                 status: values[:status]
+                               ).by_year(values[:reporting_year]).order(:created_at.asc)
+                             else
+                               ::H41::Transmissions::Outbound::VoidTransmission.where(
+                                 status: values[:status]
+                               ).by_year(values[:reporting_year]).order(:created_at.asc)
+                             end
+
+          values[:latest] ? open_tranmssions.last : open_tranmssions.first
         end
 
         def validate(params)

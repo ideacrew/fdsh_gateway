@@ -62,6 +62,7 @@ module Transmittable
     field :ended_at, type: DateTime
 
     # Indexes
+    index({ created_at: 1 })
     index({ status: 1 })
 
     # Scopes
