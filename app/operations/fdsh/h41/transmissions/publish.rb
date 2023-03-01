@@ -17,7 +17,7 @@ module Fdsh
           transmission = yield start_processing(transmission)
           _new_transmission = yield create_new_open_transmission(transmission, values)
           _output = yield publish_h41_transmisson(transmission, values)
-          # _output = yield publish_pdf_reports(transmission, values)
+          _output = yield publish_pdf_reports(transmission, values)
 
           Success(transmission)
         end
@@ -124,6 +124,12 @@ module Fdsh
 
           transmission.update(status: :transmitted)
           Success(true)
+        end
+
+        def publish_pdf_reports(transmission, values)
+          Fdsh::H41::Transmissions::Publish1095aPayload.new.call({ transmission: transmission,
+                                                                   reporting_year: values[:reporting_year],
+                                                                   report_type: values[:report_type] })
         end
 
         def init_content_file_builder(values, old_batch_reference = nil)
