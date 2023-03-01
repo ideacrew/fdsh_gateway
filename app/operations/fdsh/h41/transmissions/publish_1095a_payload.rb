@@ -102,7 +102,7 @@ module Fdsh
           event = event('events.fdsh_gateway.irs1095as.void_notice_requested',
                         attributes: family_hash, headers: { assistance_year: values[:reporting_year],
                                                             notice_type: values[:report_type],
-                                                            affected_policies: values[:policy_hbx_ids]})
+                                                            affected_policies: values[:policy_hbx_ids] })
           event.success.publish
         end
 
@@ -118,7 +118,7 @@ module Fdsh
           event = event('events.fdsh_gateway.irs1095as.initial_notice_requested',
                         attributes: family_hash, headers: { assistance_year: values[:reporting_year],
                                                             notice_type: values[:report_type],
-                                                            affected_policies: values[:policy_hbx_ids]})
+                                                            affected_policies: values[:policy_hbx_ids] })
           event.success.publish
         end
       end

@@ -68,9 +68,9 @@ RSpec.describe Fdsh::H41::Transmissions::TransformFamilyPayload do
                   posted_family: posted_family)
     end
 
-    let!(:policy_id_1) {
+    let!(:policy_id_1) do
       insurance_polices.first.policy_hbx_id
-    }
+    end
 
     let(:family_cv) { family_hash }
 
