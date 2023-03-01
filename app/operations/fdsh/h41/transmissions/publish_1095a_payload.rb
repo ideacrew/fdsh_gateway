@@ -6,6 +6,7 @@ module Fdsh
       # Operation to publish an open transmission of given kind
       class Publish1095aPayload
         include Dry::Monads[:result, :do, :try]
+        include EventSource::Command
 
         H41_TRANSMISSION_TYPES = [:corrected, :original, :void].freeze
 
