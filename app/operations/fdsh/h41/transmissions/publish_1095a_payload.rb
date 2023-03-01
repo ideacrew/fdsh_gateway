@@ -13,8 +13,7 @@ module Fdsh
         def call(params)
           values                = yield validate(params)
           transactions          = yield fetch_transactions(values[:transmission])
-          subjects              = yield fetch_subjects(transactions)
-          grouping_result       = yield group_subjects_by_family_hbx_id(subjects)
+          grouping_result       = yield group_policies_by_family_hbx_id(transactions)
           result                = yield transform_and_publish_notice_event(grouping_result, values)
 
           Success(result)
@@ -38,29 +37,30 @@ module Fdsh
         end
 
         def fetch_transactions(transmission)
-          Success(transmission.transactions.transmitted)
+          transactions = transmission.transactions.transmitted
+          transactions.blank? ? Failure("No valid transactions present") : Success(transactions)
         end
 
-        def fetch_subjects(transactions)
-          subjects = ::H41::InsurancePolicies::AptcCsrTaxHousehold.where(:id.in => transactions.pluck(:transactable_id))
-          subjects.present? ? Success(subjects) : Failure("No valid transactions present")
-        end
-
-        def group_subjects_by_family_hbx_id(subjects)
-          result = subjects.group_by do |tax_household|
-            tax_household.insurance_policy.posted_family.family_hbx_id
+        def group_policies_by_family_hbx_id(transactions)
+          result = transactions.inject({}) do |data, transaction|
+            subject = transaction.transactable
+            family_hbx_id = subject.insurance_policy.posted_family.family_hbx_id
+            data[family_hbx_id] ||= []
+            data[family_hbx_id] << subject.insurance_policy_id
+            data
           end
 
-          Success(result.transform_values { |values| values.pluck(:hbx_assigned_id) })
+          Success(result)
         end
 
         def transform_and_publish_notice_event(group_result, values)
           exclusion_records = Transmittable::SubjectExclusion.by_subject_name('PostedFamily').active.pluck(:subject_id)
-          group_result.each do |family_hbx_id, subject_hbx_ids|
+          group_result.each do |family_hbx_id, insurance_policy_ids|
             next if exclusion_records.include?(family_hbx_id)
-
+            policies = ::H41::InsurancePolicies::InsurancePolicy.in(id: insurance_policy_ids)
+            policy_hbx_ids = policies.pluck(:policy_hbx_id)
             family_hash = ::Fdsh::H41::Transmissions::TransformFamilyPayload.new.call({ family_hbx_id: family_hbx_id,
-                                                                                        subject_hbx_ids: subject_hbx_ids,
+                                                                                        insurance_policy_ids: insurance_policy_ids,
                                                                                         reporting_year: values[:reporting_year],
                                                                                         report_type: values[:report_type] })
             if family_hash.failure?
@@ -69,7 +69,7 @@ module Fdsh
               )
               next
             end
-
+            values[:affected_policies] = policy_hbx_ids
             publish_1095a_family_payload(family_hash.value!.to_h, values)
           rescue StandardError => e
             @logger.error(
@@ -101,21 +101,24 @@ module Fdsh
         def publish_void_notice_event(family_hash, values)
           event = event('events.fdsh_gateway.irs1095as.void_notice_requested',
                         attributes: family_hash, headers: { assistance_year: values[:reporting_year],
-                                                            notice_type: values[:report_type] })
+                                                            notice_type: values[:report_type],
+                                                            affected_policies: values[:policy_hbx_ids] })
           event.success.publish
         end
 
         def publish_corrected_notice_event(family_hash, values)
           event = event('events.fdsh_gateway.irs1095as.corrected_notice_requested',
                         attributes: family_hash, headers: { assistance_year: values[:reporting_year],
-                                                            notice_type: values[:report_type] })
+                                                            notice_type: values[:report_type],
+                                                            affected_policies: values[:policy_hbx_ids] })
           event.success.publish
         end
 
         def publish_initial_notice_event(family_hash, values)
           event = event('events.fdsh_gateway.irs1095as.initial_notice_requested',
                         attributes: family_hash, headers: { assistance_year: values[:reporting_year],
-                                                            notice_type: values[:report_type] })
+                                                            notice_type: values[:report_type],
+                                                            affected_policies: values[:policy_hbx_ids] })
           event.success.publish
         end
       end
