@@ -4,9 +4,11 @@
 # Updates untransmitted transactions of transmitted transmission status: :superseded, transmit_action: :no_transmit
 # bundle exec rails runner script/handle_untransmitted_transactions.rb
 
+# Finds the latest 2022 Original Transmission of given 'status' if there are more than 1 in the same status for the same year
 def find_h41_transmission(status)
   ::Fdsh::H41::Transmissions::Find.new.call(
     {
+      latest: true,
       reporting_year: 2022,
       status: status,
       transmission_type: :original

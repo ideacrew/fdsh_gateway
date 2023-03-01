@@ -35,6 +35,34 @@ RSpec.describe Fdsh::H41::Transmissions::Find do
         end
       end
 
+      context 'with more than 1 original open H41 transmission' do
+        let(:status) { :open }
+        let(:transmission_type) { :original }
+        let!(:h41_original_transmission1) { FactoryBot.create(:h41_original_transmission) }
+        let!(:h41_original_transmission2) { FactoryBot.create(:h41_original_transmission) }
+
+        context 'with argument :latest set to true' do
+          let(:input_params) do
+            {
+              latest: true,
+              reporting_year: Date.today.year,
+              status: status,
+              transmission_type: transmission_type
+            }
+          end
+
+          it 'returns the latest existing open H41 transmission' do
+            expect(subject.success).to eq(h41_original_transmission2)
+          end
+        end
+
+        context 'without argument :latest' do
+          it 'returns the first existing open H41 transmission' do
+            expect(subject.success).to eq(h41_original_transmission1)
+          end
+        end
+      end
+
       context 'with an corrected open H41 transmission' do
         let(:status) { :open }
         let(:transmission_type) { :corrected }
