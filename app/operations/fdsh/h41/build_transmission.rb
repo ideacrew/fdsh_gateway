@@ -29,7 +29,12 @@ module Fdsh
 
       def build_transmission(values)
         values[:report_types].each do |report_type|
-          ::Fdsh::H41::Transmissions::Publish(reporting_year: values[:assistance_year], kind: report_type)
+          ::Fdsh::H41::Transmissions::Publish(
+            reporting_year: values[:assistance_year],
+            report_type: report_type,
+            deny_list: values[:deny_list],
+            allow_list: values[:allow_list]
+          )
         end
 
         Success('Successfully created transmissions')
