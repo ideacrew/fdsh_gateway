@@ -17,8 +17,8 @@ module Subscribers
           result = ::Fdsh::H41::BuildTransmission.new.call(
             deny_list: payload[:deny_list],
             allow_list: payload[:allow_list],
-            assistance_year: properties.assistance_year,
-            report_types: properties.report_types
+            assistance_year: properties[:headers]['assistance_year'].to_i,
+            report_types: properties[:headers]['report_types']
           )
 
           if result.success?
