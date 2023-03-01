@@ -70,7 +70,7 @@ module Fdsh
               next
             end
 
-            publish_1095a_family_payload(family_hash, values)
+            publish_1095a_family_payload(family_hash.value!.to_h, values)
           rescue StandardError => e
             @logger.error(
               "Unable to publish payload for family with hbx_id #{family_hbx_id} due to #{e.backtrace}"
@@ -102,21 +102,21 @@ module Fdsh
           event = event('events.fdsh_gateway.irs1095as.void_notice_requested',
                         attributes: family_hash, headers: { assistance_year: values[:reporting_year],
                                                             notice_type: values[:report_type] })
-          event.publish
+          event.success.publish
         end
 
         def publish_corrected_notice_event(family_hash, values)
           event = event('events.fdsh_gateway.irs1095as.corrected_notice_requested',
                         attributes: family_hash, headers: { assistance_year: values[:reporting_year],
                                                             notice_type: values[:report_type] })
-          event.publish
+          event.success.publish
         end
 
         def publish_initial_notice_event(family_hash, values)
           event = event('events.fdsh_gateway.irs1095as.initial_notice_requested',
                         attributes: family_hash, headers: { assistance_year: values[:reporting_year],
                                                             notice_type: values[:report_type] })
-          event.publish
+          event.success.publish
         end
       end
     end
