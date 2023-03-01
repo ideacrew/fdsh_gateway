@@ -38,6 +38,7 @@ RSpec.describe Fdsh::H41::Transmissions::TransformFamilyPayload do
         {
           family_hbx_id: family_hash[:hbx_id],
           reporting_year: Date.today.year,
+          insurance_policy_ids: ["12345"],
           report_type: :initial
         }
       end
@@ -67,16 +68,16 @@ RSpec.describe Fdsh::H41::Transmissions::TransformFamilyPayload do
                   posted_family: posted_family)
     end
 
-    let!(:aptc_csr_tax_household_id_1) do
-      insurance_polices.first.aptc_csr_tax_households.first.hbx_assigned_id
-    end
+    let!(:policy_id_1) {
+      insurance_polices.first.policy_hbx_id
+    }
 
     let(:family_cv) { family_hash }
 
     let(:input_params) do
       {
         family_hbx_id: family_hbx_id,
-        subject_hbx_ids: insurance_polices.flat_map(&:aptc_csr_tax_households).pluck(:hbx_assigned_id),
+        insurance_policy_ids: insurance_polices.pluck(:id),
         reporting_year: Date.today.year,
         report_type: :corrected
       }

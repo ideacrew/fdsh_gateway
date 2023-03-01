@@ -11,9 +11,10 @@ module Fdsh
 
         def call(params)
           values                = yield validate(params)
-          posted_family         = yield fetch_posted_family(values[:family_hbx_id])
+          insurance_policies    = yield fetch_insurance_policies(values[:insurance_policy_ids])
+          posted_family         = yield fetch_posted_family(insurance_policies)
           family_hash           = yield validate_family_json_hash(posted_family)
-          transformed_payload  = yield transform_family_payload(family_hash, values)
+          transformed_payload   = yield transform_family_payload(family_hash, values, insurance_policies)
 
           Success(transformed_payload)
         end
@@ -24,6 +25,7 @@ module Fdsh
           return Failure('family_hbx_id required') unless params[:family_hbx_id]
           return Failure('reporting year required') unless params[:reporting_year]
           return Failure('report_type required ') unless params[:report_type]
+          return Failure('insurance_policy_ids required ') unless params[:insurance_policy_ids]
           unless params[:report_type] && H41_TRANSMISSION_TYPES.include?(params[:report_type])
             return Failure("report_type must be one #{H41_TRANSMISSION_TYPES.map(&:to_s).join(', ')}")
           end
@@ -31,8 +33,12 @@ module Fdsh
           Success(params)
         end
 
-        def fetch_posted_family(family_hbx_id)
-          Success(::H41::InsurancePolicies::PostedFamily.where(family_hbx_id: family_hbx_id).last)
+        def fetch_insurance_policies(insurance_policy_ids)
+          Success(::H41::InsurancePolicies::InsurancePolicy.in(id: insurance_policy_ids))
+        end
+
+        def fetch_posted_family(insurance_policies)
+          Success(insurance_policies.order(:created_at.desc).first.posted_family)
         end
 
         def validate_family_json_hash(posted_family)
@@ -41,22 +47,22 @@ module Fdsh
           validation_result.success? ? Success(validation_result.values) : Failure(validation_result.errors)
         end
 
-        def transform_family_payload(family_hash, values)
+        def transform_family_payload(family_hash, values, insurance_policies)
+          policy_hbx_ids = insurance_policies.pluck(:policy_hbx_id)
           insurance_agreements = family_hash[:households][0][:insurance_agreements]
           family_hash[:households][0][:insurance_agreements] = fetch_insurance_agreements(insurance_agreements, values)
           family_hash[:households][0][:insurance_agreements].each do |agreement|
+            agreement[:insurance_policies] = fetch_valid_policies(agreement[:insurance_policies].flatten, policy_hbx_ids)
             agreement[:insurance_policies].each do |insurance_policy|
               insurance_policy[:aptc_csr_tax_households] = insurance_policy[:aptc_csr_tax_households].collect do |tax_household|
-                next unless values[:subject_hbx_ids].include?(tax_household[:hbx_assigned_id])
-
                 case values[:report_type]
                 when :void
                   tax_household.merge(void: true)
                 when :corrected
                   tax_household.merge(corrected: true)
                 end
-              end.compact
-            end
+              end
+            end.compact
           end
 
           Success(family_hash)
@@ -68,9 +74,9 @@ module Fdsh
           end
         end
 
-        def fetch_valid_policies(insurance_agreements)
-          insurance_agreements.collect do |agreement|
-            agreement[:insurance_policies]
+        def fetch_valid_policies(insurance_policies, policy_hbx_ids)
+          insurance_policies.select do |policy|
+            policy_hbx_ids.include?(policy[:policy_id])
           end.flatten
         end
 
