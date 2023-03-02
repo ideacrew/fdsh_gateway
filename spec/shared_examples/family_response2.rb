@@ -351,6 +351,7 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
     [
       {
         hbx_assigned_id: '82876288',
+        primary_tax_filer_hbx_id: '82876288',
         tax_household_members: [
           {
             family_member_reference: {

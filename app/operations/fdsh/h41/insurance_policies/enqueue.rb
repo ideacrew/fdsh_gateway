@@ -63,6 +63,7 @@ module Fdsh
             corrected: aptc_csr_thh_hash[:corrected],
             hbx_assigned_id: aptc_csr_thh_hash[:hbx_assigned_id],
             original: aptc_csr_thh_hash[:original],
+            primary_tax_filer_hbx_id: aptc_csr_thh_hash[:primary_tax_filer_hbx_id],
             transaction_xml: aptc_csr_thh_hash[:transaction_xml],
             void: aptc_csr_thh_hash[:void]
           )
@@ -132,7 +133,7 @@ module Fdsh
 
           subjects = ::H41::InsurancePolicies::AptcCsrTaxHousehold.where(
             :insurance_policy_id.in => insurance_policies.pluck(:id),
-            hbx_assigned_id: aptc_csr_thh.hbx_assigned_id
+            primary_tax_filer_hbx_id: aptc_csr_thh.primary_tax_filer_hbx_id
           )
 
           ::Transmittable::Transaction.where(:transactable_id.in => subjects.pluck(:id))
@@ -177,6 +178,7 @@ module Fdsh
               original: transmission_type == :original,
               void: transmission_type == :void,
               hbx_assigned_id: aptc_csr_thh.hbx_assigned_id,
+              primary_tax_filer_hbx_id: aptc_csr_thh.primary_tax_filer_hbx_id,
               transaction_xml: build_transaction_xml(
                 {
                   agreement: insurance_agreement,

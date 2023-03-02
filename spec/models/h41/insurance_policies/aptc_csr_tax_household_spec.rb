@@ -14,6 +14,7 @@ RSpec.describe H41::InsurancePolicies::AptcCsrTaxHousehold, type: :model do
   it { is_expected.to have_field(:void).of_type(Mongoid::Boolean) }
 
   let(:hbx_assigned_id) { '525252' }
+  let(:primary_tax_filer_hbx_id) { '525252' }
   let(:transaction_xml) { '<xml>hello world</xml>' }
 
   let(:correlation_id) { 'ae321f' }
@@ -38,7 +39,12 @@ RSpec.describe H41::InsurancePolicies::AptcCsrTaxHousehold, type: :model do
   end
 
   let(:required_params) do
-    { insurance_policy: insurance_policy, hbx_assigned_id: hbx_assigned_id, transaction_xml: transaction_xml }
+    {
+      insurance_policy: insurance_policy,
+      hbx_assigned_id: hbx_assigned_id,
+      primary_tax_filer_hbx_id: primary_tax_filer_hbx_id,
+      transaction_xml: transaction_xml
+    }
   end
 
   context 'Given all required, valid params' do
