@@ -19,17 +19,10 @@ module Fdsh
 
         private
 
-        def define_missing_constants
-          return if ::Transmittable.const_defined?('Transmittable::TRANSACTION_STATUS_TYPES')
-
-          ::Transmittable::Transmission.define_transmission_constants
-        end
-
         def find(values)
           open_transmission = find_open_transmission(values)
 
           if open_transmission.present?
-            define_missing_constants
             Success(open_transmission)
           else
             Failure(

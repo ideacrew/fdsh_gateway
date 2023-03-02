@@ -37,6 +37,8 @@ module Transmittable
     index({ 'transmit_action' => 1 })
 
     def transmit_action=(value)
+      ::Transmittable::Transmission.define_transmission_constants
+
       if ::Transmittable::DEFAULT_TRANSMIT_ACTION_TYPES.exclude?(value)
         raise ArgumentError "must be one of: #{::Transmittable::DEFAULT_TRANSMIT_ACTION_TYPES}"
       end
@@ -44,6 +46,8 @@ module Transmittable
     end
 
     def status=(value)
+      ::Transmittable::Transmission.define_transmission_constants
+
       if ::Transmittable::DEFAULT_TRANSACTION_STATUS_TYPES.exclude?(value)
         raise ArgumentError "must be one of: #{::Transmittable::DEFAULT_TRANSACTION_STATUS_TYPES}"
       end
