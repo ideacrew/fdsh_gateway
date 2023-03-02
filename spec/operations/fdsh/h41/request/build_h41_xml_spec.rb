@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 require 'shared_examples/family_response'
+require 'shared_examples/family_response4'
 
 RSpec.describe Fdsh::H41::Request::BuildH41Xml do
   include_context "family response from enroll"
@@ -63,6 +64,15 @@ RSpec.describe Fdsh::H41::Request::BuildH41Xml do
           ['record_sequence_num required for transaction_type']
         )
       end
+    end
+  end
+
+  context 'with address more length' do
+    include_context 'family response with invalid address1 for H41 schema'
+    let(:family) { AcaEntities::Families::Family.new(family_hash) }
+
+    it 'should return a success' do
+      expect(subject.success?).to be_truthy
     end
   end
 end
