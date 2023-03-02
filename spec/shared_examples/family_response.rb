@@ -368,6 +368,7 @@ RSpec.shared_context 'family response from enroll', :shared_context => :metadata
     [
       {
         hbx_assigned_id: "82876288",
+        primary_tax_filer_hbx_id: "82876288",
         tax_household_members: [
           family_member_reference: {
             family_member_hbx_id: '1',
@@ -413,6 +414,7 @@ RSpec.shared_context 'family response from enroll', :shared_context => :metadata
     [
       {
         hbx_assigned_id: "82876210",
+        primary_tax_filer_hbx_id: '82876210',
         tax_household_members: [
           family_member_reference: {
             family_member_hbx_id: '1',

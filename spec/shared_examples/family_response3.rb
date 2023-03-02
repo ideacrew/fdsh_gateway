@@ -399,6 +399,7 @@ RSpec.shared_context 'family response', :shared_context => :metadata do
     [
       {
         hbx_assigned_id: aptc_csr_tax_household_id_1,
+        primary_tax_filer_hbx_id: aptc_csr_tax_household_id_1,
         tax_household_members: [
           family_member_reference: {
             family_member_hbx_id: '1000595',
@@ -446,6 +447,7 @@ RSpec.shared_context 'family response', :shared_context => :metadata do
     [
       {
         hbx_assigned_id: aptc_csr_tax_household_id_2,
+        primary_tax_filer_hbx_id: aptc_csr_tax_household_id_2,
         tax_household_members: [
           family_member_reference: {
             family_member_hbx_id: '1000595',

@@ -47,6 +47,7 @@ def process_untransmitted_transactions
     aptc_csr_tax_household = insurance_policy.aptc_csr_tax_households.create(
       corrected: old_aptc_csr_thh.corrected,
       hbx_assigned_id: old_aptc_csr_thh.hbx_assigned_id,
+      primary_tax_filer_hbx_id: old_aptc_csr_thh.primary_tax_filer_hbx_id,
       original: old_aptc_csr_thh.original,
       transaction_xml: old_aptc_csr_thh.transaction_xml,
       void: old_aptc_csr_thh.void

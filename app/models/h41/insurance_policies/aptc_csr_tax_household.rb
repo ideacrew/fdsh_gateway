@@ -13,8 +13,11 @@ module H41
 
       accepts_nested_attributes_for :insurance_policy
 
-      # Subject
       field :hbx_assigned_id, type: String
+
+      # A new instance of AptcCsrTaxHousehold is not new unless there is a change in :primary_tax_filer_hbx_id
+      # Unique identifier to find an AptcCsrTaxHousehold
+      field :primary_tax_filer_hbx_id, type: String
 
       # Produced by operation
       field :transaction_xml, type: String
@@ -25,6 +28,7 @@ module H41
 
       # indexes
       index({ hbx_assigned_id: 1 })
+      index({ primary_tax_filer_hbx_id: 1 })
       index({ corrected: 1 })
       index({ original: 1 })
       index({ void: 1 })
@@ -32,6 +36,7 @@ module H41
 
       # Scopes
       scope :by_hbx_assigned_id, ->(hbx_assigned_id) { where(hbx_assigned_id: hbx_assigned_id) }
+      scope :by_primary_tax_filer_hbx_id, ->(primary_tax_filer_hbx_id) { where(primary_tax_filer_hbx_id: primary_tax_filer_hbx_id) }
       scope :corrected, -> { where(corrected: true, original: false, void: false) }
       scope :original,  -> { where(corrected: false, original: true, void: false) }
       scope :void,      -> { where(corrected: false, original: false, void: true) }
