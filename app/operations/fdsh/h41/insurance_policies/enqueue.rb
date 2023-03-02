@@ -182,8 +182,7 @@ module Fdsh
               transaction_xml: build_transaction_xml(
                 {
                   agreement: insurance_agreement,
-                  family: family,
-                  insurance_policy: policy,
+                  family: family, insurance_policy: policy,
                   parsed_transaction: transaction_hash,
                   previous_transactions: previous_transactions,
                   tax_household: aptc_csr_thh,
