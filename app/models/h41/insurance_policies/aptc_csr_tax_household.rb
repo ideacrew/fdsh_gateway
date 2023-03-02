@@ -36,6 +36,7 @@ module H41
 
       # Scopes
       scope :by_hbx_assigned_id, ->(hbx_assigned_id) { where(hbx_assigned_id: hbx_assigned_id) }
+      scope :by_primary_tax_filer_hbx_id, ->(primary_tax_filer_hbx_id) { where(primary_tax_filer_hbx_id: primary_tax_filer_hbx_id) }
       scope :corrected, -> { where(corrected: true, original: false, void: false) }
       scope :original,  -> { where(corrected: false, original: true, void: false) }
       scope :void,      -> { where(corrected: false, original: false, void: true) }
