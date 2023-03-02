@@ -81,6 +81,8 @@ module Transmittable
     end
 
     def status=(value)
+      self.class.define_transmission_constants
+
       unless ::Transmittable::TRANSMISSION_STATUS_TYPES.include?(value)
         raise ArgumentError "must be one of: #{::Transmittable::TRANSMISSION_STATUS_TYPES}"
       end
@@ -99,15 +101,21 @@ module Transmittable
     end
 
     def self.define_transmission_constants(options = {})
-      ::Transmittable.const_set(
-        'TRANSACTION_STATUS_TYPES',
-        options[:transaction_status_types] || DEFAULT_TRANSACTION_STATUS_TYPES
-      )
+      unless ::Transmittable.const_defined?('TRANSACTION_STATUS_TYPES')
+        ::Transmittable.const_set(
+          'TRANSACTION_STATUS_TYPES',
+          options[:transaction_status_types] || DEFAULT_TRANSACTION_STATUS_TYPES
+        )
+      end
 
-      ::Transmittable.const_set(
-        'TRANSMIT_ACTION_TYPES',
-        options[:transmit_action_types] || DEFAULT_TRANSMIT_ACTION_TYPES
-      )
+      unless ::Transmittable.const_defined?('TRANSMIT_ACTION_TYPES')
+        ::Transmittable.const_set(
+          'TRANSMIT_ACTION_TYPES',
+          options[:transmit_action_types] || DEFAULT_TRANSMIT_ACTION_TYPES
+        )
+      end
+
+      return if ::Transmittable.const_defined?('TRANSMISSION_STATUS_TYPES')
 
       ::Transmittable.const_set(
         'TRANSMISSION_STATUS_TYPES',
