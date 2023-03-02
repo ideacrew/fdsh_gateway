@@ -56,7 +56,7 @@ module Fdsh
           sanitized_xml = ::Fdsh::Transmissions::XmlSanitizer.new.call(xml_string: xml_string).success
           validation = AcaEntities::Serializers::Xml::Fdsh::H41::Operations::ValidateH41RequestPayloadXml.new.call(sanitized_xml)
 
-          validation.success? ? Success(xml_string) : Failure("Invalid H41 xml due to #{validation.failure}")
+          validation.success? ? Success(sanitized_xml) : Failure("Invalid H41 xml due to #{validation.failure}")
         end
 
         def encode_request_xml(xml_string)
