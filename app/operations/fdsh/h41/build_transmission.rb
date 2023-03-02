@@ -6,7 +6,7 @@ module Fdsh
     class BuildTransmission
       include Dry::Monads[:result, :do, :try]
 
-      TRANSMISSION_TYPES = [:all, :original, :corrected, :void].freeze
+      REPORT_TYPES = [:all, :original, :corrected, :void].freeze
 
       def call(params)
         values  = yield validate(params)
@@ -18,18 +18,20 @@ module Fdsh
       private
 
       def validate(params)
-        return Failure('assistance_year required') unless params[:assistance_year]
-        return Failure('report_types required') unless params[:report_types]
-        # params[:excluded_policies]
-        params[:report_types] = params[:report_types].uniq.map(&:to_sym)
+        errors = []
+        errors << Failure('assistance_year required') unless params[:assistance_year]
+        errors << Failure('report_types required') unless params[:report_types]
+        params[:report_types] = params[:report_types].map(&:to_sym).uniq
+        invalid_report_types = params[:report_types] - REPORT_TYPES
+        errors << "invalid report type #{invalid_report_types}" if invalid_report_types.present?
         params[:report_types] = [:original, :corrected, :void] if params[:report_types].include?(:all)
 
-        Success(params)
+        errors.present? ? Failure(errors) : Success(params)
       end
 
       def build_transmission(values)
         values[:report_types].each do |report_type|
-          ::Fdsh::H41::Transmissions::Publish(
+          publish_service.call(
             reporting_year: values[:assistance_year],
             report_type: report_type,
             deny_list: values[:deny_list],
@@ -37,8 +39,13 @@ module Fdsh
           )
         end
 
-        Success('Successfully created transmissions')
+        Success(values)
+      end
+
+      def publish_service
+        ::Fdsh::H41::Transmissions::Publish.new
       end
     end
   end
 end
+
