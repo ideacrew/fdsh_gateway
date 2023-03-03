@@ -39,5 +39,6 @@ create_h41_transmission(:original, 2023)
 create_h41_transmission(:void, 2023)
 
 create_h36_transmission(14, 2022)
+create_h36_transmission(15, 2022)
 create_h36_transmission(2, 2023)
 create_h36_transmission(3, 2023)
