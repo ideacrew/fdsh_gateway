@@ -2,7 +2,7 @@
 
 # This script updates Transactions that are already transmitted to CMS and
 # creates TransmissionPath objects for transmitted transactions
-# bundle exec rails runner script/handle_transmitted_transactions.rb
+# bundle exec rails runner script/handle_transmitted_transactions.rb transmission_number='1'
 
 # Before we run this script, we need to upload CMS folder named "SBE00ME.DSH.EOYIN.D230210.T214339000.P.IN.SUBMIT.20230210" at the root
 
@@ -22,12 +22,8 @@ def find_and_update_h41_open_transmission(transmission_type, reporting_year)
   transmission
 end
 
-def find_old_original_transmission(transmission_type, reporting_year)
-  find_h41_transmission(transmission_type, reporting_year, :transmitted) || find_and_update_h41_open_transmission(transmission_type, reporting_year)
-end
-
 def find_h41_original_transmissions
-  @old_original_transmission = find_old_original_transmission(:original, 2022)
+  @old_original_transmission = find_and_update_h41_open_transmission(:original, 2022)
   @original_transmission = create_h41_open_transmission(:original, 2022)
 end
 
@@ -92,12 +88,12 @@ def process_h41_transactions
   find_matching_nodes_for_multi_thh_cases
   find_h41_original_transmissions
   counter = 0
-  eligible_h41_transactions = H41Transaction.all
+  eligible_h41_transactions = H41Transaction.all.by_transmission_number(@transmission_number)
   total_count = eligible_h41_transactions.count
   h41s_per_iteration = 1_000.0
   number_of_iterations = (total_count / h41s_per_iteration).ceil
   counter = 0
-  @logger.info "Total number of non_migrated H41Transactions: #{total_count}"
+  @logger.info "Total number of non_migrated H41Transactions with transmission_number #{@transmission_number} are #{total_count}"
   while counter < number_of_iterations
     offset_count = h41s_per_iteration * counter
     update_transmitted_transactions(eligible_h41_transactions, offset_count, h41s_per_iteration)
@@ -190,6 +186,13 @@ end
 start_time = DateTime.current
 @logger = Logger.new("#{Rails.root}/handle_transmitted_transactions_#{Date.today.strftime('%Y_%m_%d')}.log")
 @logger.info "Data Migration start_time: #{start_time}"
+@transmission_number = ENV['transmission_number']
+
+if @transmission_number.to_i <= 0
+  @logger.info "Invalid Transmission Number #{@transmission_number}"
+  raise "Invalid Transmission Number #{@transmission_number}"
+end
+
 process_h41_transactions
 end_time = DateTime.current
 @logger.info "Data Migration end_time: #{end_time}, total_time_taken_in_minutes: #{((end_time - start_time) * 24 * 60).to_i}"
