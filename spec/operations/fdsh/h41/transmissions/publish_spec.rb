@@ -32,33 +32,6 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
   end
 
   describe '.publish' do
-    let(:correlation_id) { 'ae321f' }
-    let(:contract_holder_id) { '25458' }
-    let(:family_cv) { 'family: {}' }
-
-    let(:posted_family) do
-      H41::InsurancePolicies::PostedFamily.create(
-        correlation_id: correlation_id,
-        contract_holder_id: contract_holder_id,
-        family_cv: family_cv
-      )
-    end
-
-    let(:aptc_csr_tax_household_1) do
-      insurance_policy.aptc_csr_tax_households.create(hbx_assigned_id: '5454555', transaction_xml: transaction_xml)
-    end
-
-    let(:policy_hbx_id) { '6655644' }
-    let(:assistance_year) { Date.today.year }
-
-    let(:insurance_policy) do
-      posted_family.insurance_policies.create(
-        policy_hbx_id: policy_hbx_id,
-        assistance_year: assistance_year,
-        posted_family: posted_family
-      )
-    end
-
     let!(:insurance_polices) do
       create_list(:h41_insurance_policy, 20, :with_aptc_csr_tax_households, transaction_xml: transaction_xml,
                                                                             transmission: open_transmission)
@@ -322,6 +295,95 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
           expected_file_name = "SBE00ME.DSH.EOYIN.D#{updated_batch_time.strftime('%y%m%d.T%H%M%S000.P.IN')}"
           expect(file_names.count).to eq 1
           expect(file_names.first).to eq(expected_file_name)
+        end
+      end
+    end
+
+    context 'for denied/errored transactions' do
+
+      let!(:insurance_polices) do
+        create_list(:h41_insurance_policy, 20, :with_aptc_csr_tax_households, transaction_xml: transaction_xml,
+                                                                              transmission: open_transmission)
+      end
+
+      let(:outbound_folder) do
+        Rails.root.join("h41_transmissions").to_s
+      end
+
+      let(:input_params) do
+        {
+          reporting_year: Date.today.year,
+          report_type: :original
+        }
+      end
+
+      let!(:open_transmission) { FactoryBot.create(:h41_original_transmission) }
+      let(:transaction_xml) do
+        File.open(Rails.root.join("spec/test_payloads/h41/original.xml").to_s).read
+      end
+
+      let(:exclusion_family_hbx_ids) do
+        ['242323', '323111']
+      end
+
+      let!(:policy_hbx_ids) do
+        insurance_polices.map(&:policy_hbx_id)
+      end
+
+      let!(:exclusion_transactions) do
+        transactions = []
+        first_policy = insurance_polices.detect {|policy| policy.policy_hbx_id == policy_hbx_ids[5]}
+        first_policy.posted_family.update(family_hbx_id: '242323')
+        transactions << first_policy.aptc_csr_tax_households.first.transactions.first
+        second_policy = insurance_polices.detect {|policy| policy.policy_hbx_id == policy_hbx_ids[15]}
+        second_policy.posted_family.update(family_hbx_id: '323111')
+        transactions << second_policy.aptc_csr_tax_households.first.transactions.first
+        transactions
+      end
+
+      let!(:errored_transactions) do
+        transactions = []
+        first_policy = insurance_polices.detect {|policy| policy.policy_hbx_id == policy_hbx_ids[9]}
+        first_policy.aptc_csr_tax_households.first.update(transaction_xml: '')
+        transactions << first_policy.aptc_csr_tax_households.first.transactions.first
+        second_policy = insurance_polices.detect {|policy| policy.policy_hbx_id == policy_hbx_ids[18]}
+        second_policy.aptc_csr_tax_households.first.update(transaction_xml: '')
+        transactions << second_policy.aptc_csr_tax_households.first.transactions.first
+        transactions
+      end
+
+      let(:input_params) do
+        {
+          reporting_year: Date.today.year,
+          report_type: :original,
+          deny_list: exclusion_family_hbx_ids
+        }
+      end
+
+      context 'transaction belongs to an excluded family' do
+
+        it 'should exclude from transmission with a denial' do
+
+          subject.call(input_params)
+          exclusion_transactions.each do |transaction|
+            transaction.reload
+            expect(transaction.status).to eq :denied
+            expect(transaction.transmit_action).to eq :no_transmit
+          end
+        end
+      end
+
+      context 'transaction errored' do
+
+        it 'should record errors' do
+
+          subject.call(input_params)
+          errored_transactions.each do |transaction|
+            transaction.reload
+            expect(transaction.status).to eq :errored
+            expect(transaction.transmit_action).to eq :no_transmit
+            expect(transaction.transaction_errors).to eq({ "h41" => "ERROR: Undefined namespace prefix: //airty20a:Form1095AUpstreamDetail" })
+          end
         end
       end
     end
