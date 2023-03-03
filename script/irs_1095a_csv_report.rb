@@ -200,7 +200,7 @@ void_transmissions = H41::Transmissions::Outbound::VoidTransmission.by_year(@tax
 [original_transmissions, corrected_transmissions, void_transmissions].flatten.each do |transmission|
   @transmission = transmission
   @transmission_type = fetch_transmission_type
-  transactions = transmission.transactions.where(:status.in => [:created, :transmitted, :denied])
+  transactions = transmission.transactions
   transactions_count = transactions.count
   transactions_per_iteration = transactions_count > 20_000.0 ? 20_000.0 : transactions_count
   @logger = Logger.new("#{Rails.root}/log/1095A-FormData_errors_#{@transmission._id}_#{Date.today.strftime('%Y_%m_%d_%H_%M')}.log")
@@ -214,7 +214,8 @@ void_transmissions = H41::Transmissions::Outbound::VoidTransmission.by_year(@tax
   counter = 0
 
   while counter < number_of_iterations
-    file_name = "#{Rails.root}/1095A-FormData_#{@transmission._id}_#{@transmission_type}_#{counter}_#{DateTime.now.strftime('%Y_%m_%d_%H_%M')}.csv"
+    file_name = "#{Rails.root}/1095A-FormData_#{@transmission._id}_#{@transmission.status}_#{@transmission_type}
+_#{counter}_#{DateTime.now.strftime('%Y_%m_%d_%H_%M')}.csv"
     offset_count = transactions_per_iteration * counter
     process_aptc_csr_tax_households(transactions, file_name, offset_count)
     counter += 1
