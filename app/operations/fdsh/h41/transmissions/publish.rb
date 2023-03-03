@@ -136,12 +136,16 @@ module Fdsh
           batch_time.gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
         end
 
+        def default_batch_time
+          Time.now + 1.hours
+        end
+
         def create_batch_reference
-          new_batch_reference = create_batch_reference_with(Time.now + 1.hour)
+          new_batch_reference = create_batch_reference_with(default_batch_time)
           return @recent_new_batch_reference = new_batch_reference unless defined? @recent_new_batch_reference
 
           if @recent_new_batch_reference == new_batch_reference
-            new_batch_reference = create_batch_reference_with(Time.now + 1.hour + 1.seconds)
+            new_batch_reference = create_batch_reference_with(default_batch_time + 1.seconds)
             @recent_new_batch_reference = new_batch_reference
           end
           new_batch_reference

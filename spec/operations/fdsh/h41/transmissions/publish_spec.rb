@@ -267,5 +267,63 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         expect(Transmittable::SubjectExclusion.expired.map(&:subject_id)).to match_array(['553231', '333423'])
       end
     end
+
+    context '.create_batch_reference' do
+
+      let(:input_params) do
+        {
+          reporting_year: Date.today.year,
+          report_type: :corrected
+        }
+      end
+
+      let!(:open_transmission) { FactoryBot.create(:h41_corrected_transmission) }
+      let(:transaction_xml) { File.open(Rails.root.join("spec/test_payloads/h41/corrected.xml").to_s).read }
+
+      context 'when no previous reference stored' do
+        let(:batch_time) { Time.now + 1.hours }
+        let(:new_batch_reference) { batch_time.strftime("%Y-%m-%dT%H:%M:%SZ") }
+
+        before do
+          allow(subject).to receive(:default_batch_time).and_return(batch_time)
+          @result = subject.call(input_params)
+          open_transmission.reload
+        end
+
+        it 'should create transmission with new batch reference' do
+          file_names = Dir.glob("#{outbound_folder}/*").collect do |file|
+            File.basename(file)
+          end
+
+          expected_file_name = "SBE00ME.DSH.EOYIN.D#{batch_time.strftime('%y%m%d.T%H%M%S000.P.IN')}"
+          expect(file_names.count).to eq 1
+          expect(file_names.first).to eq(expected_file_name)
+        end
+      end
+
+      context 'when recent batch refrence present and same as new batch reference' do
+        let!(:batch_time) { Time.now + 1.hours }
+        let!(:updated_batch_time) { batch_time + 1.seconds }
+        let!(:recent_batch_reference) { batch_time.gmtime.strftime("%Y-%m-%dT%H:%M:%SZ") }
+        let!(:new_updated_batch_reference) { updated_batch_time.gmtime.strftime("%Y-%m-%dT%H:%M:%SZ") }
+
+        before do
+          subject.instance_variable_set(:@recent_new_batch_reference, recent_batch_reference)
+          allow(subject).to receive(:default_batch_time).and_return(batch_time)
+          @result = subject.call(input_params)
+          open_transmission.reload
+        end
+
+        it 'should create transmission with different batch reference' do
+          file_names = Dir.glob("#{outbound_folder}/*").collect do |file|
+            File.basename(file)
+          end
+
+          expected_file_name = "SBE00ME.DSH.EOYIN.D#{updated_batch_time.strftime('%y%m%d.T%H%M%S000.P.IN')}"
+          expect(file_names.count).to eq 1
+          expect(file_names.first).to eq(expected_file_name)
+        end
+      end
+    end
   end
 end
