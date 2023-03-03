@@ -6,7 +6,7 @@
 
 def find_or_create_h41_transaction(posted_family, insurance_policy)
   H41Transaction.where(policy_hbx_id: insurance_policy.policy_hbx_id).first ||
-    H41Transaction.build(
+    H41Transaction.new(
       correlation_id: posted_family.correlation_id,
       primary_hbx_id: posted_family.contract_holder_id,
       family_hbx_id: posted_family.family_hbx_id,
