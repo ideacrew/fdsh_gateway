@@ -172,10 +172,11 @@ def update_transmitted_transactions(eligible_h41_transactions, offset_count, h41
           transmission: @old_original_transmission
         )
       end
+
+      old_transaction.update_attributes!(is_migrated: true)
     end
 
     @logger.info "Processed old_transaction with primary_hbx_id: #{old_transaction.primary_hbx_id}, family_hbx_id: #{old_transaction.family_hbx_id}"
-    old_transaction.update_attributes!(is_migrated: true)
   rescue StandardError => e
     @logger.info "Error raised processing old_transaction with family_hbx_id: #{
       old_transaction.family_hbx_id}, error: #{e}, backtrace: #{e.backtrace}"
