@@ -14,15 +14,20 @@ class H41Transaction
   # This is used to track which H41Transaction objects are migrated and which are not
   field :is_migrated, type: Boolean
 
+  # This field is used to track the Transmission Number.
+  field :transmission_number, type: Integer
+
   embeds_many :aptc_csr_tax_households, class_name: "::AptcCsrTaxHousehold", cascade_callbacks: true
   embeds_many :activities, cascade_callbacks: true
 
   accepts_nested_attributes_for :activities, :aptc_csr_tax_households
 
   # Scope
+  scope :by_transmission_number, ->(transmission_number) { where(transmission_number: transmission_number) }
   scope :non_migrated, -> { where(:is_migrated.ne => true) }
 
   index({ is_migrated: 1 })
+  index({ transmission_number: 1 })
   index({ correlation_id: 1 })
   index({ primary_hbx_id: 1 })
   index({ family_hbx_id: 1 })
