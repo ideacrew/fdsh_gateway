@@ -2,7 +2,7 @@
 
 # This script updates Transactions that are already transmitted to CMS and
 # creates TransmissionPath objects for transmitted transactions
-# bundle exec rails runner script/handle_transmitted_transactions.rb transmission_number='1'
+# bundle exec rails runner script/handle_transmitted_transactions.rb '1'
 
 # Before we run this script, we need to upload CMS folder named "SBE00ME.DSH.EOYIN.D230210.T214339000.P.IN.SUBMIT.20230210" at the root
 
@@ -187,7 +187,7 @@ end
 start_time = DateTime.current
 @logger = Logger.new("#{Rails.root}/handle_transmitted_transactions_#{Date.today.strftime('%Y_%m_%d')}.log")
 @logger.info "Data Migration start_time: #{start_time}"
-@transmission_number = ENV['transmission_number']
+@transmission_number = ARGV[0]
 
 if @transmission_number.to_i <= 0
   @logger.info "Invalid Transmission Number #{@transmission_number}"
