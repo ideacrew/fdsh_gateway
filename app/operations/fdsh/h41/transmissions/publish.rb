@@ -132,9 +132,34 @@ module Fdsh
                                                                    report_type: values[:report_type] })
         end
 
+        def create_batch_reference_with(batch_time)
+          batch_time.gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
+        end
+
+        def default_batch_time
+          Time.now + 1.hours
+        end
+
+        def create_batch_reference
+          new_batch_reference = create_batch_reference_with(default_batch_time)
+          return @recent_new_batch_reference = new_batch_reference unless defined? @recent_new_batch_reference
+
+          if @recent_new_batch_reference == new_batch_reference
+            new_batch_reference = create_batch_reference_with(default_batch_time + 1.seconds)
+            @recent_new_batch_reference = new_batch_reference
+          end
+          new_batch_reference
+        end
+
         def init_content_file_builder(values, old_batch_reference = nil)
-          ContentFileBuilder.new(transmission_kind: values[:report_type],
-                                 old_batch_reference: old_batch_reference) do |transaction, transmission_details|
+          options = {
+            transmission_kind: values[:report_type],
+            old_batch_reference: old_batch_reference,
+            new_batch_reference: create_batch_reference
+          }
+
+          ContentFileBuilder.new(options) do |transaction, transmission_details|
+
             transaction.status = :transmitted
             transaction.transmit_action = :no_transmit
             transaction.save

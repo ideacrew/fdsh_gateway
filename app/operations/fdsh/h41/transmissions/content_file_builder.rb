@@ -11,14 +11,10 @@ module Fdsh
         attr_reader :new_batch_reference, :old_batch_reference, :transmission_kind
 
         def initialize(params = {}, &block)
-          @new_batch_reference = create_new_batch_reference
+          @new_batch_reference = params[:new_batch_reference]
           @old_batch_reference = params[:old_batch_reference]
           @transmission_kind = params[:transmission_kind]
           @transaction_event_block = block if block_given?
-        end
-
-        def create_new_batch_reference
-          @new_batch_reference = (Time.now + 1.hour).gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
         end
 
         def subject_exclusions
@@ -36,6 +32,13 @@ module Fdsh
 
         def record_denial(transaction)
           transaction.update(status: :denied, transmit_action: :no_transmit)
+        end
+
+        def record_exception(transaction, error_message)
+          transaction.status = :errored
+          transaction.transmit_action = :no_transmit
+          transaction.transaction_errors = { h41: error_message }
+          transaction.save
         end
 
         def new_document(content_file_number)

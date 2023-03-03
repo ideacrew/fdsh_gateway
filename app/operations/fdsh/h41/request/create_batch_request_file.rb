@@ -39,9 +39,9 @@ module Fdsh
           end
 
           batch_timestamp = DateTime.strptime(values[:new_batch_reference]).strftime("%y%m%d.T%H%M%S%L.P.IN")
-          @zip_name = values[:outbound_folder] + "/SBE00ME.DSH.EOYIN.D#{batch_timestamp}"
+          zip_name = values[:outbound_folder].to_s + "/SBE00ME.DSH.EOYIN.D#{batch_timestamp}"
 
-          Zip::File.open(@zip_name, create: true) do |zipfile|
+          Zip::File.open(zip_name, create: true) do |zipfile|
             xml_files.each do |filename|
               zipfile.add(filename, File.join(values[:outbound_folder], filename))
             end

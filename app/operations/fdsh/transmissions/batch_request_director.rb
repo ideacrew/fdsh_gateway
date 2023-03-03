@@ -69,10 +69,12 @@ module Fdsh
             else
               transmission_builder.record_denial(transaction)
             end
+          rescue StandardError => e
+            transmission_builder.record_exception(transaction, e.to_s)
           end
 
           query_offset += processing_batch_size
-          p "Processed #{query_offset} transactions."
+          # p "Processed #{query_offset} transactions."
 
           close_content_file(outbound_folder)
         end
