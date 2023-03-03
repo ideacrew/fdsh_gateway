@@ -33,6 +33,7 @@ def process_second_transmission
     )
 
     h41_transaction.save!
+    @logger.info "Processed transaction with id: #{transaction.id}"
   rescue StandardError => e
     @logger.info "Error raised processing new transaction with bson_id: #{transaction.id}, error: #{e}, backtrace: #{e.backtrace}"
   end
