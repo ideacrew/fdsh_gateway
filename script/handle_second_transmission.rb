@@ -5,8 +5,8 @@
 # bundle exec rails runner script/handle_second_transmission.rb
 
 def find_or_create_h41_transaction(posted_family, insurance_policy)
-  H41Transaction.where(policy_hbx_id: insurance_policy.policy_hbx_id).first ||
-    H41Transaction.build(
+  H41Transaction.where(policy_hbx_id: insurance_policy.policy_hbx_id, transmission_number: 2).first ||
+    H41Transaction.new(
       correlation_id: posted_family.correlation_id,
       primary_hbx_id: posted_family.contract_holder_id,
       family_hbx_id: posted_family.family_hbx_id,
@@ -20,7 +20,7 @@ end
 def process_second_transmission
   transmission = ::H41::Transmissions::Outbound::OriginalTransmission.find('63fac333a559070162647e48')
 
-  transmission.transactions.each do |transaction|
+  transmission.transactions.transmitted.each do |transaction|
     aptc_csr_thh = transaction.transactable
     insurance_policy = aptc_csr_thh.insurance_policy
     posted_family = insurance_policy.posted_family
@@ -33,6 +33,7 @@ def process_second_transmission
     )
 
     h41_transaction.save!
+    @logger.info "Processed transaction with id: #{transaction.id}"
   rescue StandardError => e
     @logger.info "Error raised processing new transaction with bson_id: #{transaction.id}, error: #{e}, backtrace: #{e.backtrace}"
   end
