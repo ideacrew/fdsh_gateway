@@ -28,7 +28,7 @@ module Fdsh
           @corrected_transmission = yield find_transmission(:corrected, params[:assistance_year])
           @original_transmission  = yield find_transmission(:original, params[:assistance_year])
           @void_transmission      = yield find_transmission(:void, params[:assistance_year])
-          posted_family           = yield persist_family(family, policies, params[:correlation_id])
+          posted_family           = yield persist_family(family, policies, params)
 
           Success("Successfully enqueued family with hbx_id: #{posted_family.family_hbx_id}, contract_holder_id: #{posted_family.contract_holder_id}")
         end
@@ -71,10 +71,19 @@ module Fdsh
 
         def create_posted_family(correlation_id, family)
           ::H41::InsurancePolicies::PostedFamily.create(
-            contract_holder_id: family.family_members.detect(&:is_primary_applicant).person.hbx_id,
+            contract_holder_id: primary_person_hbx_id(family),
             correlation_id: correlation_id,
             family_cv: family.to_h.to_json,
             family_hbx_id: family.hbx_id
+          )
+        end
+
+        def create_transaction(aptc_csr_tax_household, aptc_csr_thh_hash)
+          aptc_csr_tax_household.transactions.create(
+            transmit_action: fetch_transmit_action(aptc_csr_thh_hash[:transaction][:transmit_action]),
+            transaction_errors: @transaction_errors_hash || {},
+            status: fetch_status(aptc_csr_thh_hash[:transaction][:status]),
+            started_at: aptc_csr_thh_hash[:transaction][:started_at]
           )
         end
 
@@ -93,8 +102,19 @@ module Fdsh
           end
         end
 
-        def fetch_affected_policies(insurance_policies, affected_policy_hbx_ids)
-          insurance_policies.select { |policy| affected_policy_hbx_ids.include?(policy.policy_id)  }
+        def eligible_policy?(policy, assistance_year)
+          return false if policy.insurance_product.metal_level == 'catastrophic'
+          return false if policy.carrier_policy_id.blank? && policy.aasm_state != 'canceled'
+          return false if policy.insurance_product.coverage_type == 'dental'
+          return false if policy.start_on.year != assistance_year
+
+          true
+        end
+
+        def fetch_affected_policies(insurance_policies, affected_policy_hbx_ids, assistance_year)
+          insurance_policies.select do |policy|
+            affected_policy_hbx_ids.include?(policy.policy_id) && eligible_policy?(policy, assistance_year)
+          end
         end
 
         def fetch_status(status)
@@ -208,7 +228,12 @@ module Fdsh
         def parse_family(family, values)
           Success(
             family.households.first.insurance_agreements.inject([]) do |policies, insurance_agreement|
-              insurance_policies = fetch_affected_policies(insurance_agreement.insurance_policies, values[:affected_policies])
+              insurance_policies = fetch_affected_policies(
+                insurance_agreement.insurance_policies,
+                values[:affected_policies],
+                values[:assistance_year]
+              )
+
               insurance_policies.each do |policy|
                 policies << {
                   policy_hbx_id: policy.policy_id,
@@ -221,7 +246,18 @@ module Fdsh
           )
         end
 
-        def persist_family(family, policies, correlation_id)
+        def persist_family(family, policies, params)
+          assistance_year = params[:assistance_year]
+          correlation_id = params[:correlation_id]
+
+          if policies.blank?
+            return Failure(
+              "No valid policies to process for given family with family_hbx_id: #{
+                family.hbx_id} primary_person_hbx_id: #{primary_person_hbx_id(family)} for assistance_year: #{
+                  assistance_year} correlation_id: #{correlation_id}"
+            )
+          end
+
           posted_family = create_posted_family(correlation_id, family)
 
           policies.each do |policy_hash|
@@ -232,13 +268,7 @@ module Fdsh
 
             policy_hash[:aptc_csr_tax_households].each do |aptc_csr_thh_hash|
               aptc_csr_tax_household = create_aptc_csr_tax_household(policy, aptc_csr_thh_hash)
-
-              transaction = aptc_csr_tax_household.transactions.create(
-                transmit_action: fetch_transmit_action(aptc_csr_thh_hash[:transaction][:transmit_action]),
-                transaction_errors: @transaction_errors_hash || {},
-                status: fetch_status(aptc_csr_thh_hash[:transaction][:status]),
-                started_at: aptc_csr_thh_hash[:transaction][:started_at]
-              )
+              transaction = create_transaction(aptc_csr_tax_household, aptc_csr_thh_hash)
 
               create_transactions_transmissions(
                 fetch_transmission(aptc_csr_thh_hash[:transaction][:transmission_type]),
@@ -248,6 +278,10 @@ module Fdsh
           end
 
           Success(posted_family)
+        end
+
+        def primary_person_hbx_id(family)
+          family.family_members.detect(&:is_primary_applicant).person.hbx_id
         end
 
         def update_previous_transactions(previous_transactions)

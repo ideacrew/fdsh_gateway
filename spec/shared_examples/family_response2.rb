@@ -275,6 +275,7 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
     ]
   end
 
+  let(:carrier_policy_id) { 'carrier_policy_id' }
   let(:policy_aasm_state) { 'submitted' }
   let(:policy_id) { '103200' }
 
@@ -283,6 +284,7 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
       {
         aasm_state: policy_aasm_state,
         policy_id: policy_id,
+        carrier_policy_id: carrier_policy_id,
         insurance_product: insurance_product,
         hbx_enrollment_ids: ['1000'],
         start_on: current_date.beginning_of_year,
@@ -293,13 +295,16 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
     ]
   end
 
+  let(:insurance_product_metal_level) { 'silver' }
+  let(:coverage_type) { 'health' }
+
   let(:insurance_product) do
     {
       name: 'ABC plan',
       hios_plan_id: '123456',
       plan_year: current_date.year,
-      coverage_type: 'health',
-      metal_level: 'silver',
+      coverage_type: coverage_type,
+      metal_level: insurance_product_metal_level,
       market_type: 'individual',
       ehb: 1.0
     }
@@ -433,6 +438,8 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
     ]
   end
 
+  let(:product_metal_level) { 'silver' }
+
   let(:product_reference) do
     {
       is_csr: true,
@@ -442,7 +449,7 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
       name: 'BlueChoice silver1 2,000',
       active_year: current_date.year,
       is_dental_only: false,
-      metal_level: 'silver',
+      metal_level: product_metal_level,
       benefit_market_kind: 'aca_individual',
       product_kind: 'health',
       issuer_profile_reference: issuer_profile_reference
