@@ -50,7 +50,7 @@ RSpec.describe Fdsh::H41::Transmissions::TransformFamilyPayload do
     end
   end
 
-  context '.transform_family_payload' do
+  context '.transform_family_payload for corrected transmission' do
     let(:correlation_id) { 'ae321f' }
     let(:contract_holder_id) { '25458' }
     let(:family_hbx_id) { '100049' }
@@ -96,6 +96,106 @@ RSpec.describe Fdsh::H41::Transmissions::TransformFamilyPayload do
       family_entity = AcaEntities::Families::Family.new(@result.success)
       insurance_policy = family_entity.households.first.insurance_agreements.first.insurance_policies.first
       expect(insurance_policy.aptc_csr_tax_households.first.corrected).to eq true
+    end
+  end
+
+  context '.transform_family_payload for void transmission' do
+    let(:correlation_id) { 'ae321f' }
+    let(:contract_holder_id) { '25458' }
+    let(:family_hbx_id) { '100049' }
+    let(:posted_family) do
+      H41::InsurancePolicies::PostedFamily.create(
+        correlation_id: correlation_id,
+        contract_holder_id: contract_holder_id,
+        family_hbx_id: family_hbx_id
+      )
+    end
+
+    let!(:insurance_polices) do
+      create_list(:h41_insurance_policy, 20, :with_aptc_csr_tax_households,
+                  transmission: open_transmission,
+                  posted_family: posted_family)
+    end
+
+    let!(:policy_id_1) do
+      insurance_polices.first.policy_hbx_id
+    end
+
+    let(:family_cv) { family_hash }
+
+    let(:input_params) do
+      {
+        family_hbx_id: family_hbx_id,
+        insurance_policy_ids: insurance_polices.pluck(:id),
+        reporting_year: Date.today.year,
+        report_type: :void
+      }
+    end
+
+    let!(:open_transmission) { FactoryBot.create(:h41_void_transmission) }
+
+    it 'should transform 1095a payload successfully' do
+      open_transmission.transactions.update_all(status: :transmitted)
+      open_transmission.reload
+      posted_family.update!(family_cv: family_cv.to_json)
+      AcaEntities::Families::Family.new(family_hash)
+      @result = subject.call(input_params)
+      open_transmission.reload
+      expect(@result.success?).to be_truthy
+      family_entity = AcaEntities::Families::Family.new(@result.success)
+      insurance_policy = family_entity.households.first.insurance_agreements.first.insurance_policies.first
+      expect(insurance_policy.aptc_csr_tax_households.first.void).to eq true
+    end
+  end
+
+  context '.transform_family_payload for original transmission' do
+    let(:correlation_id) { 'ae321f' }
+    let(:contract_holder_id) { '25458' }
+    let(:family_hbx_id) { '100049' }
+    let(:posted_family) do
+      H41::InsurancePolicies::PostedFamily.create(
+        correlation_id: correlation_id,
+        contract_holder_id: contract_holder_id,
+        family_hbx_id: family_hbx_id
+      )
+    end
+
+    let!(:insurance_polices) do
+      create_list(:h41_insurance_policy, 20, :with_aptc_csr_tax_households,
+                  transmission: open_transmission,
+                  posted_family: posted_family)
+    end
+
+    let!(:policy_id_1) do
+      insurance_polices.first.policy_hbx_id
+    end
+
+    let(:family_cv) { family_hash }
+
+    let(:input_params) do
+      {
+        family_hbx_id: family_hbx_id,
+        insurance_policy_ids: insurance_polices.pluck(:id),
+        reporting_year: Date.today.year,
+        report_type: :original
+      }
+    end
+
+    let!(:open_transmission) { FactoryBot.create(:h41_original_transmission) }
+
+    it 'should transform 1095a payload successfully' do
+      open_transmission.transactions.update_all(status: :transmitted)
+      open_transmission.reload
+      posted_family.update!(family_cv: family_cv.to_json)
+      AcaEntities::Families::Family.new(family_hash)
+      @result = subject.call(input_params)
+      open_transmission.reload
+      expect(@result.success?).to be_truthy
+      family_entity = AcaEntities::Families::Family.new(@result.success)
+      insurance_policy = family_entity.households.first.insurance_agreements.first.insurance_policies.first
+      expect(insurance_policy.aptc_csr_tax_households.first).to be_present
+      expect(insurance_policy.aptc_csr_tax_households.first.void).to eq nil
+      expect(insurance_policy.aptc_csr_tax_households.first.corrected).to eq nil
     end
   end
 end

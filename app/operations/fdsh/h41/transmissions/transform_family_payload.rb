@@ -60,8 +60,10 @@ module Fdsh
                   tax_household.merge(void: true)
                 when :corrected
                   tax_household.merge(corrected: true)
+                else
+                  tax_household
                 end
-              end
+              end.compact
             end.compact
           end
 
