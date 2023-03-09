@@ -125,8 +125,8 @@ module Fdsh
 
         def build_and_persist_xml(prior_transmission)
           ::Fdsh::H36::Request::BuildAndPersistH36Xml.new.call({ transmission: prior_transmission,
-                                                                   assistance_year: @assistance_year,
-                                                                   month: @month })
+                                                                 assistance_year: @assistance_year,
+                                                                 month: @month })
         end
       end
     end
