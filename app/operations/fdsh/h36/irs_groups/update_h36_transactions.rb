@@ -33,7 +33,7 @@ module Fdsh
           update_and_clone_transactions(year, month)
           # updating prior year transmissions and transactions upto next year's march
           # Ex: For 2022 calendar year we will create and send h36 transmission till March 2023
-          update_and_clone_transactions(year - 1, 12 + month) unless (12 + month) > MAX_TRANSMISSION_MONTH
+          update_and_clone_transactions(year - 1, 12 + month) if (12 + month) <= MAX_TRANSMISSION_MONTH
         end
 
         def update_and_clone_transactions(assistance_year, month_of_year)

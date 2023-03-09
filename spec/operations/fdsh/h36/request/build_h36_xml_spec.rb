@@ -66,15 +66,29 @@ RSpec.describe Fdsh::H36::Request::BuildH36Xml do
     end
   end
 
-  context "valid_params" do
+  context "valid_params and agreements" do
     it "should successfully build an xml and persist on irs_group monthly_activity" do
-      expect(transmission.status).to eq :open
       result = Fdsh::H36::Request::BuildH36Xml.new.call(params)
       expect(result.success?).to be_truthy
       irs_group.reload
       transmission.reload
       expect(irs_group.transaction_xml).to be_present
-      expect(transmission.status).to eq :pending
+    end
+  end
+
+  context "valid_params and no insurance agreements" do
+    let!(:insurance_agreement_year) do
+      (assistance_year - 1)
+    end
+
+    it "should not build an xml if no valid insurance_agreements exist" do
+      expect(transmission.status).to eq :open
+      result = Fdsh::H36::Request::BuildH36Xml.new.call(params)
+      expect(result.failure?).to be_truthy
+      irs_group.reload
+      transmission.reload
+      transaction.reload
+      expect(transaction.transaction_errors).to be_present
     end
   end
 end

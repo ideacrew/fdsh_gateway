@@ -7,7 +7,7 @@ module Fdsh
       class BuildH36Xml
         include Dry::Monads[:result, :do, :try]
 
-        TOTAL_NUMBER_OF_MONTHS = 12
+        TOTAL_CALENDAR_MONTHS = 12
 
         def call(params)
           values        = yield validate(params)
@@ -20,7 +20,6 @@ module Fdsh
           xml_string    = yield encode_xml_and_schema_validate(h36_request)
           h36_xml       = yield encode_request_xml(xml_string)
           result        = yield persist_xml_on_irs_group(irs_group, h36_xml)
-          _transmission = yield move_open_transmission_to_pending(values)
 
           Success(result)
         end
@@ -62,7 +61,7 @@ module Fdsh
         end
 
         def build_h36_family_payload(values, family)
-          @max_month = values[:month_of_year] > TOTAL_NUMBER_OF_MONTHS ? TOTAL_NUMBER_OF_MONTHS : values[:month_of_year]
+          @max_month = values[:month_of_year] > TOTAL_CALENDAR_MONTHS ? TOTAL_CALENDAR_MONTHS : values[:month_of_year]
           @assistance_year = values[:assistance_year]
           insurance_agreements = family.households.flat_map(&:insurance_agreements)
           valid_agreements = insurance_agreements.select do |agreement|
@@ -76,10 +75,15 @@ module Fdsh
             non_eligible_policy?(policy)
           end
 
-          return Success({}) if valid_policies.blank?
+          if valid_policies.blank?
+            record_denial("No valid policies exists")
+            return Failure("No valid policies exist")
+          end
 
           result = construct_payload(family, other_relevant_adult, valid_policies)
           Success(result)
+        rescue StandardError => e
+          record_exception({ build_h36_payload: e.to_s })
         end
 
         def construct_payload(family, other_relevant_adult, valid_policies)
@@ -155,16 +159,23 @@ module Fdsh
           if build_result.success?
             Success(sanitized_xml)
           else
-            update_transaction_with_error_messages(build_result)
+            record_exception({ transaction_xml: error_messages(build_result) })
             Failure("Invalid H41 xml due to #{build_result.failure}")
           end
         end
 
-        def update_transaction_with_error_messages(build_result)
-          transaction_errors_hash = { transaction_xml: error_messages(build_result) }
-          @transaction.update!(transaction_errors: transaction_errors_hash,
-                               status: :errored,
-                               transmit_action: :no_transmit)
+        def record_exception(error_message)
+          @transaction.status = :errored
+          @transaction.transmit_action = :no_transmit
+          @transaction.transaction_errors = { h36: error_message }
+          @transaction.save
+        end
+
+        def record_denial(message)
+          @transaction.status = :denied
+          @transaction.transmit_action = :no_transmit
+          @transaction.transaction_errors = { h36: message }
+          @transaction.save
         end
 
         def error_messages(build_result)
@@ -189,16 +200,6 @@ module Fdsh
         def persist_xml_on_irs_group(irs_group, h36_xml)
           irs_group.update!(transaction_xml: h36_xml)
           Success(irs_group)
-        end
-
-        def move_open_transmission_to_pending(values)
-          transmission = ::H36::Transmissions::Outbound::MonthOfYearTransmission.where(
-            id: values[:transmission_id]
-          ).first
-
-          transmission.update!(status: :pending) if transmission.present?
-
-          Success(true)
         end
       end
     end
