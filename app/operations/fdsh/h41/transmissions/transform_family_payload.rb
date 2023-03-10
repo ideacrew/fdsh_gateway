@@ -58,7 +58,8 @@ module Fdsh
                 case values[:report_type]
                 when :void
                   tax_household[:covered_individuals] = construct_covered_members_coverage_dates(
-                    tax_household[:covered_individuals], insurance_policy)
+                    tax_household[:covered_individuals], insurance_policy
+                  )
                   tax_household.merge(void: true)
                 when :corrected
                   tax_household.merge(corrected: true)
