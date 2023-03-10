@@ -96,6 +96,9 @@ RSpec.describe Fdsh::H41::Transmissions::TransformFamilyPayload do
       family_entity = AcaEntities::Families::Family.new(@result.success)
       insurance_policy = family_entity.households.first.insurance_agreements.first.insurance_policies.first
       expect(insurance_policy.aptc_csr_tax_households.first.corrected).to eq true
+      covered_individual = insurance_policy.aptc_csr_tax_households.first.covered_individuals.first
+      expect(covered_individual.coverage_start_on).to eq Date.today.beginning_of_year
+      expect(covered_individual.coverage_end_on).to eq Date.today.end_of_year
     end
   end
 
@@ -145,6 +148,9 @@ RSpec.describe Fdsh::H41::Transmissions::TransformFamilyPayload do
       family_entity = AcaEntities::Families::Family.new(@result.success)
       insurance_policy = family_entity.households.first.insurance_agreements.first.insurance_policies.first
       expect(insurance_policy.aptc_csr_tax_households.first.void).to eq true
+      covered_individual = insurance_policy.aptc_csr_tax_households.first.covered_individuals.first
+      expect(covered_individual.coverage_start_on).to eq insurance_policy.start_on
+      expect(covered_individual.coverage_end_on).to eq insurance_policy.start_on
     end
   end
 
@@ -196,6 +202,9 @@ RSpec.describe Fdsh::H41::Transmissions::TransformFamilyPayload do
       expect(insurance_policy.aptc_csr_tax_households.first).to be_present
       expect(insurance_policy.aptc_csr_tax_households.first.void).to eq nil
       expect(insurance_policy.aptc_csr_tax_households.first.corrected).to eq nil
+      covered_individual = insurance_policy.aptc_csr_tax_households.first.covered_individuals.first
+      expect(covered_individual.coverage_start_on).to eq Date.today.beginning_of_year
+      expect(covered_individual.coverage_end_on).to eq Date.today.end_of_year
     end
   end
 end
