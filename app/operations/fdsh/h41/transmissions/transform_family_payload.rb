@@ -57,6 +57,8 @@ module Fdsh
               insurance_policy[:aptc_csr_tax_households] = insurance_policy[:aptc_csr_tax_households].collect do |tax_household|
                 case values[:report_type]
                 when :void
+                  tax_household[:covered_individuals] = construct_covered_members_coverage_dates(
+                    tax_household[:covered_individuals], insurance_policy)
                   tax_household.merge(void: true)
                 when :corrected
                   tax_household.merge(corrected: true)
@@ -68,6 +70,14 @@ module Fdsh
           end
 
           Success(family_hash)
+        end
+
+        def construct_covered_members_coverage_dates(covered_individuals, insurance_policy)
+          covered_individuals.collect do |individual|
+            individual[:coverage_start_on] = insurance_policy[:start_on]
+            individual[:coverage_end_on] = insurance_policy[:start_on]
+            individual
+          end
         end
 
         def fetch_insurance_agreements(insurance_agreements, values)
