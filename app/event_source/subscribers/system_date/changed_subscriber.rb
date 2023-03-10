@@ -22,6 +22,16 @@ module Subscribers
 
         return if system_date != Date.today.beginning_of_month
 
+        year = system_date.year
+        month = system_date.month
+        result = ::Fdsh::H36::IrsGroups::UpdateH36Transactions.new.call({ assistance_year: year,
+                                                                          month_of_year: month })
+        if result.success?
+          message = result.success
+          subscriber_logger.info "on_system_date_changed H36 Cloning acked #{message.is_a?(Hash) ? message[:event] : message}"
+        else
+          subscriber_logger.info "on_system_date_changed H36 Cloning: failure: #{error_messages(result)}"
+        end
         subscriber_logger.info "on_system_date_changed H36 Transmission create: ------- end"
       rescue StandardError => e
         subscriber_logger.error "on_system_date_changed H36 Transmission create: error: #{e} backtrace: #{e.backtrace}"
