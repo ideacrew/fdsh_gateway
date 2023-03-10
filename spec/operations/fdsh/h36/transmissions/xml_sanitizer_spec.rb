@@ -49,26 +49,26 @@ RSpec.describe Fdsh::H36::Transmissions::XmlSanitizer do
 
       it 'should create new open transmission' do
         xml_doc = Nokogiri::XML(@result.success)
-        xml_doc.xpath('//xmlns:IRSHouseholdGrp').each do |node|
-          node.xpath("//xmlns:SSN").each do |ssn_node|
+        xml_doc.xpath('//irs:IRSHouseholdGrp').each do |node|
+          node.xpath("//irs:SSN").each do |ssn_node|
             expect(ssn_node.content).not_to include('-')
           end
 
-          node.xpath("//xmlns:PersonFirstName").each do |name_node|
+          node.xpath("//irs:PersonFirstName").each do |name_node|
             expect(name_node.content.length).to be <= 20
           end
 
-          node.xpath("//xmlns:AddressLine1Txt").each do |name_node|
+          node.xpath("//irs:AddressLine1Txt").each do |name_node|
             expect(name_node.content.length).to be <= 35
           end
 
-          address_lines_1 = node.xpath("//xmlns:AddressLine1Txt").collect(&:content)
+          address_lines_1 = node.xpath("//irs:AddressLine1Txt").collect(&:content)
           expect(address_lines_1).to include("test me payload address 1 test agai")
 
-          address_lines_2 = node.xpath("//xmlns:AddressLine2Txt").collect(&:content)
+          address_lines_2 = node.xpath("//irs:AddressLine2Txt").collect(&:content)
           expect(address_lines_2).to include("test")
 
-          zip_codes = node.xpath("//xmlns:USZIPCd").collect(&:content)
+          zip_codes = node.xpath("//irs:USZIPCd").collect(&:content)
           expect(zip_codes).to include('04472')
         end
       end
