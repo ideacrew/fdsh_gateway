@@ -65,7 +65,7 @@ RSpec.describe Fdsh::Transmissions::XmlSanitizer do
             end
 
             address_lines_1 = upstream_detail.xpath("//airty20a:AddressLine1Txt").collect(&:content)
-            expect(address_lines_1).to include("PO Box 1 St George Lukes Washington")
+            expect(address_lines_1).to include("TEST address 1 Line")
 
             address_lines_2 = upstream_detail.xpath("//airty20a:AddressLine2Txt").collect(&:content)
             expect(address_lines_2).to include("1")

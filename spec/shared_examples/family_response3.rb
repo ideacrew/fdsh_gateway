@@ -11,6 +11,10 @@ RSpec.shared_context 'family response', :shared_context => :metadata do
     ]
   end
 
+  let(:insurance_agreement_year) do
+    2023
+  end
+
   let(:enrollment_aasm_state) do
     "coverage_selected"
   end
@@ -370,7 +374,7 @@ RSpec.shared_context 'family response', :shared_context => :metadata do
   let(:insurance_agreements) do
     [
       {
-        plan_year: 2023,
+        plan_year: insurance_agreement_year,
         contract_holder: contract_holder,
         insurance_provider: insurance_provider,
         insurance_policies: insurance_policies
