@@ -28,7 +28,7 @@ module Fdsh
         def can_transmit?(transaction)
           family = transaction.transactable
 
-          subject_exclusions.where(subject_id: family.contract_holder_id).none?
+          subject_exclusions.where(subject_id: family.contract_holder_hbx_id).none?
         end
 
         def record_exception(transaction, error_message)
