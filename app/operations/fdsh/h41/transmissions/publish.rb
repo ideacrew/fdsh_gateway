@@ -40,11 +40,11 @@ module Fdsh
         def ingest_subject_exclusions(values)
           exclusion_records = Transmittable::SubjectExclusion.by_subject_name('PostedFamily').active
 
-          values[:deny_list].each do |family_hbx_id|
-            next if exclusion_records.where(subject_id: family_hbx_id).present?
+          values[:deny_list].each do |primary_person_id|
+            next if exclusion_records.where(subject_id: primary_person_id).present?
             Transmittable::SubjectExclusion.create(
               subject_name: 'PostedFamily',
-              subject_id: family_hbx_id,
+              subject_id: primary_person_id,
               report_kind: :h41_1095a
             )
           end
@@ -55,8 +55,8 @@ module Fdsh
         def expire_subject_exclusions(values)
           exclusion_records = Transmittable::SubjectExclusion.by_subject_name('PostedFamily').active
 
-          values[:allow_list].each do |family_hbx_id|
-            excluded_subject = exclusion_records.where(subject_id: family_hbx_id).first
+          values[:allow_list].each do |primary_person_id|
+            excluded_subject = exclusion_records.where(subject_id: primary_person_id).first
             excluded_subject&.update(end_at: Time.now)
           end
 
