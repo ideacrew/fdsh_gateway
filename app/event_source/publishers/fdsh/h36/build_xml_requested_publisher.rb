@@ -4,7 +4,7 @@ module Publishers
   module Fdsh
     module H36
       # Publish requests build h36 xml
-      class BuildH36XmlRequestedPublisher
+      class BuildXmlRequestedPublisher
         include ::EventSource::Publisher[amqp: 'fdsh.h36']
 
         register_event 'build_xml_requested'

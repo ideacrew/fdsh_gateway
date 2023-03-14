@@ -84,6 +84,7 @@ module Fdsh
           Success(result)
         rescue StandardError => e
           record_exception({ build_h36_payload: e.to_s })
+          Failure("Unable to generate payload due to - #{e.message}")
         end
 
         def construct_payload(family, other_relevant_adult, valid_policies)

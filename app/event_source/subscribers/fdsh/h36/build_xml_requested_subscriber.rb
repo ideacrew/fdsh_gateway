@@ -4,7 +4,7 @@ module Subscribers
   module Fdsh
     module H36
       # Subscribe events for H36 requests
-      class BuildH36XmlRequestedSubscriber
+      class BuildXmlRequestedSubscriber
         include ::EventSource::Subscriber[amqp: 'fdsh.h36']
 
         subscribe(:on_build_xml_requested) do |delivery_info, _properties, payload|
@@ -31,7 +31,7 @@ module Subscribers
         def process_build_h36_xml_request(subscriber_logger, values)
           subscriber_logger.info "process_h36_transmission_requested_event: ------- start"
           result = ::Fdsh::H36::Request::BuildH36Xml.new.call(
-            { irs_group_id: values[:irs_group_id],
+            { transaction_id: values[:transaction_id],
               transmission_id: values[:transmission_id],
               assistance_year: values[:assistance_year],
               month_of_year: values[:month_of_year] }

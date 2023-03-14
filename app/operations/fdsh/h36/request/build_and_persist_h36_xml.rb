@@ -9,6 +9,7 @@ module Fdsh
       # Operation to fetch valid irs_groups per year and build an irs_group_household xml
       class BuildAndPersistH36Xml
         include Dry::Monads[:result, :do]
+        include EventSource::Command
 
         def call(params)
           values                     = yield validate(params)
@@ -37,8 +38,8 @@ module Fdsh
           valid_transactions.no_timeout.each do |transaction|
             transmission_id = values[:transmission].id
             event = event("events.fdsh.h36.build_xml_requested",
-                          attributes: { transaction_id: transaction._id,
-                                        transmission_id: transmission_id,
+                          attributes: { transaction_id: transaction.id.to_s,
+                                        transmission_id: transmission_id.to_s,
                                         assistance_year: values[:assistance_year],
                                         month_of_year: values[:month_of_year] })
             event.success.publish
