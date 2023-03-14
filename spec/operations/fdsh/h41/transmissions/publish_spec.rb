@@ -322,7 +322,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         File.open(Rails.root.join("spec/test_payloads/h41/original.xml").to_s).read
       end
 
-      let(:exclusion_family_hbx_ids) do
+      let(:exclusion_contract_holder_hbx_ids) do
         ['242323', '323111']
       end
 
@@ -333,10 +333,10 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       let!(:exclusion_transactions) do
         transactions = []
         first_policy = insurance_polices.detect {|policy| policy.policy_hbx_id == policy_hbx_ids[5]}
-        first_policy.posted_family.update(family_hbx_id: '242323')
+        first_policy.posted_family.update(contract_holder_id: '242323')
         transactions << first_policy.aptc_csr_tax_households.first.transactions.first
         second_policy = insurance_polices.detect {|policy| policy.policy_hbx_id == policy_hbx_ids[15]}
-        second_policy.posted_family.update(family_hbx_id: '323111')
+        second_policy.posted_family.update(contract_holder_id: '323111')
         transactions << second_policy.aptc_csr_tax_households.first.transactions.first
         transactions
       end
@@ -356,7 +356,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         {
           reporting_year: Date.today.year,
           report_type: :original,
-          deny_list: exclusion_family_hbx_ids
+          deny_list: exclusion_contract_holder_hbx_ids
         }
       end
 
