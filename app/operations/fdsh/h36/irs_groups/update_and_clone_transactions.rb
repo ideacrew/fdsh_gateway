@@ -118,7 +118,7 @@ module Fdsh
           # send transactions as well
           ::Fdsh::H36::Request::BuildAndPersistH36Xml.new.call({ transmission: prior_transmission,
                                                                  assistance_year: @assistance_year,
-                                                                 month: @month })
+                                                                 month_of_year: @month })
         end
       end
     end
