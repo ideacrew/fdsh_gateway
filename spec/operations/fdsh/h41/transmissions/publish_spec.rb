@@ -9,6 +9,10 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
     FileUtils.rm_rf(Rails.root.join("h41_transmissions").to_s)
   end
 
+  after :all do
+    FileUtils.rm_rf(Rails.root.join("h41_transmissions").to_s)
+  end
+
   after :each do
     DatabaseCleaner.clean
   end

@@ -26,8 +26,10 @@ module Transmittable
     field :end_at, type: DateTime
 
     # Scopes
-    scope :errored,          -> { where(:transaction_errors.ne => nil) }
+    scope :blocked,          -> { where(status: :blocked) }
+    scope :errored,          -> { where(status: :errored) }
     scope :no_transmit,      -> { where(transmit_action: :no_transmit) }
+    scope :superseded,       -> { where(status: :superseded) }
     scope :transmitted,      -> { where(status: :transmitted) }
     scope :transmit_pending, -> { where(transmit_action: :transmit) }
 
