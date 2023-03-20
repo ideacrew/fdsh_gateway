@@ -17,42 +17,52 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
   describe '#call' do
     include_context 'family response with one policy'
 
+    let(:corrected_transmission) { FactoryBot.create(:h41_corrected_transmission) }
+    let(:original_transmission)  { FactoryBot.create(:h41_original_transmission) }
+    let(:void_transmission)      { FactoryBot.create(:h41_void_transmission) }
+
+    let(:corrected_transactions_transmissions_transactions) do
+      Transmittable::TransactionsTransmissions.where(transmission: corrected_transmission).map(&:transaction)
+    end
+
+    let(:original_transactions_transmissions_transactions) do
+      Transmittable::TransactionsTransmissions.where(transmission: original_transmission).map(&:transaction)
+    end
+
+    let(:void_transactions_transmissions_transactions) do
+      Transmittable::TransactionsTransmissions.where(transmission: void_transmission).map(&:transaction)
+    end
+
+    let(:transmitted_transactions) do
+      original = Transmittable::TransactionsTransmissions.where(transmission: original_transmission).first
+      Transmittable::Transaction.each do |taction|
+        taction.update_attributes!(status: :transmitted, transmit_action: :no_transmit)
+        FactoryBot.create(:transmission_path, transmission: original, transaction: taction)
+      end
+    end
+
+    let(:transactions_for_first_subject) do
+      ::H41::InsurancePolicies::AptcCsrTaxHousehold.all.first.transactions
+    end
+
+    let(:transactions_for_second_subject) do
+      ::H41::InsurancePolicies::AptcCsrTaxHousehold.all.second.transactions
+    end
+
+    let(:posted_family) { ::H41::InsurancePolicies::PostedFamily.all.first }
+    let(:insurance_policy) { posted_family.insurance_policies.first }
+    let(:aptc_csr_tax_household) { insurance_policy.aptc_csr_tax_households.first }
+
+    let(:original_first_transaction) do
+      original_transactions_transmissions_transactions.first
+    end
+
     context 'with valid input params' do
-      let!(:corrected_transmission) { FactoryBot.create(:h41_corrected_transmission) }
-      let!(:original_transmission)  { FactoryBot.create(:h41_original_transmission) }
-      let!(:void_transmission)      { FactoryBot.create(:h41_void_transmission) }
-
-      let(:corrected_transactions_transmissions_transactions) do
-        Transmittable::TransactionsTransmissions.where(transmission: corrected_transmission).map(&:transaction)
+      before do
+        corrected_transmission
+        original_transmission
+        void_transmission
       end
-
-      let(:original_transactions_transmissions_transactions) do
-        Transmittable::TransactionsTransmissions.where(transmission: original_transmission).map(&:transaction)
-      end
-
-      let(:void_transactions_transmissions_transactions) do
-        Transmittable::TransactionsTransmissions.where(transmission: void_transmission).map(&:transaction)
-      end
-
-      let(:transmitted_transactions) do
-        original = Transmittable::TransactionsTransmissions.where(transmission: original_transmission).first
-        Transmittable::Transaction.each do |taction|
-          taction.update_attributes!(status: :transmitted, transmit_action: :no_transmit)
-          FactoryBot.create(:transmission_path, transmission: original, transaction: taction)
-        end
-      end
-
-      let(:transactions_for_first_subject) do
-        ::H41::InsurancePolicies::AptcCsrTaxHousehold.all.first.transactions
-      end
-
-      let(:transactions_for_second_subject) do
-        ::H41::InsurancePolicies::AptcCsrTaxHousehold.all.second.transactions
-      end
-
-      let(:posted_family) { ::H41::InsurancePolicies::PostedFamily.all.first }
-      let(:insurance_policy) { posted_family.insurance_policies.first }
-      let(:aptc_csr_tax_household) { insurance_policy.aptc_csr_tax_households.first }
 
       let(:input_params) do
         {
@@ -61,10 +71,6 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
           correlation_id: 'cor100',
           family: family_hash
         }
-      end
-
-      let(:original_first_transaction) do
-        original_transactions_transmissions_transactions.first
       end
 
       # This results in creation of an errored transaction with transaction_errors
@@ -281,6 +287,73 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
           expect(
             subject.failure
           ).to match(/Unable to find OpenTransmission for type: /)
+        end
+      end
+
+      context 'with ineligible policies' do
+        let(:input_params) do
+          {
+            affected_policies: [policy_id],
+            assistance_year: assistance_year,
+            correlation_id: 'cor100',
+            family: family_hash
+          }
+        end
+
+        before :each do
+          corrected_transmission
+          original_transmission
+          void_transmission
+        end
+
+        context 'with catastrophic policy' do
+          let(:assistance_year) { Date.today.year }
+          let(:product_metal_level) { 'catastrophic' }
+          let(:insurance_product_metal_level) { 'catastrophic' }
+
+          it 'returns a failure with a message' do
+            expect(
+              subject.failure
+            ).to match(/No valid policies to process for given family with family_hbx_id:/)
+          end
+        end
+
+        context 'with non canceled(submitted) policy without a carrier_policy_id' do
+          let(:assistance_year) { Date.today.year }
+          let(:carrier_policy_id) { nil }
+
+          it 'returns a failure with a message' do
+            expect(
+              subject.failure
+            ).to match(/No valid policies to process for given family with family_hbx_id:/)
+          end
+        end
+
+        context 'with dental policy' do
+          let(:assistance_year) { Date.today.year }
+          let(:coverage_type) { 'dental' }
+
+          it 'returns a failure with a message' do
+            expect(
+              subject.failure
+            ).to match(/No valid policies to process for given family with family_hbx_id:/)
+          end
+        end
+
+        context 'with policies for a different assistance_year' do
+          let(:assistance_year) { Date.today.year + 10 }
+
+          before do
+            FactoryBot.create(:h41_original_transmission, reporting_year: assistance_year)
+            FactoryBot.create(:h41_corrected_transmission, reporting_year: assistance_year)
+            FactoryBot.create(:h41_void_transmission, reporting_year: assistance_year)
+          end
+
+          it 'returns a failure with a message' do
+            expect(
+              subject.failure
+            ).to match(/No valid policies to process for given family with family_hbx_id:/)
+          end
         end
       end
     end
