@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-# bundle exec rails runner script/irs_1095a_csv_report.rb "2022" (pass in year)
+# bundle exec rails runner script/irs_1095a_csv_report.rb "2022", "open" (pass in year and status)
 
 require "csv"
 require "money"
 
+transmission_status = [:open, :pending, :transmitted]
 @tax_year = ARGV[0].to_i
+@status = transmission_status.include?(ARGV[1]&.to_sym) ? ARGV[1]&.to_sym : "all"
 
 @fields = %w[PLAN_YEAR TRANSACTION_TYPE TRANSACTION_DATETIME TRANSACTION_STATUS TRANSMISSION_STATUS FAMILY_HBX_ID
              CONTRACT_HOLDER_ID PRIMARY_PERSON_ID MARKETPLACE_ID POLICY_ID ISSUER_NAME RECIPIENT_NAME RECIPIENT_SSN
@@ -193,9 +195,13 @@ end
 # rubocop:enable Metrics/MethodLength
 # rubocop:enable Metrics/PerceivedComplexity
 
-original_transmissions = H41::Transmissions::Outbound::OriginalTransmission.by_year(@tax_year).to_a
-corrected_transmissions = H41::Transmissions::Outbound::CorrectedTransmission.by_year(@tax_year).to_a
-void_transmissions = H41::Transmissions::Outbound::VoidTransmission.by_year(@tax_year).to_a
+original_transmission = H41::Transmissions::Outbound::OriginalTransmission.by_year(@tax_year)
+corrected_transmission = H41::Transmissions::Outbound::CorrectedTransmission.by_year(@tax_year)
+void_transmission = H41::Transmissions::Outbound::VoidTransmission.by_year(@tax_year)
+
+original_transmissions = @status == "all" ? original_transmission : original_transmission.by_status(@status).to_a
+corrected_transmissions = @status == "all" ? corrected_transmission : corrected_transmission.by_status(@status).to_a
+void_transmissions = @status == "all" ? void_transmission : void_transmission.by_status(@status).to_a
 
 [original_transmissions, corrected_transmissions, void_transmissions].flatten.each do |transmission|
   @transmission = transmission
