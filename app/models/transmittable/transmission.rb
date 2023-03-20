@@ -69,6 +69,7 @@ module Transmittable
     scope :open, -> { where(status: :open) }
     scope :pending, -> { where(status: :pending) }
     scope :transmitted, -> { where(status: :transmitted) }
+    scope :by_status, ->(status) { where(status: status) }
 
     # @example
     def initialize(args = nil)
