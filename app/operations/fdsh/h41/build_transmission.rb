@@ -43,7 +43,9 @@ module Fdsh
       end
 
       def publish_service
-        ::Fdsh::H41::Transmissions::Publish.new
+        return @publish_service if defined? @publish_service
+
+        @publish_service = ::Fdsh::H41::Transmissions::Publish.new
       end
     end
   end
