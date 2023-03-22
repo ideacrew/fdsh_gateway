@@ -43,7 +43,7 @@ module Fdsh
       end
 
       def publish_service
-        ::Fdsh::H41::Transmissions::Publish.new
+        @publish_service ||= ::Fdsh::H41::Transmissions::Publish.new
       end
     end
   end
