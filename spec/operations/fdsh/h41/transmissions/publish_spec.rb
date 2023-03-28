@@ -17,6 +17,8 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
     DatabaseCleaner.clean
   end
 
+  let(:report_kind) { :h41_1095a }
+
   context 'with invalid input params' do
     context 'bad report_type' do
       let(:input_params) do
@@ -30,6 +32,23 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         result = subject.call(input_params)
         expect(result.failure).to eq(
           'report_type must be one corrected, original, void'
+        )
+      end
+    end
+
+    context 'bad report_type' do
+      let(:input_params) do
+        {
+          reporting_year: Date.today.year,
+          report_kind: :report_kind,
+          report_type: :original
+        }
+      end
+
+      it 'returns failure with errors' do
+        result = subject.call(input_params)
+        expect(result.failure).to eq(
+          'report_kind must be one of [:h41_1095a, :h41]'
         )
       end
     end
@@ -49,6 +68,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       let(:input_params) do
         {
           reporting_year: Date.today.year,
+          report_kind: report_kind,
           report_type: :original
         }
       end
@@ -97,12 +117,27 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       it 'should create transmission paths' do
         expect(open_transmission.transmission_paths.count).to eq open_transmission.transactions.count
       end
+
+      context 'with h41 as report_kind' do
+        let(:report_kind) { :h41 }
+
+        it 'should geenrate H41 transmission' do
+          expect(@result.success).to eq(
+            "Successfully generated H41 transmissions only for given report_type: original"
+          )
+        end
+
+        it 'should update the existing transmission with report_kind' do
+          expect(open_transmission.report_kind).to eq(report_kind)
+        end
+      end
     end
 
     context 'for corrected' do
       let(:input_params) do
         {
           reporting_year: Date.today.year,
+          report_kind: report_kind,
           report_type: :corrected
         }
       end
@@ -149,12 +184,27 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       it 'should create transmission paths' do
         expect(open_transmission.transmission_paths.count).to eq open_transmission.transactions.count
       end
+
+      context 'with h41 as report_kind' do
+        let(:report_kind) { :h41 }
+
+        it 'should geenrate H41 transmission' do
+          expect(@result.success).to eq(
+            "Successfully generated H41 transmissions only for given report_type: corrected"
+          )
+        end
+
+        it 'should update the existing transmission with report_kind' do
+          expect(open_transmission.report_kind).to eq(report_kind)
+        end
+      end
     end
 
     context 'for void' do
       let(:input_params) do
         {
           reporting_year: Date.today.year,
+          report_kind: report_kind,
           report_type: :void
         }
       end
@@ -201,6 +251,20 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       it 'should create transmission paths' do
         expect(open_transmission.transmission_paths.count).to eq open_transmission.transactions.count
       end
+
+      context 'with h41 as report_kind' do
+        let(:report_kind) { :h41 }
+
+        it 'should geenrate H41 transmission' do
+          expect(@result.success).to eq(
+            "Successfully generated H41 transmissions only for given report_type: void"
+          )
+        end
+
+        it 'should update the existing transmission with report_kind' do
+          expect(open_transmission.report_kind).to eq(report_kind)
+        end
+      end
     end
 
     context 'when allow and deny lists provided' do
@@ -208,6 +272,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       let(:input_params) do
         {
           reporting_year: Date.today.year,
+          report_kind: report_kind,
           report_type: :corrected,
           allow_list: allow_list,
           deny_list: deny_list
@@ -250,6 +315,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       let(:input_params) do
         {
           reporting_year: Date.today.year,
+          report_kind: report_kind,
           report_type: :corrected
         }
       end
@@ -293,6 +359,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       let(:input_params) do
         {
           reporting_year: Date.today.year,
+          report_kind: report_kind,
           report_type: :original
         }
       end
@@ -335,6 +402,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       let(:input_params) do
         {
           reporting_year: Date.today.year,
+          report_kind: report_kind,
           report_type: :original,
           deny_list: exclusion_contract_holder_hbx_ids
         }

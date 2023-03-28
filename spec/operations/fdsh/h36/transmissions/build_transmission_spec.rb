@@ -9,6 +9,10 @@ RSpec.describe Fdsh::H36::Transmissions::BuildTransmission do
     FileUtils.rm_rf(Rails.root.join("h36_transmissions_#{Date.today.year}_#{Date.today.month}").to_s)
   end
 
+  after :all do
+    FileUtils.rm_rf(Rails.root.join("h36_transmissions_#{Date.today.year}_#{Date.today.month}").to_s)
+  end
+
   after :each do
     DatabaseCleaner.clean
   end
