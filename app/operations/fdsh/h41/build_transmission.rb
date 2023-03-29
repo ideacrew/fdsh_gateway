@@ -7,6 +7,7 @@ module Fdsh
       include Dry::Monads[:result, :do, :try]
 
       REPORT_TYPES = [:all, :original, :corrected, :void].freeze
+      REPORT_KINDS = [:h41_1095a, :h41].freeze
 
       def call(params)
         values  = yield validate(params)
@@ -26,6 +27,9 @@ module Fdsh
         errors << "invalid report type #{invalid_report_types}" if invalid_report_types.present?
         params[:report_types] = [:original, :corrected, :void] if params[:report_types].include?(:all)
 
+        params[:report_kind] = params[:report_kind].to_sym if params[:report_kind]
+        errors << "report_kind must be one of #{REPORT_KINDS}" if REPORT_KINDS.exclude?(params[:report_kind])
+
         errors.present? ? Failure(errors) : Success(params)
       end
 
@@ -34,6 +38,7 @@ module Fdsh
           publish_service.call(
             reporting_year: values[:assistance_year],
             report_type: report_type,
+            report_kind: values[:report_kind],
             deny_list: values[:deny_list],
             allow_list: values[:allow_list]
           )
@@ -48,4 +53,3 @@ module Fdsh
     end
   end
 end
-
