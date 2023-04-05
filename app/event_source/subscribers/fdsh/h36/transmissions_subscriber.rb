@@ -7,11 +7,11 @@ module Subscribers
       class TransmissionsSubscriber
         include ::EventSource::Subscriber[amqp: 'enroll.h36']
 
-        subscribe(:on_transmission_requested) do |delivery_info, _properties, _payload|
-          payload = JSON.parse(payload, symbolize_names: true)
+        subscribe(:on_transmission_requested) do |delivery_info, _properties, payload|
+          parsed_payload = JSON.parse(payload, symbolize_names: true)
           result = ::Fdsh::H36::Transmissions::BuildTransmission.new.call(
-            deny_list: payload[:deny_list],
-            allow_list: payload[:allow_list],
+            deny_list: parsed_payload[:deny_list],
+            allow_list: parsed_payload[:allow_list],
             assistance_year: properties[:headers]['assistance_year'].to_i,
             month_of_year: properties[:headers]['month_of_year'].to_i
           )

@@ -13,7 +13,7 @@ module Fdsh
           values              = yield validate(params)
           result              = yield process(values)
 
-          success(result)
+          Success(result)
         end
 
         private
@@ -30,10 +30,13 @@ module Fdsh
           year = values[:assistance_year]
           month = values[:current_month]
 
-          update_and_clone_transactions(year, month)
+          result_1 = update_and_clone_transactions(year, month)
           # updating prior year transmissions and transactions upto next year's march
           # Ex: For 2022 calendar year we will create and send h36 transmission till March 2023
-          update_and_clone_transactions(year - 1, 12 + month) if (12 + month) <= MAX_TRANSMISSION_MONTH
+          if (12 + month) <= MAX_TRANSMISSION_MONTH
+            result_2 = update_and_clone_transactions(year - 1, 12 + month)
+          end
+          [result_1&.failure?, result_2&.failure?].compact.any? ? Failure("Unable to update transactions") : Success("Successfully updated transactions")
         end
 
         def update_and_clone_transactions(assistance_year, month_of_year)
