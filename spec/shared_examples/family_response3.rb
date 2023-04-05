@@ -405,15 +405,28 @@ RSpec.shared_context 'family response', :shared_context => :metadata do
         hbx_assigned_id: aptc_csr_tax_household_id_1,
         primary_tax_filer_hbx_id: aptc_csr_tax_household_id_1,
         tax_household_members: [
-          family_member_reference: {
-            family_member_hbx_id: '1000595',
-            first_name: "John",
-            last_name: "Smith1",
-            person_hbx_id: "1000595",
-            dob: Date.new(1972, 4, 4),
-            relation_with_primary: "self"
+          {
+            family_member_reference: {
+              family_member_hbx_id: '1000595',
+              first_name: "John",
+              last_name: "Smith1",
+              person_hbx_id: "1000595",
+              dob: Date.new(1972, 4, 4),
+              relation_with_primary: "self"
+            },
+            tax_filer_status: "tax_filer"
           },
-          tax_filer_status: "tax_filer"
+          {
+            family_member_reference: {
+              family_member_hbx_id: '476',
+              first_name: "John",
+              last_name: "Smith2",
+              person_hbx_id: "476",
+              dob: Date.new(1978, 4, 4),
+              relation_with_primary: "dependent"
+            },
+            tax_filer_status: "non_filer"
+          }
         ],
         covered_individuals: [
           {
