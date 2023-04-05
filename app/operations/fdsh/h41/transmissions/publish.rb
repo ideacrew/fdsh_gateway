@@ -8,18 +8,19 @@ module Fdsh
         include Dry::Monads[:result, :do]
 
         H41_TRANSMISSION_TYPES = [:corrected, :original, :void].freeze
+        REPORT_KINDS = [:h41_1095a, :h41].freeze
 
         def call(params)
           values = yield validate(params)
           _excluded_families = yield ingest_subject_exclusions(values)
           _expired_families = yield expire_subject_exclusions(values)
           transmission = yield find_open_transmission(values)
-          transmission = yield start_processing(transmission)
+          transmission = yield start_processing(transmission, values[:report_kind])
           _new_transmission = yield create_new_open_transmission(transmission, values)
           _output = yield publish_h41_transmisson(transmission, values)
-          _output = yield publish_pdf_reports(transmission, values)
+          publish_result = yield publish_pdf_reports(transmission, values)
 
-          Success(transmission)
+          Success(publish_result)
         end
 
         private
@@ -30,6 +31,7 @@ module Fdsh
           unless params[:report_type] && H41_TRANSMISSION_TYPES.include?(params[:report_type])
             return Failure("report_type must be one #{H41_TRANSMISSION_TYPES.map(&:to_s).join(', ')}")
           end
+          return Failure("report_kind must be one of #{REPORT_KINDS}") if REPORT_KINDS.exclude?(params[:report_kind])
 
           params[:deny_list] ||= []
           params[:allow_list] ||= []
@@ -73,8 +75,9 @@ module Fdsh
           Success(transmissions.first)
         end
 
-        def start_processing(transmission)
+        def start_processing(transmission, report_kind)
           transmission.status = :processing
+          transmission.report_kind = report_kind
 
           if transmission.save
             Success(transmission)
@@ -115,10 +118,12 @@ module Fdsh
 
         def publish_h41_transmisson(transmission, values)
           if values[:report_type] == :original
-            create_transmission_with(transmission.transactions.transmit_pending, values)
+            new_batch_reference = construct_new_batch_reference(:original, 0)
+            create_transmission_with(transmission.transactions.transmit_pending, values, new_batch_reference)
           else
-            find_transactions_by_original_batch(transmission, values).each do |batch_reference, transactions|
-              create_transmission_with(transactions, values, batch_reference)
+            find_transactions_by_original_batch(transmission, values).each_with_index do |(batch_reference, transactions), index|
+              new_batch_reference = construct_new_batch_reference(values[:report_type], index)
+              create_transmission_with(transactions, values, new_batch_reference, batch_reference)
             end
           end
 
@@ -127,35 +132,33 @@ module Fdsh
         end
 
         def publish_pdf_reports(transmission, values)
+          if values[:report_kind] == :h41
+            return Success(
+              "Successfully generated H41 transmissions only for given report_type: #{values[:report_type]}"
+            )
+          end
+
           Fdsh::H41::Transmissions::Publish1095aPayload.new.call({ transmission: transmission,
                                                                    reporting_year: values[:reporting_year],
                                                                    report_type: values[:report_type] })
         end
 
-        def create_batch_reference_with(batch_time)
-          batch_time.gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
-        end
-
-        def default_batch_time
-          Time.now + 1.hours
-        end
-
-        def create_batch_reference
-          new_batch_reference = create_batch_reference_with(default_batch_time)
-          return @recent_new_batch_reference = new_batch_reference unless defined? @recent_new_batch_reference
-
-          if @recent_new_batch_reference == new_batch_reference
-            new_batch_reference = create_batch_reference_with(default_batch_time + 1.seconds)
-            @recent_new_batch_reference = new_batch_reference
+        def construct_new_batch_reference(report_type, index)
+          case report_type
+          when :original
+            Time.now.gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
+          when :corrected
+            (Time.now + index.hours + 10.minutes).gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
+          else
+            (Time.now + index.hours + 30.minutes).gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
           end
-          new_batch_reference
         end
 
-        def init_content_file_builder(values, old_batch_reference = nil)
+        def init_content_file_builder(values, new_batch_reference, old_batch_reference = nil)
           options = {
             transmission_kind: values[:report_type],
             old_batch_reference: old_batch_reference,
-            new_batch_reference: create_batch_reference
+            new_batch_reference: new_batch_reference
           }
 
           ContentFileBuilder.new(options) do |transaction, transmission_details|
@@ -171,13 +174,14 @@ module Fdsh
           end
         end
 
-        def create_transmission_with(transactions, values, old_batch_reference = nil)
+        def create_transmission_with(transactions, values, new_batch_reference, old_batch_reference = nil)
           ::Fdsh::Transmissions::BatchRequestDirector.new.call({
                                                                  transactions: transactions,
                                                                  transmission_kind: values[:report_type],
                                                                  old_batch_reference: old_batch_reference,
                                                                  outbound_folder_name: 'h41_transmissions',
-                                                                 transmission_builder: init_content_file_builder(values, old_batch_reference)
+                                                                 transmission_builder: init_content_file_builder(values, new_batch_reference,
+                                                                                                                 old_batch_reference)
                                                                })
         end
       end

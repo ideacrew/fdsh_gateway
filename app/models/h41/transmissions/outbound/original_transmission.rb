@@ -12,6 +12,9 @@ module H41
 
         field :reporting_year, type: Integer
 
+        # 'h41_1095a', 'h41'
+        field :report_kind, type: Symbol
+
         # Scopes
         scope :by_year, ->(reporting_year) { where(reporting_year: reporting_year) }
       end

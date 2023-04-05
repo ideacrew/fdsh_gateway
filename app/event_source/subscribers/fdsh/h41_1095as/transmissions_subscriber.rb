@@ -18,6 +18,7 @@ module Subscribers
             deny_list: payload[:deny_list],
             allow_list: payload[:allow_list],
             assistance_year: properties[:headers]['assistance_year'].to_i,
+            report_kind: properties[:headers]['report_kind'],
             report_types: properties[:headers]['report_types']
           )
 
