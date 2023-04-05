@@ -125,7 +125,7 @@ module Fdsh
           dependents.collect do |dependent|
             family_member_reference = dependent.family_member_reference
             {
-              Dependents: {
+              DependentPerson: {
                 CompletePersonName: {
                   PersonFirstName: sanitize_name(family_member_reference.first_name),
                   PersonLastName: sanitize_name(family_member_reference.last_name)
