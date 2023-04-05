@@ -26,7 +26,13 @@ module Fdsh
           errors << 'assistance_year missing' unless params[:assistance_year]
           errors << 'month_of_year missing' unless params[:month_of_year]
 
-          errors.empty? ? Success(params) : Failure(errors)
+          if errors.empty?
+            set_assistance_year(params)
+            set_month_of_year(params)
+            Success(params)
+          else
+            Failure(errors)
+          end
         end
 
         def fetch_transmission(assistance_year, month)
@@ -34,12 +40,24 @@ module Fdsh
                                                     month_of_year: month })
         end
 
+        def set_assistance_year(values)
+          @assistance_year = if values[:month_of_year] == 1
+                    values[:assistance_year] - 1
+                  else
+                    values[:assistance_year]
+                  end
+        end
+
+        def set_month_of_year(values)
+          @month = if values[:month_of_year] == 1
+                               12
+                             else
+                               values[:month_of_year] - 1
+                             end
+        end
+
         def fetch_prior_open_transmission(values)
-          result = if values[:month_of_year] == 1
-                     fetch_transmission(values[:assistance_year] - 1, 12)
-                   else
-                     fetch_transmission(values[:assistance_year], values[:month_of_year] - 1)
-                   end
+          result = fetch_transmission(@assistance_year, @month)
 
           if result.success?
             # Update to pending only if transmission is in current year
