@@ -7,7 +7,7 @@ module Subscribers
       class TransmissionsSubscriber
         include ::EventSource::Subscriber[amqp: 'enroll.h36']
 
-        subscribe(:on_transmission_requested) do |delivery_info, _properties, payload|
+        subscribe(:on_transmission_requested) do |delivery_info, properties, payload|
           parsed_payload = JSON.parse(payload, symbolize_names: true)
           result = ::Fdsh::H36::Transmissions::BuildTransmission.new.call(
             deny_list: parsed_payload[:deny_list],
