@@ -41,7 +41,7 @@ module Fdsh
         end
 
         def build_transmission(transmission, values)
-          create_transmission_with(transmission.transactions.transmit_pending, values)
+          create_transmission_with(transmission.transactions.transmit_pending.to_a, values)
           transmission.update(status: :transmitted)
           Success(true)
         end

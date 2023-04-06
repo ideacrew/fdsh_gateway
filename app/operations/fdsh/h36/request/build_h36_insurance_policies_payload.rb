@@ -60,7 +60,7 @@ module Fdsh
               APTCPaymentAmt: aptc_amount.to_f > 0 ? slcsp_premium : 0.00,
               CoveredIndividuals: construct_covered_individuals(tax_households).compact
             }
-            result.merge!(SLCSPMonthlyPremiumAmt: slcsp_premium) if aptc_amount.to_f > 0
+            result.merge!(SLCSPMonthlyPremiumAmt: slcsp_premium) unless aptc_amount.to_f > 0
             result
           end
         end
