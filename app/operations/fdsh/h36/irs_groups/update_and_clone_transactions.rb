@@ -27,8 +27,8 @@ module Fdsh
           errors << 'month_of_year missing' unless params[:month_of_year]
 
           if errors.empty?
-            set_assistance_year(params)
-            set_month_of_year(params)
+            assistance_year(params)
+            month_of_year(params)
             Success(params)
           else
             Failure(errors)
@@ -40,20 +40,20 @@ module Fdsh
                                                     month_of_year: month })
         end
 
-        def set_assistance_year(values)
+        def assistance_year(values)
           @assistance_year = if values[:month_of_year] == 1
-                    values[:assistance_year] - 1
-                  else
-                    values[:assistance_year]
-                  end
+                               values[:assistance_year] - 1
+                             else
+                               values[:assistance_year]
+                             end
         end
 
-        def set_month_of_year(values)
+        def month_of_year(values)
           @month = if values[:month_of_year] == 1
-                               12
-                             else
-                               values[:month_of_year] - 1
-                             end
+                     12
+                   else
+                     values[:month_of_year] - 1
+                   end
         end
 
         def fetch_prior_open_transmission(values)
