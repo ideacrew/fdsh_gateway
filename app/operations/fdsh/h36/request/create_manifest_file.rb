@@ -29,6 +29,8 @@ module Fdsh
         def validate(params)
           return Failure('outbound folder missing') unless params[:outbound_folder]
           return Failure('outbound folder missing') unless params[:transmission_kind]
+          return Failure('max month missing') unless params[:max_month]
+          return Failure('calendar year missing') unless params[:calendar_year]
 
           Success(params)
         end
@@ -63,7 +65,7 @@ module Fdsh
           manifest_request = {
             BatchMetadata: construct_batch_metadata,
             TransmissionMetadata: construct_transmission_metadata,
-            ServiceSpecificData: construct_service_specific_data,
+            ServiceSpecificData: construct_service_specific_data(values),
             Attachments: construct_attachments
           }
 
@@ -87,10 +89,18 @@ module Fdsh
           }
         end
 
-        def construct_service_specific_data
+        def construct_service_specific_data(values)
           {
-            ReportPeriod: { YearMonth: Date.today.prev_month.strftime("%Y-%m") }
+            ReportPeriod: { YearMonth: fetch_report_period(values) }
           }
+        end
+
+        def fetch_report_period(values)
+          report_period = Date.today.prev_month.strftime("%Y-%m")
+          if values[:calendar_year] == Date.today.prev_year && values[:max_month] > 12
+            report_period = Date.new(values[:calendar_year], 12, 1).strftime("%Y-%m")
+          end
+          report_period
         end
 
         def construct_attachments

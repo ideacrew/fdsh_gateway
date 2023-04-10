@@ -24,6 +24,8 @@ module Fdsh
 
         def validate(params)
           return Failure('outbound folder missing') unless params[:outbound_folder]
+          return Failure('max month missing') unless params[:max_month]
+          return Failure('calendar year missing') unless params[:calendar_year]
 
           Success(params)
         end

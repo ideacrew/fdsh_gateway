@@ -74,7 +74,9 @@ module Fdsh
         def build_manifest_and_transmission(outbound_folder)
           Fdsh::H36::Request::CreateBatchRequestFile.new.call(
             outbound_folder: outbound_folder,
-            transmission_kind: transmission_kind
+            transmission_kind: transmission_kind,
+            max_month: @max_month,
+            calendar_year: @calendar_year
           )
         end
       end
