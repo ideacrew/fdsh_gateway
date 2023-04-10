@@ -63,7 +63,7 @@ module Fdsh
           @attachment_files = Dir.glob("#{values[:outbound_folder]}/*.xml").sort
 
           manifest_request = {
-            BatchMetadata: construct_batch_metadata,
+            BatchMetadata: construct_batch_metadata(values),
             TransmissionMetadata: construct_transmission_metadata,
             ServiceSpecificData: construct_service_specific_data(values),
             Attachments: construct_attachments
@@ -72,9 +72,9 @@ module Fdsh
           Success(manifest_request)
         end
 
-        def construct_batch_metadata
+        def construct_batch_metadata(values)
           {
-            BatchID: Time.now.gmtime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            BatchID: values[:batch_reference] || Time.now.gmtime.strftime("%Y-%m-%dT%H:%M:%SZ"),
             BatchPartnerID: "02.ME*.SBE.001.001",
             BatchAttachmentTotalQuantity: @attachment_files.count,
             BatchCategoryCode: "IRS_EOM_REQ",

@@ -39,7 +39,7 @@ module Fdsh
             File.basename(file)
           end
 
-          batch_timestamp = DateTime.now.strftime("%y%m%d.T%H%M%S%L.P.IN")
+          batch_timestamp = DateTime.strptime(values[:batch_reference]).strftime("%y%m%d.T%H%M%S%L.P.IN")
           @zip_name = values[:outbound_folder] + "/SBE00ME.DSH.EOYIN.D#{batch_timestamp}"
 
           Zip::File.open(@zip_name, create: true) do |zipfile|

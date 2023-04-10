@@ -50,7 +50,8 @@ module Fdsh
           options = {
             transmission_kind: 'h36',
             max_month: values[:month_of_year],
-            calendar_year: values[:assistance_year]
+            calendar_year: values[:assistance_year],
+            batch_reference: Time.now.gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
           }
           ContentFileBuilder.new(options) do |transaction|
 
