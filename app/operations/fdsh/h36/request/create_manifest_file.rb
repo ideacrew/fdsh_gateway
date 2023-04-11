@@ -97,7 +97,7 @@ module Fdsh
 
         def fetch_report_period(values)
           report_period = Date.today.prev_month.strftime("%Y-%m")
-          if values[:calendar_year] == Date.today.prev_year && values[:max_month] > 12
+          if values[:calendar_year] == Date.today.prev_year.year && values[:max_month] > 12
             report_period = Date.new(values[:calendar_year], 12, 1).strftime("%Y-%m")
           end
           report_period
