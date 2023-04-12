@@ -15,6 +15,7 @@ module Fdsh
 
         def initialize(params = {}, &block)
           @transmission_kind = params[:transmission_kind]
+          @batch_reference = params[:batch_reference]
           @max_month = params[:max_month]
           @calendar_year = params[:calendar_year]
           @transaction_event_block = block if block_given?
@@ -74,7 +75,10 @@ module Fdsh
         def build_manifest_and_transmission(outbound_folder)
           Fdsh::H36::Request::CreateBatchRequestFile.new.call(
             outbound_folder: outbound_folder,
-            transmission_kind: transmission_kind
+            transmission_kind: transmission_kind,
+            max_month: @max_month,
+            calendar_year: @calendar_year,
+            batch_reference: @batch_reference
           )
         end
       end

@@ -24,6 +24,8 @@ module Fdsh
 
         def validate(params)
           return Failure('outbound folder missing') unless params[:outbound_folder]
+          return Failure('max month missing') unless params[:max_month]
+          return Failure('calendar year missing') unless params[:calendar_year]
 
           Success(params)
         end
@@ -37,7 +39,7 @@ module Fdsh
             File.basename(file)
           end
 
-          batch_timestamp = DateTime.now.strftime("%y%m%d.T%H%M%S%L.P.IN")
+          batch_timestamp = DateTime.strptime(values[:batch_reference]).strftime("%y%m%d.T%H%M%S%L.P.IN")
           @zip_name = values[:outbound_folder] + "/SBE00ME.DSH.EOYIN.D#{batch_timestamp}"
 
           Zip::File.open(@zip_name, create: true) do |zipfile|

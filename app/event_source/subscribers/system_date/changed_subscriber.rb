@@ -25,7 +25,7 @@ module Subscribers
         year = system_date.year
         month = system_date.month
         result = ::Fdsh::H36::IrsGroups::UpdateH36Transactions.new.call({ assistance_year: year,
-                                                                          month_of_year: month })
+                                                                          current_month: month })
         if result.success?
           message = result.success
           subscriber_logger.info "on_system_date_changed H36 Cloning acked #{message.is_a?(Hash) ? message[:event] : message}"

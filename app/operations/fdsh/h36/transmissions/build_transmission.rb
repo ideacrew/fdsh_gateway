@@ -41,7 +41,7 @@ module Fdsh
         end
 
         def build_transmission(transmission, values)
-          create_transmission_with(transmission.transactions.transmit_pending, values)
+          create_transmission_with(transmission.transactions.transmit_pending.to_a, values)
           transmission.update(status: :transmitted)
           Success(true)
         end
@@ -50,7 +50,8 @@ module Fdsh
           options = {
             transmission_kind: 'h36',
             max_month: values[:month_of_year],
-            calendar_year: values[:assistance_year]
+            calendar_year: values[:assistance_year],
+            batch_reference: Time.now.gmtime.strftime("%Y-%m-%dT%H:%M:%SZ")
           }
           ContentFileBuilder.new(options) do |transaction|
 
