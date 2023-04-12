@@ -57,7 +57,7 @@ module Fdsh
               PolicyCoverageStartDt: policy.start_on,
               PolicyCoverageEndDt: policy.end_on,
               TotalQHPMonthlyPremiumAmt: format('%.2f', total_premium),
-              APTCPaymentAmt: aptc_amount.to_f > 0 ?  format('%.2f', aptc_amount) : format('%.2f', 0.00),
+              APTCPaymentAmt: aptc_amount.to_f > 0 ? format('%.2f', aptc_amount) : format('%.2f', 0.00),
               CoveredIndividuals: construct_covered_individuals(tax_households).compact
             }
             result.merge!(SLCSPMonthlyPremiumAmt: format('%.2f', slcsp_premium)) unless aptc_amount.to_f > 0

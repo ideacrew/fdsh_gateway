@@ -5,7 +5,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.7.3'
 
-gem 'aca_entities', git:  'https://github.com/ideacrew/aca_entities.git', branch: 'h36_updates_v2'
+gem 'aca_entities', git:  'https://github.com/ideacrew/aca_entities.git', branch: 'trunk'
 gem 'gateway_styles', git:  'https://github.com/ideacrew/gateway-styles.git', branch: 'trunk'
 
 # Reduces boot times through caching; required in config/boot.rb
