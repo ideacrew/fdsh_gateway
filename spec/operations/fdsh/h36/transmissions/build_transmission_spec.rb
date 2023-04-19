@@ -91,7 +91,7 @@ RSpec.describe Fdsh::H36::Transmissions::BuildTransmission do
           File.basename(file)
         end
         expect(file_names.count).to eq 1
-        expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{9}\.P\.IN/)
+        expect(file_names.first).to match(/SBE00ME\.DSH\.EOMIN\.D\d{6}\.T\d{9}\.P\.IN/)
       end
 
       it 'should update transmission to transmitted state' do

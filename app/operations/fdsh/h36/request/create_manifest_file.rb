@@ -77,7 +77,7 @@ module Fdsh
             BatchID: values[:batch_reference] || Time.now.gmtime.strftime("%Y-%m-%dT%H:%M:%SZ"),
             BatchPartnerID: "02.ME*.SBE.001.001",
             BatchAttachmentTotalQuantity: @attachment_files.count,
-            BatchCategoryCode: "IRS_EOM_REQ",
+            BatchCategoryCode: "IRS_EOM_IND_REQ",
             BatchTransmissionQuantity: 1
           }
         end
