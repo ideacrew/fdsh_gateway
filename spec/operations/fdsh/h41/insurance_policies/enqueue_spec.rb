@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 require 'shared_examples/family_response2'
+require 'shared_examples/family_response5'
 
 RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
   subject { described_class.new.call(input_params) }
@@ -16,7 +17,9 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
 
   describe '#call' do
     include_context 'family response with one policy'
+    include_context 'family response with one policy coverage_start_on as feb 1'
 
+    let(:input_params2) { { affected_policies: [policy_id], assistance_year: Date.today.year, correlation_id: 'cor100', family: family_hash2 } }
     let(:corrected_transmission) { FactoryBot.create(:h41_corrected_transmission) }
     let(:original_transmission)  { FactoryBot.create(:h41_original_transmission) }
     let(:void_transmission)      { FactoryBot.create(:h41_void_transmission) }
@@ -92,7 +95,7 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
 
       context 'with submitted policy' do
         context 'with transmit_pending transactions' do
-          before { described_class.new.call(input_params) }
+          before { described_class.new.call(input_params2) }
 
           let(:original_second_transaction) do
             original_transactions_transmissions_transactions.second
@@ -163,24 +166,23 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
       end
 
       context 'with canceled policy' do
-        before { described_class.new.call(input_params1) }
-
-        let(:input_params1) do
-          input_params[:family][:households].first[:insurance_agreements].first[:insurance_policies].first[:aasm_state] = 'submitted'
-          input_params
-        end
+        let(:void_first_transaction) { void_transactions_transmissions_transactions.first }
 
         let(:update_policy_aasm_state) do
           input_params[:family][:households].first[:insurance_agreements].first[:insurance_policies].first[:aasm_state] = 'canceled'
           input_params
         end
 
-        let(:void_first_transaction) do
-          void_transactions_transmissions_transactions.first
-        end
-
         context 'with transmit_pending transactions' do
+          let(:void_first_transaction) { void_transactions_transmissions_transactions.first }
+
+          let(:input_params1) do
+            input_params[:family][:households].first[:insurance_agreements].first[:insurance_policies].first[:aasm_state] = 'submitted'
+            input_params
+          end
+
           before do
+            described_class.new.call(input_params1)
             update_policy_aasm_state
             subject
           end
@@ -211,7 +213,13 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
         end
 
         context 'with transmitted transactions' do
+          let(:input_params222) do
+            input_params2[:family][:households].first[:insurance_agreements].first[:insurance_policies].first[:aasm_state] = 'submitted'
+            input_params2
+          end
+
           before do
+            described_class.new.call(input_params222)
             transmitted_transactions
             update_policy_aasm_state
             subject
@@ -222,6 +230,38 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
             expect(original_first_transaction.transmit_action).to eq(:no_transmit)
             expect(void_first_transaction.status).to eq(:created)
             expect(void_first_transaction.transmit_action).to eq(:transmit)
+            expect(void_first_transaction.transactable.transaction_xml).not_to be_empty
+          end
+
+          it 'creates transactions for void transmission' do
+            expect(corrected_transactions_transmissions_transactions.map(&:id)).to eq([])
+            expect(original_transactions_transmissions_transactions.map(&:id)).to eq(transactions_for_first_subject.map(&:id))
+            expect(void_transactions_transmissions_transactions.map(&:id)).to eq(transactions_for_second_subject.map(&:id))
+          end
+
+          it 'creates subjects with transmission_type' do
+            expect(
+              original_transactions_transmissions_transactions.map(&:transactable).flat_map(&:original).uniq
+            ).to eq([true])
+            expect(
+              void_transactions_transmissions_transactions.map(&:transactable).flat_map(&:void).uniq
+            ).to eq([true])
+          end
+        end
+
+        context 'with new transaction which is a duplicate of the transmitted transaction' do
+          before do
+            described_class.new.call(input_params)
+            transmitted_transactions
+            update_policy_aasm_state
+            subject
+          end
+
+          it 'will not update transmitted transactions' do
+            expect(original_first_transaction.status).to eq(:transmitted)
+            expect(original_first_transaction.transmit_action).to eq(:no_transmit)
+            expect(void_first_transaction.status).to eq(:duplicate)
+            expect(void_first_transaction.transmit_action).to eq(:no_transmit)
             expect(void_first_transaction.transactable.transaction_xml).not_to be_empty
           end
 
