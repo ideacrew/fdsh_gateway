@@ -109,8 +109,6 @@ module Fdsh
             transaction_xml, applicants_count = result.success
             append_xml(transaction_xml)
             @applicants_count += applicants_count
-          else
-            p "xml generation failed for #{transaction.id} due to #{result.failure}"
           end
         end
 
@@ -128,7 +126,6 @@ module Fdsh
 
             query_offset += processing_batch_size
             batch_offset += processing_batch_size
-            p "Processed #{query_offset} transactions."
 
             # rubocop:disable Layout/LineLength
             unless (batch_offset >= values[:transactions_per_file]) || (batched_requests.count < processing_batch_size) || (transactions.count <= query_offset)
