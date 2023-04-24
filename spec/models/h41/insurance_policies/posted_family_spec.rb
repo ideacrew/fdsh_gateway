@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'shared_examples/family_response5'
 
 RSpec.describe H41::InsurancePolicies::PostedFamily, type: :model do
+  include_context 'family response with one policy coverage_start_on as feb 1'
+
   let(:correlation_id) { 'ae321f' }
   let(:contract_holder_id) { '25458' }
   let(:family_cv) { 'family: {}' }
@@ -42,6 +45,46 @@ RSpec.describe H41::InsurancePolicies::PostedFamily, type: :model do
       expect(result.save).to be_truthy
       expect(described_class.all.count).to eq 1
       expect(described_class.find(result._id).created_at).to be_present
+    end
+  end
+
+  let(:posted_family) { FactoryBot.create(:posted_family, family_cv: family_cv) }
+
+  describe '#family_cv_hash' do
+    context 'with family_cv' do
+      let(:family_cv) { family_hash2.to_json }
+
+      it 'returns parsed hash' do
+        expect(posted_family.family_cv_hash).to be_a(Hash)
+      end
+    end
+
+    context 'without family_cv' do
+      let(:family_cv) { nil }
+
+      it 'returns nil' do
+        expect(posted_family.family_cv_hash).to be_nil
+      end
+    end
+  end
+
+  describe '#family_entity' do
+    context 'with family_cv' do
+      let(:family_cv) { family_hash2.to_json }
+
+      it 'returns parsed hash' do
+        expect(posted_family.family_entity).to be_a(
+          ::AcaEntities::Families::Family
+        )
+      end
+    end
+
+    context 'without family_cv' do
+      let(:family_cv) { nil }
+
+      it 'returns nil' do
+        expect(posted_family.family_entity).to be_nil
+      end
     end
   end
 end

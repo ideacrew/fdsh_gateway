@@ -19,7 +19,8 @@ module Transmittable
   # nacked: negative_acknowledged, an outside service completed processing and indicated an error
   # pending: awaiting processing
   # blocked: transaction status when we do not need to transmit the latest transaction, usually upon receiving void when we never transmitted before
-  # duplicate: transaction status when we compare the incoming transaction with the most recently transmitted transaction which will not result in a difference between the transactions
+  # duplicate: transaction status when we compare the incoming transaction
+  #            with the most recently transmitted transaction which will not result in a difference between the transactions
   DEFAULT_TRANSACTION_STATUS_TYPES = %i[
     approved
     acked

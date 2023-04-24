@@ -20,6 +20,18 @@ module H41
       index({ correlation_id: 1 })
       index({ contract_holder_id: 1 })
       index({ family_hbx_id: 1 })
+
+      def family_cv_hash
+        return if family_cv.blank?
+
+        @family_cv_hash ||= JSON.parse(family_cv, symbolize_names: true)
+      end
+
+      def family_entity
+        return if family_cv_hash.blank?
+
+        @family_entity ||= ::AcaEntities::Operations::CreateFamily.new.call(family_cv_hash).success
+      end
     end
   end
 end
