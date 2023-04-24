@@ -105,11 +105,11 @@ module Fdsh
                                                                        }).max_by(&:created_at).message['request'])
 
           result = create_transaction_xml(application_params, outbound_folder)
-          if result.success?
-            transaction_xml, applicants_count = result.success
-            append_xml(transaction_xml)
-            @applicants_count += applicants_count
-          end
+          return unless result.success?
+
+          transaction_xml, applicants_count = result.success
+          append_xml(transaction_xml)
+          @applicants_count += applicants_count
         end
 
         def create_batch_requests(transactions, values, outbound_folder)

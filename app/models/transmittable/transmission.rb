@@ -1,17 +1,5 @@
 # frozen_string_literal: true
 
-# Design Goals
-#   ability to persist uniques data models
-#   abstracted approach to Transmission/Transaaction status
-
-# Job - signal transmitted from EA. May include deny_list and allow_list
-#   # at least
-#   Transmission (types: original, corrected, void)
-#     has_many :transactions, class_name: 'SubjectClassName'
-#     # transaction subject
-#     # zipped (folder) with one manifest, one or more segments (files), one or more transactions/file
-#     Transactions
-
 module Transmittable
   # A list of valid status values.  Override defaults using initializer options
   # acked: acknowledged
