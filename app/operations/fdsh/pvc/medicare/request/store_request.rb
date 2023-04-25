@@ -12,34 +12,56 @@ module Fdsh
           include Dry::Monads[:result, :do, :try]
 
           def call(params)
-            # validate
-            validated_params = yield validate(params)
-            # save request
-            save_request(validated_params)
+            application = yield validate_and_fetch_application(params)
+            _updated_transaction = yield store_request(application)
+
+            Success(application)
           end
 
-          def validate(params)
+          private
+
+          def validate_and_fetch_application(params)
             errors = []
-            errors << 'applicant missing' unless params[:applicant]
-            errors << 'manifest missing' unless params[:manifest]
-            errors << 'application hbx id missing' unless params[:application_hbx_id]
-            result_manifest = ::AcaEntities::Pdm::Contracts::ManifestContract.new.call(params[:manifest])
-            result_applicant = ::AcaEntities::MagiMedicaid::Contracts::ApplicantContract.new.call(params[:applicant])
+            errors << 'application is missing' unless params[:application_hash]
 
-            errors << result_manifest.errors if result_manifest.errors.present?
-            errors << result_applicant.errors if result_applicant.errors.present?
-
-            errors.empty? ? Success(params) : Failure(errors)
+            result = AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(params[:application_hash])
+            if result.success?
+              result
+            else
+              errors << result.failure.errors.to_h
+              Failure[errors]
+            end
           end
 
-          def save_request(validated_params)
-            request = {
-              subject_id: validated_params[:applicant][:identifying_information][:encrypted_ssn],
-              command: "medicare",
-              request_payload: validated_params[:applicant].to_json,
-              document_identifier: { application_hbx_id: validated_params[:application_hbx_id] }
+          def store_request(application)
+            application.applicants.each do |applicant|
+              create_or_update_transaction("request", application, applicant)
+            end
+
+            Success(true)
+          end
+
+          def create_or_update_transaction(key, value, applicant)
+            activity_hash = {
+              correlation_id: "pvc_mdcr_#{applicant.identifying_information.encrypted_ssn}",
+              command: "Fdsh::Pvc::Medicare::Request::StoreRequest",
+              event_key: "pvc_mdcr_determination_requested",
+              message: { "#{key}": value.to_json },
+              assistance_year: value.assistance_year
             }
-            Pdm::Request::FindOrCreate.new.call(request, validated_params[:manifest])
+
+            application_id = value.hbx_id
+            primary_hbx_id = value.applicants.detect(&:is_primary_applicant)&.person_hbx_id
+            transaction_hash = {
+              correlation_id: activity_hash[:correlation_id],
+              activity: activity_hash,
+              magi_medicaid_application: value.to_json,
+              application_id: application_id,
+              primary_hbx_id: primary_hbx_id
+            }
+            Try do
+              Journal::Transactions::AddActivity.new.call(transaction_hash)
+            end
           end
         end
       end

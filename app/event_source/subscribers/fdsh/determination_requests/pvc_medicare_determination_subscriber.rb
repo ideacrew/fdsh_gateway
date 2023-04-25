@@ -13,8 +13,7 @@ module Subscribers
         subscribe(:on_periodic_verification_confirmation) do |delivery_info, _properties, payload|
           # Sequence of steps that are executed as single operation
           values = JSON.parse(payload, :symbolize_names => true)
-
-          result = ::Fdsh::Pvc::Medicare::Request::StoreRequest.new.call(values)
+          result = ::Fdsh::Pvc::Medicare::Request::StoreRequest.new.call(application_hash: values[:application])
 
           if result.success?
             logger.info("OK: :on_periodic_verification_confirmation successful and acked")
