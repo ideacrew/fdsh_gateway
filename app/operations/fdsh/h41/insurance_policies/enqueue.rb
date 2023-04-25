@@ -22,8 +22,7 @@ module Fdsh
         # @option opts [String] :from ('nobody') From address
         def call(params)
           values                  = yield validate(params)
-          family_cv               = yield validate_family_cv(values)
-          family                  = yield initialize_family_entity(family_cv)
+          family                  = yield initialize_family_entity(values[:family])
           policies                = yield parse_family(family, values)
           @corrected_transmission = yield find_transmission(:corrected, params[:assistance_year])
           @original_transmission  = yield find_transmission(:original, params[:assistance_year])
@@ -156,7 +155,7 @@ module Fdsh
             primary_tax_filer_hbx_id: aptc_csr_thh.primary_tax_filer_hbx_id
           )
 
-          ::Transmittable::Transaction.where(:transactable_id.in => subjects.pluck(:id))
+          ::Transmittable::Transaction.where(:transactable_id.in => subjects.pluck(:id)).order(created_at: :desc)
         end
 
         def fetch_transmission(transaction_type)
@@ -183,15 +182,15 @@ module Fdsh
         end
 
         def initialize_family_entity(payload)
-          Success(::AcaEntities::Families::Family.new(payload))
+          ::AcaEntities::Operations::CreateFamily.new.call(payload)
         end
 
         def parse_aptc_csr_tax_households(family, insurance_agreement, policy)
           policy.aptc_csr_tax_households.inject([]) do |thhs_array, aptc_csr_thh|
             previous_transactions = find_transactions(policy, aptc_csr_thh)
-            update_previous_transactions(previous_transactions)
+            update_previous_transmit_pending_transactions(previous_transactions)
             transmission_type = find_transmission_type(policy, previous_transactions)
-            transaction_hash = parse_transaction(transmission_type, previous_transactions)
+            transaction_hash = parse_transaction(transmission_type, previous_transactions, aptc_csr_thh)
 
             thhs_array << {
               corrected: transmission_type == :corrected,
@@ -215,10 +214,28 @@ module Fdsh
           end
         end
 
-        def parse_transaction(transmission_type, previous_transactions)
-          # If current transaction is void and we never transmitted this subject before, then status is :blocked, transmit_action is :no_transmit
+        def duplicate_transaction?(previous_transactions, aptc_csr_thh)
+          latest_transmitted_transaction = previous_transactions.transmitted.first
+          return false if latest_transmitted_transaction.blank?
+
+          subject = latest_transmitted_transaction.transactable
+          insurance_policy = subject.insurance_policy
+          previous_aptc_csr_thh = insurance_policy.posted_family.family_entity.find_policy_by(
+            insurance_policy.policy_hbx_id
+          ).find_tax_household_by(
+            subject.primary_tax_filer_hbx_id
+          )
+          previous_aptc_csr_thh.tax_household_same_as?(aptc_csr_thh)
+        end
+
+        # If current transaction is void and we never transmitted this subject before, then status is :blocked, transmit_action is :no_transmit
+        # If the current transaction is not different when compared against the most recently transmitted transaction,
+        #   then the status is :duplicate, transmit_action is :no_transmit
+        def parse_transaction(transmission_type, previous_transactions, aptc_csr_thh)
           if transmission_type == :void && previous_transactions.transmitted.none?
             { transmit_action: :no_transmit, status: :blocked, transmission_type: transmission_type, started_at: Time.now }
+          elsif duplicate_transaction?(previous_transactions, aptc_csr_thh)
+            { transmit_action: :no_transmit, status: :duplicate, transmission_type: transmission_type, started_at: Time.now }
           else
             { transmit_action: :transmit, status: :created, transmission_type: transmission_type, started_at: Time.now }
           end
@@ -284,7 +301,7 @@ module Fdsh
           family.family_members.detect(&:is_primary_applicant).person.hbx_id
         end
 
-        def update_previous_transactions(previous_transactions)
+        def update_previous_transmit_pending_transactions(previous_transactions)
           previous_transactions.transmit_pending.update_all(status: :superseded, transmit_action: :no_transmit)
         end
 
@@ -302,17 +319,6 @@ module Fdsh
 
           params.merge!({ assistance_year: params[:assistance_year].to_i })
           Success(params)
-        end
-
-        # Validates params using AcaEntities Family contract
-        def validate_family_cv(values)
-          result = AcaEntities::Contracts::Families::FamilyContract.new.call(values[:family])
-
-          if result.success?
-            Success(result.to_h)
-          else
-            Failure(result.errors.to_h)
-          end
         end
       end
       # rubocop:enable Metrics/ClassLength

@@ -105,13 +105,11 @@ module Fdsh
                                                                        }).max_by(&:created_at).message['request'])
 
           result = create_transaction_xml(application_params, outbound_folder)
-          if result.success?
-            transaction_xml, applicants_count = result.success
-            append_xml(transaction_xml)
-            @applicants_count += applicants_count
-          else
-            p "xml generation failed for #{transaction.id} due to #{result.failure}"
-          end
+          return unless result.success?
+
+          transaction_xml, applicants_count = result.success
+          append_xml(transaction_xml)
+          @applicants_count += applicants_count
         end
 
         def create_batch_requests(transactions, values, outbound_folder)
@@ -128,7 +126,6 @@ module Fdsh
 
             query_offset += processing_batch_size
             batch_offset += processing_batch_size
-            p "Processed #{query_offset} transactions."
 
             # rubocop:disable Layout/LineLength
             unless (batch_offset >= values[:transactions_per_file]) || (batched_requests.count < processing_batch_size) || (transactions.count <= query_offset)
