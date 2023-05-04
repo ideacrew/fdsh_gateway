@@ -42,6 +42,8 @@ module Journal
             Success(::Transaction.new(values))
           else
             transaction = result.first
+            transaction.magi_medicaid_application = values[:magi_medicaid_application] if values[:magi_medicaid_application]
+            transaction.application_id = values[:application_id] if values[:application_id]
             activities = values[:activities] || []
             activities.each do |activity_hash|
               activity = ::Activity.new(activity_hash)
