@@ -96,6 +96,22 @@ RSpec.describe Journal::Transactions::AddActivity do
         expect(result.value![:activities].size).to eq 2
         expect(result.value![:activities].last[:command]).to eq response_command
       end
+
+      it 'should find the existing transaction, update the magi_medicaid_application and add the new activity' do
+        result =
+          described_class.new.call(
+            correlation_id: correlation_id,
+            activity: response_activity,
+            magi_medicaid_application: { application_hash: "application_hash" }.to_json,
+            application_id: "application_id"
+          )
+
+        expect(result.success?).to be_truthy
+        expect(result.value![:activities].size).to eq 3
+        expect(result.value![:activities].last[:command]).to eq response_command
+        expect(result.value![:magi_medicaid_application]).to eq({ application_hash: "application_hash" }.to_json)
+        expect(result.value![:application_id]).to eq "application_id"
+      end
     end
   end
 end
