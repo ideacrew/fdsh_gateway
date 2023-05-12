@@ -12,7 +12,7 @@ module Fdsh
           def call(params)
             values               = yield validate(params)
             application          = yield build_application(values)
-            esi_payload          = yield construct_request_payload(application, values[:assistance_year])
+            esi_payload          = yield construct_request_payload(application, values)
             pvc_medicare_request = yield build_request_entity(esi_payload)
             xml_string           = yield encode_xml_and_schema_validate(pvc_medicare_request)
             pvc_medicare_xml     = yield encode_request_xml(xml_string)
@@ -27,6 +27,7 @@ module Fdsh
             errors = []
             errors << 'application payload is missing' unless params[:application_payload]
             errors << 'assistance year is missing' unless params[:assistance_year]
+            errors << 'transaction ssn is missing' unless params[:transaction_ssn]
 
             errors.present? ? Failure(errors) : Success(params)
           end
@@ -37,13 +38,12 @@ module Fdsh
             result.success? ? result : Failure(result.failure.errors.to_h)
           end
 
-          def can_skip_applicant?(applicant)
-            applicant.identifying_information.encrypted_ssn.blank? || applicant.non_esi_evidence.blank?
-          end
-
-          def construct_request_payload(application, assistance_year)
+          def construct_request_payload(application, values)
+            assistance_year = values[:assistance_year]
+            transaction_ssn = values[:transaction_ssn]
             applicant_requests = application.applicants.collect do |applicant|
-              can_skip_applicant?(applicant)
+              next unless applicant.identifying_information.encrypted_ssn == transaction_ssn
+              next if applicant.non_esi_evidence.blank?
               ::AcaEntities::Fdsh::Pvc::Medicare::Operations::BuildMedicareRequest.new.call(applicant, assistance_year).value!
             end.compact
 

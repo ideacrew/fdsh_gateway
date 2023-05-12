@@ -35,6 +35,8 @@ module Fdsh
 
           def store_request(application)
             application.applicants.each do |applicant|
+              next unless applicant.identifying_information.encrypted_ssn.present?
+
               create_or_update_transaction("request", application, applicant)
             end
 

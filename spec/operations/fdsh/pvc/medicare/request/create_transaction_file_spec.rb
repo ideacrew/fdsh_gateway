@@ -22,7 +22,8 @@ RSpec.describe Fdsh::Pvc::Medicare::Request::CreateTransactionFile do
   let(:params) do
     {
       application_payload: JSON.parse(Transaction.first.activities.last.message['request']),
-      assistance_year: Transaction.first.activities.last.assistance_year
+      assistance_year: Transaction.first.activities.last.assistance_year,
+      transaction_ssn: Transaction.first.activities.last.correlation_id.gsub('pvc_mdcr_', '')
     }
   end
 
