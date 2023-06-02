@@ -4,7 +4,7 @@ module Fdsh
   module Ssa
     module H3
       # This class takes a json representing a person as input and invokes SSA.
-      class RequestSsaVerification
+      class RequestXmlSsaVerification
         include Dry::Monads[:result, :do, :try]
         include EventSource::Command
 
@@ -36,21 +36,6 @@ module Fdsh
           end
         end
 
-        def encode_xml_and_schema_validate(ssa_verification_request)
-          AcaEntities::Serializers::Xml::Fdsh::Ssa::H3::Operations::SsaRequestToXml.new.call(ssa_verification_request)
-        end
-
-        def encode_request_xml(xml_string)
-          encoding_result = Try do
-            xml_doc = Nokogiri::XML(xml_string)
-            xml_doc.to_xml(:indent => 2, :encoding => 'UTF-8', :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION)
-          end
-
-          encoding_result.or do |e|
-            Failure(e)
-          end
-        end
-
         def validate_person_json_hash(json_hash)
           validation_result = AcaEntities::Contracts::People::PersonContract.new.call(json_hash)
 
@@ -63,6 +48,21 @@ module Fdsh
           end
 
           creation_result.or do |e|
+            Failure(e)
+          end
+        end
+
+        def encode_xml_and_schema_validate(ssa_verification_request)
+          AcaEntities::Serializers::Xml::Fdsh::Ssa::H3::Operations::SsaRequestToXml.new.call(ssa_verification_request)
+        end
+
+        def encode_request_xml(xml_string)
+          encoding_result = Try do
+            xml_doc = Nokogiri::XML(xml_string)
+            xml_doc.to_xml(:indent => 2, :encoding => 'UTF-8', :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION)
+          end
+
+          encoding_result.or do |e|
             Failure(e)
           end
         end

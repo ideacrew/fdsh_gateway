@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Fdsh::Ssa::H3::RequestSsaVerification, "given invalid JSON" do
+RSpec.describe Fdsh::Ssa::H3::RequestXmlSsaVerification, "given invalid JSON" do
 
   let(:json_payload) { "\kdslkjfe;" }
 
@@ -16,7 +16,7 @@ RSpec.describe Fdsh::Ssa::H3::RequestSsaVerification, "given invalid JSON" do
   end
 end
 
-RSpec.describe Fdsh::Ssa::H3::RequestSsaVerification, "given:
+RSpec.describe Fdsh::Ssa::H3::RequestXmlSsaVerification, "given:
 - valid JSON
 - invalid person params" do
 
@@ -52,7 +52,7 @@ RSpec.describe Fdsh::Ssa::H3::RequestSsaVerification, "given:
   end
 end
 
-RSpec.describe Fdsh::Ssa::H3::RequestSsaVerification, "given:
+RSpec.describe Fdsh::Ssa::H3::RequestXmlSsaVerification, "given:
 - valid JSON
 - valid person params
 - invalid determination request params" do
@@ -106,7 +106,7 @@ RSpec.describe Fdsh::Ssa::H3::RequestSsaVerification, "given:
   end
 end
 
-RSpec.describe Fdsh::Ssa::H3::RequestSsaVerification, "given:
+RSpec.describe Fdsh::Ssa::H3::RequestXmlSsaVerification, "given:
 - valid JSON
 - valid person params
 - valid determination request params
