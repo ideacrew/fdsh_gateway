@@ -4,7 +4,7 @@ module Fdsh
   module Ssa
     module H3
       # This class takes a json representing a person as input and invokes SSA.
-      class RequestXmlSsaVerification
+      class RequestJsonSsaVerification
         include Dry::Monads[:result, :do, :try]
         include EventSource::Command
 
