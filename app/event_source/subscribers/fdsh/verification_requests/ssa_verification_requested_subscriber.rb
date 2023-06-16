@@ -12,8 +12,8 @@ module Subscribers
           correlation_id = properties.correlation_id
 
           # Create job operation that takes params of key, title, description
-          job = ::Fdsh::Jobs::FindOrCreateJobOperation.new.call({ key: :ssa_verification_request, title: 'SSA Verification Request',
-                                                                  description: 'Request for SSA verification to CMS', payload: payload })
+          job = ::Fdsh::Jobs::FindOrCreateJob.new.call({ key: :ssa_verification_request, title: 'SSA Verification Request',
+                                                         description: 'Request for SSA verification to CMS', payload: payload })
 
           verification_result = if properties.payload_type == 'json'
                                   ::Fdsh::Ssa::H3::HandleJsonSsaVerificationRequest.new.call({
