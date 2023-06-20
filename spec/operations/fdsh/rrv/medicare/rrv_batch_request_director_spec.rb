@@ -43,7 +43,6 @@ RSpec.describe Fdsh::Rrv::Medicare::RrvBatchRequestDirector do
     }
   end
 
-
   it "should create batch request zip file" do
     result = described_class.new.call(params)
     expect(Transaction.count).to eq 17
