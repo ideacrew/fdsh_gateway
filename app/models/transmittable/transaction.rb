@@ -25,6 +25,13 @@ module Transmittable
     field :started_at, type: DateTime
     field :end_at, type: DateTime
 
+    field :key, type: Symbol
+    field :title, type: String
+    field :description, type: String
+    field :process_status, type: Hash
+    field :ended_at, type: DateTime
+    field :payload, type: String
+
     # Scopes
     scope :blocked,          -> { where(status: :blocked) }
     scope :errored,          -> { where(status: :errored) }

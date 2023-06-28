@@ -2,22 +2,25 @@
 
 module Fdsh
   module Jobs
-    # create Transaction that takes params of key (required), payload
+    # create Transaction that takes params of key (required), started_at(required), and transmission (required)
     class CreateTransaction
       include Dry::Monads[:result, :do, :try]
 
       def call(params)
         values = yield validate_params(params)
-        transaction_hash = build_transaction_hash(values)
-        validated_transaction = validate_transaction(transaction_hash)
-        _transaction_entity = transaction_entity(validated_transaction)
+        transaction_hash = yield build_transaction_hash(values)
+        transaction_entity = yield create_transaction_entity(transaction_hash)
+        transaction = yield create_transaction(values[:transmission], transaction_entity)
+        _transaction_transmission = yield create_transaction_transmission(transaction, values[:transmission])
+        Success(transaction)
       end
 
       private
 
       def validate_params(params)
-        return Failure('key required') unless params[:key]
-        return Failure('payload required') unless params[:payload]
+        return Failure('Transaction cannot be created without key symbol') unless params[:key].is_a?(Symbol)
+        return Failure('Transaction cannot be created without started_at datetime') unless params[:started_at].is_a?(DateTime)
+        return Failure('Transaction cannot be created without a transmission') unless params[:transmission].is_a?(Transmittable::Transmission)
 
         Success(params)
       end
@@ -28,38 +31,32 @@ module Fdsh
                   title: values[:title],
                   description: values[:description],
                   process_status: create_process_status,
-                  started_at: DateTime.now,
+                  started_at: values[:started_at],
                   ended_at: values[:ended_at],
-                  errors: []
+                  errors: [],
+                  payload: values[:payload]
                 })
       end
 
-      def initial_process_state
-        {
-          event: "created",
-          message: "",
-          started_at: DateTime.now,
-          ended_at: nil,
-          state_key: :initial
-        }
-      end
-
       def create_process_status
-        {
-          initial_state_key: :initial,
-          elapsed_time: 0,
-          process_states: [initial_process_state]
-        }
+        Fdsh::Jobs::CreateProcessStatusHash.new.call({ event: 'initial', state_key: :initial, started_at: DateTime.now }).value!
       end
 
-      def validate_transaction(transaction_hash)
-        validation_result = AcaEntities::Protocols::Transmittable::Contracts::TransactionContract.new.call(transaction_hash)
+      def create_transaction_entity(transaction_hash)
+        validation_result = AcaEntities::Protocols::Transmittable::Operations::Transactions::Create.new.call(transaction_hash)
 
-        validation_result.success? ? Success(validation_result.values) : Failure(validation_result.errors)
+        validation_result.success? ? Success(validation_result.value!) : Failure("Unable to create Transaction due to invalid params")
       end
 
-      def transaction_entity(validated_transaction)
-        AcaEntities::Protocols::Transmittable::Transaction.new(validated_transaction.to_h)
+      def create_transaction(_transmission, transaction_entity)
+        Success(Transmittable::Transaction.create(transaction_entity.to_h.except(:errors)))
+      end
+
+      def create_transaction_transmission(transaction, transmission)
+        Success(::Transmittable::TransactionsTransmissions.create(
+                  transmission: transmission,
+                  transaction: transaction
+                ))
       end
     end
   end

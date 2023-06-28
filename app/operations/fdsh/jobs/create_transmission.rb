@@ -2,23 +2,24 @@
 
 module Fdsh
   module Jobs
-    # create Transmission that takes params of key (required), payload
+    # create Transmission that takes params of key (required), job (required), started_at(required)
     class CreateTransmission
       include Dry::Monads[:result, :do, :try]
 
       def call(params)
         values = yield validate_params(params)
-        transmission_hash = build_tranmission_hash(values)
-        validated_transmission = validate_transmission(transmission_hash)
-        _transmission_entity = transmission_entity(validated_transmission)
-        _transactions = build_transactions(values[:key], values[:payload])
+        transmission_hash = yield build_tranmission_hash(values)
+        transmission_entity = yield transmission_entity(transmission_hash)
+        tranmission = yield create_transmission(params[:job], transmission_entity)
+        Success(tranmission)
       end
 
       private
 
       def validate_params(params)
-        return Failure('key required') unless params[:key]
-        return Failure('payload required') unless params[:payload]
+        return Failure('Transmission cannot be created without key symbol') unless params[:key].is_a?(Symbol)
+        return Failure('Transmission cannot be created without started_at datetime') unless params[:started_at].is_a?(DateTime)
+        return Failure('Cannot create a transmission without a job') unless params[:job].is_a?(Transmittable::Job)
 
         Success(params)
       end
@@ -28,43 +29,25 @@ module Fdsh
                   key: values[:key],
                   title: values[:title],
                   description: values[:description],
-                  started_at: DateTime.now,
-                  ended_at: values[ended_at],
+                  started_at: values[:started_at],
+                  ended_at: values[:ended_at],
                   process_status: create_process_status,
                   errors: []
                 })
       end
 
-      def initial_process_state
-        {
-          event: "created",
-          message: "",
-          started_at: DateTime.now,
-          ended_at: nil,
-          state_key: :initial
-        }
-      end
-
       def create_process_status
-        {
-          initial_state_key: :initial,
-          elapsed_time: 0,
-          process_states: [initial_process_state]
-        }
+        Fdsh::Jobs::CreateProcessStatusHash.new.call({ event: 'initial', state_key: :initial, started_at: DateTime.now }).value!
       end
 
-      def validate_transmission(transmission_hash)
-        validation_result = AcaEntities::Protocols::Transmittable::Contracts::TransmissionContract.new.call(transmission_hash)
+      def transmission_entity(transmission_hash)
+        validation_result = AcaEntities::Protocols::Transmittable::Operations::Transmissions::Create.new.call(transmission_hash)
 
-        validation_result.success? ? Success(validation_result.values) : Failure(validation_result.errors)
+        validation_result.success? ? Success(validation_result.value!) : Failure("Unable to create Transmission due to invalid params")
       end
 
-      def transmission_entity(validated_transmission)
-        AcaEntities::Protocols::Transmittable::Transmission.new(validated_transmission.to_h)
-      end
-
-      def build_transactions(key, payload)
-        ::Fdsh::Jobs::CreateTransaction.new.call({ key: key, payload: payload })
+      def create_transmission(job, tranmission_entity)
+        Success(job.transmissions.create(tranmission_entity.to_h.except(:errors)))
       end
     end
   end

@@ -45,12 +45,17 @@ module Transmittable
     include Mongoid::Timestamps
 
     belongs_to :account, class_name: 'Accounts::Account', optional: true
+    belongs_to :job, class_name: 'Transmittable::Job', optional: true
     has_many :transactions_transmissions, class_name: 'Transmittable::TransactionsTransmissions'
 
     # State for the Transmission
     field :status, type: Symbol
     field :started_at, type: DateTime, default: -> { Time.now }
     field :ended_at, type: DateTime
+    field :key, type: Symbol
+    field :title, type: String
+    field :description, type: String
+    field :process_status, type: Hash
 
     # Indexes
     index({ created_at: 1 })
