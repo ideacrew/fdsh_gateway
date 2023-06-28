@@ -26,18 +26,24 @@ module Fdsh
           return Failure('assistance year missing') unless params[:assistance_year]
           return Failure('transactions per file missing') unless params[:transactions_per_file]
           return Failure('outbound folder name missing') unless params[:outbound_folder_name]
+          return Failure('start_date is missing') unless params[:start_date]
           @batch_size = params[:batch_size] if params[:batch_size]
 
           Success(params)
         end
 
         def query_rrv_requests(values)
-          transactions = Transaction.where(:activities => {
-                                             :$elemMatch => {
-                                               event_key: RRV_EVENT_KEY,
-                                               assistance_year: values[:assistance_year]
-                                             }
-                                           })
+          transactions = Transaction.where(
+            "activities" => {
+              "$elemMatch" => {
+                "event_key" => RRV_EVENT_KEY,
+                "assistance_year" => values[:assistance_year]
+              }
+            },
+            "created_at" => {
+              "$gte" => values[:start_date].beginning_of_day
+            }
+          )
 
           Success(transactions)
         end
@@ -47,12 +53,17 @@ module Fdsh
         end
 
         def batch_request_for(offset, values)
-          Transaction.where(:activities => {
-                              :$elemMatch => {
-                                event_key: RRV_EVENT_KEY,
-                                assistance_year: values[:assistance_year]
-                              }
-                            }).skip(offset).limit(processing_batch_size)
+          Transaction.where(
+            "activities" => {
+              "$elemMatch" => {
+                "event_key" => RRV_EVENT_KEY,
+                "assistance_year" => values[:assistance_year]
+              }
+            },
+            "created_at" => {
+              "$gte" => values[:start_date].beginning_of_day
+            }
+          ).skip(offset).limit(processing_batch_size)
         end
 
         def create_outbound_folder(values)

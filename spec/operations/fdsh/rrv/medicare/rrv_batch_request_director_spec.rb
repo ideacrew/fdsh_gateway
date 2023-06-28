@@ -28,18 +28,34 @@ RSpec.describe Fdsh::Rrv::Medicare::RrvBatchRequestDirector do
       assistance_year: 2022,
       transactions_per_file: 4,
       outbound_folder_name: 'rrv_outbound_files_test',
-      batch_size: 2
+      batch_size: 2,
+      start_date: Date.today
     }
   end
 
-  subject do
-    described_class.new.call(params)
+  let(:params_2) do
+    {
+      assistance_year: 2022,
+      transactions_per_file: 4,
+      outbound_folder_name: 'rrv_outbound_files_test',
+      batch_size: 2,
+      start_date: Date.today + 10.days
+    }
   end
 
   it "should create batch request zip file" do
+    result = described_class.new.call(params)
     expect(Transaction.count).to eq 17
-    expect(subject.success?).to be_truthy
-    expect(subject.success).to eq "rrv_outbound_files_test"
+    expect(result.success?).to be_truthy
+    expect(result.success).to eq "rrv_outbound_files_test"
     expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN.zip")].count).to eq 5
+  end
+
+  it "should not pull transactions before start_date param" do
+    result = described_class.new.call(params_2)
+    expect(Transaction.count).to eq 17
+    expect(result.success?).to be_truthy
+    expect(result.success).to eq "rrv_outbound_files_test"
+    expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN.zip")].count).to eq 0
   end
 end
