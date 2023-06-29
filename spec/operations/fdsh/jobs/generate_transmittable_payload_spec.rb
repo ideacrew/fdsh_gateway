@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'shared_examples/person_cv3'
 
-RSpec.describe Fdsh::Jobs::CreateTransmittableJob do
+RSpec.describe Fdsh::Jobs::GenerateTransmittablePayload do
+  include_context "person hash for cv3"
+
   subject { described_class.new }
   let(:key) { :ssa_verification_request}
   let(:title) { 'SSA Verification Request'}
   let(:description) { 'Request for SSA verification to CMS'}
-  let(:payload) { '{ message: "A REQUEST PAYLOAD" }' }
+  let(:payload) { person_params.to_json }
 
   let(:all_params) do
     {

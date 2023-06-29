@@ -3,14 +3,15 @@
 module Fdsh
   module Jobs
     # create job operation that takes params of key (required), started_at(required), publish_on(required), payload (required)
-    class CreateTransmittableJob
+    class GenerateTransmittablePayload
       include Dry::Monads[:result, :do, :try]
 
       def call(params)
         values = yield validate_params(params)
         job = yield create_job(values)
         transmission = yield create_transmission(job, values)
-        _transaction = yield create_transaction(transmission, values)
+        transaction = yield create_transaction(transmission, values)
+        get_transmittable_payload(transaction)
       end
 
       private
@@ -25,7 +26,7 @@ module Fdsh
       end
 
       def create_job(values)
-        result = Fdsh::Jobs::CreateJob.new.call(values)
+        result = Fdsh::Jobs::FindOrCreateJob.new.call(values)
 
         result.success? ? Success(result.value!) : result
       end
@@ -40,6 +41,12 @@ module Fdsh
         result = Fdsh::Jobs::CreateTransaction.new.call(values.merge({ transmission: transmission }))
 
         result.success? ? Success(result.value!) : result
+      end
+
+      def get_transmittable_payload(transaction)
+        payload = transaction.payload
+
+        payload.present? ? Success(payload) : Failure("Transaction do not consists of a payload")
       end
     end
   end

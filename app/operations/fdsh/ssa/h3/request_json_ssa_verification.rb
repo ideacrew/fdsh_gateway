@@ -14,11 +14,8 @@ module Fdsh
 
         # @param params [String] the json payload of the person
         # @return [Dry::Monads::Result]
-        def call(params)
-          json_hash = yield parse_json(params)
-          person_hash = yield validate_person_json_hash(json_hash)
-          person = yield build_person(person_hash)
-          ssa_verification_request = yield TransformPersonToSsaRequest.new.call(person)
+        def call(_params)
+          # Get payload that is ready to transmitted
           xml_string = yield encode_xml_and_schema_validate(ssa_verification_request)
           ssa_verification_request_xml = yield encode_request_xml(xml_string)
 
@@ -26,31 +23,6 @@ module Fdsh
         end
 
         protected
-
-        def parse_json(json_string)
-          parsing_result = Try do
-            JSON.parse(json_string, :symbolize_names => true)
-          end
-          parsing_result.or do
-            Failure(:invalid_json)
-          end
-        end
-
-        def validate_person_json_hash(json_hash)
-          validation_result = AcaEntities::Contracts::People::PersonContract.new.call(json_hash)
-
-          validation_result.success? ? Success(validation_result.values) : Failure(validation_result.errors)
-        end
-
-        def build_person(person_hash)
-          creation_result = Try do
-            AcaEntities::People::Person.new(person_hash)
-          end
-
-          creation_result.or do |e|
-            Failure(e)
-          end
-        end
 
         def encode_xml_and_schema_validate(ssa_verification_request)
           AcaEntities::Serializers::Xml::Fdsh::Ssa::H3::Operations::SsaRequestToXml.new.call(ssa_verification_request)

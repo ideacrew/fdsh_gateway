@@ -8,7 +8,8 @@ module Fdsh
 
       def call(params)
         values = yield validate_params(params)
-        transaction_hash = yield build_transaction_hash(values)
+        transmittable_payload = yield generate_transmittable_payload(values)
+        transaction_hash = yield build_transaction_hash(values, transmittable_payload)
         transaction_entity = yield create_transaction_entity(transaction_hash)
         transaction = yield create_transaction(values[:transmission], transaction_entity)
         _transaction_transmission = yield create_transaction_transmission(transaction, values[:transmission])
@@ -25,7 +26,16 @@ module Fdsh
         Success(params)
       end
 
-      def build_transaction_hash(values)
+      def generate_transmittable_payload(values)
+        # result = Fdsh::Ssa::H3::TransformPersonToJsonSsa.new.call(values[:payload])
+
+        # result.success? ? Success(result.value!) : Failure("Unable to transform payload to JSON")
+
+        # WIP 
+        Success(values[:payload])
+      end
+
+      def build_transaction_hash(values, transmittable_payload)
         Success({
                   key: values[:key],
                   title: values[:title],
@@ -34,7 +44,7 @@ module Fdsh
                   started_at: values[:started_at],
                   ended_at: values[:ended_at],
                   errors: [],
-                  payload: values[:payload]
+                  payload: transmittable_payload
                 })
       end
 
