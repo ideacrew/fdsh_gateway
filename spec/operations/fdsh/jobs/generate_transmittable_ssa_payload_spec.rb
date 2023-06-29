@@ -19,7 +19,8 @@ RSpec.describe Fdsh::Jobs::GenerateTransmittableSsaPayload do
       description: description,
       payload: payload,
       started_at: DateTime.now,
-      publish_on: DateTime.now
+      publish_on: DateTime.now,
+      correlation_id: 'test'
     }
   end
 

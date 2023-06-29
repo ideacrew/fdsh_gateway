@@ -24,5 +24,13 @@ module Transmittable
     field :deny_list, type: Array
     field :message_id, type: String
 
+    def generate_message_id
+      loop do
+        self.message_id = SecureRandom.uuid
+
+        break unless Transmittable::Job.where(message_id: message_id).exists?
+      end
+      self.save
+    end
   end
 end

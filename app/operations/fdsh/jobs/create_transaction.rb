@@ -10,7 +10,7 @@ module Fdsh
         values = yield validate_params(params)
         transaction_hash = yield build_transaction_hash(values)
         transaction_entity = yield create_transaction_entity(transaction_hash)
-        transaction = yield create_transaction(values[:transmission], transaction_entity)
+        transaction = yield create_transaction(transaction_entity, values[:subject])
         _transaction_transmission = yield create_transaction_transmission(transaction, values[:transmission])
         Success(transaction)
       end
@@ -21,6 +21,7 @@ module Fdsh
         return Failure('Transaction cannot be created without key symbol') unless params[:key].is_a?(Symbol)
         return Failure('Transaction cannot be created without started_at datetime') unless params[:started_at].is_a?(DateTime)
         return Failure('Transaction cannot be created without a transmission') unless params[:transmission].is_a?(Transmittable::Transmission)
+        return Failure('Transaction cannot be created without a subject') unless params[:subject]
 
         Success(params)
       end
@@ -48,8 +49,8 @@ module Fdsh
         validation_result.success? ? Success(validation_result.value!) : Failure("Unable to create Transaction due to invalid params")
       end
 
-      def create_transaction(_transmission, transaction_entity)
-        Success(Transmittable::Transaction.create(transaction_entity.to_h.except(:errors)))
+      def create_transaction(transaction_entity, subject)
+        Success(subject.transactions.create(transaction_entity.to_h.except(:errors)))
       end
 
       def create_transaction_transmission(transaction, transmission)
