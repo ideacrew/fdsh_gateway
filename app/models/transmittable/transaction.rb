@@ -30,7 +30,7 @@ module Transmittable
     field :description, type: String
     field :process_status, type: Hash
     field :ended_at, type: DateTime
-    field :payload, type: String
+    field :json_payload, type: Hash
 
     # Scopes
     scope :blocked,          -> { where(status: :blocked) }

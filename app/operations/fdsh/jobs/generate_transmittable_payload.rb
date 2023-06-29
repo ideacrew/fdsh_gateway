@@ -44,7 +44,7 @@ module Fdsh
       end
 
       def get_transmittable_payload(transaction)
-        payload = transaction.payload
+        payload = transaction.json_payload
 
         payload.present? ? Success(payload) : Failure("Transaction do not consists of a payload")
       end
