@@ -10,15 +10,9 @@ module Subscribers
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
           correlation_id = properties.correlation_id
-
-          # Create job operation that takes params of key, title, description
-          job = ::Fdsh::Jobs::FindOrCreateJob.new.call({ key: :ssa_verification_request, title: 'SSA Verification Request',
-                                                         description: 'Request for SSA verification to CMS', payload: payload })
-
           verification_result = if properties.payload_type == 'json'
                                   ::Fdsh::Ssa::H3::HandleJsonSsaVerificationRequest.new.call({
                                                                                                correlation_id: correlation_id,
-                                                                                               job: job,
                                                                                                payload: payload
                                                                                              })
                                 else

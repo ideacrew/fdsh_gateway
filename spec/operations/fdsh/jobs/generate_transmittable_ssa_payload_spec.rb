@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'shared_examples/person_cv3'
 
-RSpec.describe Fdsh::Jobs::GenerateTransmittablePayload do
+RSpec.describe Fdsh::Jobs::GenerateTransmittableSsaPayload do
   include_context "person hash for cv3"
 
   subject { described_class.new }

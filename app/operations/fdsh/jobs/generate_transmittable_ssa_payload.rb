@@ -3,7 +3,7 @@
 module Fdsh
   module Jobs
     # create job operation that takes params of key (required), started_at(required), publish_on(required), payload (required)
-    class GenerateTransmittablePayload
+    class GenerateTransmittableSsaPayload
       include Dry::Monads[:result, :do, :try]
 
       def call(params)
@@ -11,7 +11,9 @@ module Fdsh
         job = yield create_job(values)
         transmission = yield create_transmission(job, values)
         transaction = yield create_transaction(transmission, values)
-        get_transmittable_payload(transaction)
+        transmittable_payload = yield generate_transmittable_payload(transaction, values[:payload])
+
+        get_transmittable_payload(job, transmittable_payload)
       end
 
       private
@@ -43,10 +45,23 @@ module Fdsh
         result.success? ? Success(result.value!) : result
       end
 
-      def get_transmittable_payload(transaction)
-        payload = transaction.json_payload
+      def generate_transmittable_payload(transaction, payload)
+        result = Fdsh::Ssa::H3::TransformPersonToJsonSsa.new.call(payload)
+        transaction.json_payload = result.value! if result.success?
+        transaction.save
 
-        payload.present? ? Success(payload) : Failure("Transaction do not consists of a payload")
+        transaction.json_payload ? Success(transaction.json_payload) : Failure("Unable to save transaction with payload")
+      end
+
+      def get_transmittable_payload(job, transmittable_payload)
+        message_id = job.message_id
+
+        if transmittable_payload && message_id
+          Success({ payload: transmittable_payload,
+                    message_id: message_id })
+        else
+          Failure("Transaction do not consists of a payload or no message id found")
+        end
       end
     end
   end

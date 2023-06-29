@@ -10,6 +10,7 @@ module Fdsh
 
         # @return [Dry::Monads::Result]
         def call(params)
+          _payload = transmittable_payload(params)
           _ssa_verification_result_soap = yield RequestJsonSsaVerification.new.call(params[:payload])
           # TODO: here
           # ssa_response_verification = to_validate_bearer_token
@@ -26,6 +27,16 @@ module Fdsh
         end
 
         protected
+
+        def transmittable_payload(params)
+          # Create job operation that takes params of key, title, description
+          result = ::Fdsh::Jobs::GenerateTransmittableSsaPayload.new.call({ key: :ssa_verification_request,
+                                                                            title: 'SSA Verification Request',
+                                                                            description: 'Request for SSA verification to CMS',
+                                                                            payload: params[:payload] })
+
+          result.success? ? Success(result.value!) : result
+        end
 
         def build_event(correlation_id, initial_verification_outcome)
           payload = initial_verification_outcome.to_h
