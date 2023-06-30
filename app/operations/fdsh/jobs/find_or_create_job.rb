@@ -16,18 +16,23 @@ module Fdsh
       private
 
       def validate_params(params)
-        return Failure('key required') unless params[:key]
-        return Failure('started_at required') unless params[:started_at]
-        return Failure('publish_on required') unless params[:publish_on]
+        return Failure('key required') unless params[:key].is_a?(Symbol)
+        return Failure('started_at required') unless params[:started_at].is_a?(DateTime)
+        return Failure('publish_on required') unless params[:publish_on].is_a?(DateTime)
 
         Success(params)
       end
 
       def find_or_create_job(values)
-        if values[:message_id] || values[:job_id]
-          job = Transmittable::Job.find_by(job_id: values[:job_id]) || Transmittable::Job.find_by(message_id: values[:message_id])
+        if values[:job_id]
+          job = Transmittable::Job.where(job_id: values[:job_id]).last
 
-          job ? Success(job) : Failure("No job exists with the given job_id or message_id")
+          job ? Success(job) : Failure("No job exists with the given job_id")
+
+        elsif values[:message_id]
+          job = Transmittable::Job.where(message_id: values[:message_id]).last
+
+          job ? Success(job) : Failure("No job exists with the given message_id")
         else
           create_job(values)
         end

@@ -17,9 +17,9 @@ module Fdsh
       private
 
       def validate_params(params)
-        return Failure('key required') unless params[:key]
-        return Failure('started_at required') unless params[:started_at]
-        return Failure('publish_on required') unless params[:publish_on]
+        return Failure('Cannot create a job without a key as a symbol') unless params[:key].is_a?(Symbol)
+        return Failure('Cannot create a job without a started_at as a DateTime') unless params[:started_at].is_a?(DateTime)
+        return Failure('Cannot create a job without a publish_on as a DateTime') unless params[:publish_on].is_a?(DateTime)
 
         Success(params)
       end

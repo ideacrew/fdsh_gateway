@@ -22,6 +22,8 @@ module Fdsh
         return Failure('Transaction cannot be created without started_at datetime') unless params[:started_at].is_a?(DateTime)
         return Failure('Transaction cannot be created without a transmission') unless params[:transmission].is_a?(Transmittable::Transmission)
         return Failure('Transaction cannot be created without a subject') unless params[:subject]
+        return Failure('Transaction cannot be created without event string') unless params[:event].is_a?(String)
+        return Failure('Transaction cannot be created without state_key symbol') unless params[:state_key].is_a?(Symbol)
 
         Success(params)
       end
@@ -31,7 +33,7 @@ module Fdsh
                   key: values[:key],
                   title: values[:title],
                   description: values[:description],
-                  process_status: create_process_status,
+                  process_status: create_process_status(values[:event], values[:state_key]),
                   started_at: values[:started_at],
                   ended_at: values[:ended_at],
                   errors: [],
@@ -39,8 +41,8 @@ module Fdsh
                 })
       end
 
-      def create_process_status
-        Fdsh::Jobs::CreateProcessStatusHash.new.call({ event: 'initial', state_key: :initial, started_at: DateTime.now }).value!
+      def create_process_status(event, state_key)
+        Fdsh::Jobs::CreateProcessStatusHash.new.call({ event: event, state_key: state_key, started_at: DateTime.now }).value!
       end
 
       def create_transaction_entity(transaction_hash)

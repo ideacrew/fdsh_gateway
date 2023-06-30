@@ -19,7 +19,7 @@ module Fdsh
       def validate_params(params)
         return Failure('Transmission cannot be created without key symbol') unless params[:key].is_a?(Symbol)
         return Failure('Transmission cannot be created without started_at datetime') unless params[:started_at].is_a?(DateTime)
-        return Failure('Cannot create a transmission without a job') unless params[:job].is_a?(Transmittable::Job)
+        return Failure('Transmission cannot be created without a job') unless params[:job].is_a?(Transmittable::Job)
         return Failure('Transmission cannot be created without event string') unless params[:event].is_a?(String)
         return Failure('Transmission cannot be created without state_key symbol') unless params[:state_key].is_a?(Symbol)
         return Failure('Transmission cannot be created without correlation_id string') unless params[:correlation_id].is_a?(String)

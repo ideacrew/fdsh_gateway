@@ -20,11 +20,11 @@ module Fdsh
       private
 
       def validate_params(params)
-        return Failure('key required') unless params[:key]
-        return Failure('started_at required') unless params[:started_at]
-        return Failure('publish_on required') unless params[:publish_on]
-        return Failure('payload required') unless params[:payload]
-        return Failure('correlation_id required') unless params[:correlation_id]
+        return Failure('Transmittable payload cannot be created without a key as a symbol') unless params[:key].is_a?(Symbol)
+        return Failure('Transmittable payload cannot be created without a started_at as a Datetime') unless params[:started_at].is_a?(DateTime)
+        return Failure('Transmittable payload cannot be created without a publish_on as a Datetime') unless params[:publish_on].is_a?(DateTime)
+        return Failure('Transmittable payload cannot be created without a payload') unless params[:payload]
+        return Failure('Transmittable payload cannot be created without a correlation_id a string') unless params[:correlation_id].is_a?(String)
 
         Success(params)
       end
@@ -68,7 +68,10 @@ module Fdsh
       end
 
       def create_transaction(transmission, values, subject)
-        result = Fdsh::Jobs::CreateTransaction.new.call(values.merge({ transmission: transmission, subject: subject }))
+        result = Fdsh::Jobs::CreateTransaction.new.call(values.merge({ transmission: transmission,
+                                                                       subject: subject,
+                                                                       event: 'initial',
+                                                                       state_key: :initial }))
 
         result.success? ? Success(result.value!) : result
       end
