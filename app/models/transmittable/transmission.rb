@@ -56,6 +56,7 @@ module Transmittable
     field :title, type: String
     field :description, type: String
     field :process_status, type: Hash
+    field :transmission_id, type: String
 
     # Indexes
     index({ created_at: 1 })

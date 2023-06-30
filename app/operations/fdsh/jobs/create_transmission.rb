@@ -20,6 +20,9 @@ module Fdsh
         return Failure('Transmission cannot be created without key symbol') unless params[:key].is_a?(Symbol)
         return Failure('Transmission cannot be created without started_at datetime') unless params[:started_at].is_a?(DateTime)
         return Failure('Cannot create a transmission without a job') unless params[:job].is_a?(Transmittable::Job)
+        return Failure('Transmission cannot be created without event string') unless params[:event].is_a?(String)
+        return Failure('Transmission cannot be created without state_key symbol') unless params[:state_key].is_a?(Symbol)
+        return Failure('Transmission cannot be created without correlation_id string') unless params[:correlation_id].is_a?(String)
 
         Success(params)
       end
@@ -31,13 +34,14 @@ module Fdsh
                   description: values[:description],
                   started_at: values[:started_at],
                   ended_at: values[:ended_at],
-                  process_status: create_process_status,
+                  process_status: create_process_status(values[:event], values[:state_key]),
+                  transmission_id: values[:correlation_id],
                   errors: []
                 })
       end
 
-      def create_process_status
-        Fdsh::Jobs::CreateProcessStatusHash.new.call({ event: 'initial', state_key: :initial, started_at: DateTime.now }).value!
+      def create_process_status(event, state_key)
+        Fdsh::Jobs::CreateProcessStatusHash.new.call({ event: event, state_key: state_key, started_at: DateTime.now }).value!
       end
 
       def transmission_entity(transmission_hash)

@@ -11,7 +11,8 @@ module Fdsh
         # @return [Dry::Monads::Result]
         def call(params)
           _values = yield transmittable_payload(params)
-          _ssa_verification_result_soap = yield RequestJsonSsaVerification.new.call(params[:payload], params[:correlation_id])
+          jwt = yield generate_jwt(values[:message_id], params[:correlation_id])
+          _ssa_verification_result_soap = yield RequestJsonSsaVerification.new.call(params[:payload], params[:correlation_id], jwt)
           # TODO: here
           # ssa_response_verification = to_validate_bearer_token
           # ssa_verification_outcome = process_ssa_verification
@@ -36,6 +37,10 @@ module Fdsh
                                                                             correlation_id: params[:correlation_id] })
 
           result.success? ? Success(result.value!) : result
+        end
+
+        def generate_jwt(message_id, correlation_id)
+          ::Fdsh::Jobs::GenerateJwt.new.call(message_id: message_id, correlation_id: correlation_id)
         end
 
         def build_event(correlation_id, initial_verification_outcome)

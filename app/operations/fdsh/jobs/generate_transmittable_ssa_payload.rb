@@ -42,7 +42,7 @@ module Fdsh
       end
 
       def create_transmission(job, values)
-        result = Fdsh::Jobs::CreateTransmission.new.call(values.merge({ job: job }))
+        result = Fdsh::Jobs::CreateTransmission.new.call(values.merge({ job: job, event: 'initial', state_key: :initial }))
 
         result.success? ? Success(result.value!) : result
       end
@@ -75,6 +75,7 @@ module Fdsh
 
       def generate_transmittable_payload(transaction, payload)
         result = Fdsh::Ssa::H3::TransformPersonToJsonSsa.new.call(payload)
+
         transaction.json_payload = result.value! if result.success?
         transaction.save
 
