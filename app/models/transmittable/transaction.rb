@@ -40,6 +40,8 @@ module Transmittable
     scope :transmitted,      -> { where(status: :transmitted) }
     scope :transmit_pending, -> { where(transmit_action: :transmit) }
 
+    scope :newest, -> { order(created_at: :desc) }
+
     # Indexes
     index({ 'status' => 1 })
     index({ 'transaction_errors' => 1 })
@@ -66,6 +68,10 @@ module Transmittable
     def transmission
       transaction_transmission = transactions_transmissions.where(transaction_id: self.id).first
       transaction_transmission.transmission
+    end
+
+    def subject_hbx_id
+      transactable.has_attribute?(:hbx_id) ? transactable.hbx_id : transactable.hbx_assigned_id
     end
 
     def transaction_errors=(value)
