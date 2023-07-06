@@ -26,7 +26,7 @@
       <td><%= @job&.title %></td>
       <td><%= @job&.started_at %></td>
       <td><%= @job&.ended_at %></td>
-      <td><%= @job&.process_status["initial_state_key"] %></td>
+      <td><%= @job.process_status&.latest_state %></td>
       <td></td>
       <td><%= @job&.message_id %></td>
     </tr>
@@ -38,6 +38,13 @@
   <div class="accordion_panel-content" style="width: 100%">
     <% @job.attributes.each do |attr_name, attr_value| %>
       <b><%= attr_name %>:</b> <%= attr_value %><br>
+    <% end %>
+    <% if @job.process_status? %>
+      <b>Process Status:</b>
+      <ul>
+        <% @job.process_status.attributes.each do |attr_name, attr_value| %>
+          <li><b><%= attr_name %>:</b> <%= attr_value %></li>
+        <% end %>
     <% end %>
   </div>
 </div>
@@ -66,7 +73,7 @@
       <td><%= transmission&.key %></td>
       <td><%= transmission&.started_at %></td>
       <td><%= transmission&.ended_at %></td>
-      <td><%= transmission&.process_status["initial_state_key"] %></td>
+      <td><%= transmission.process_status&.latest_state %></td>
       <td></td>
       <td><%= transmission.transactions_transmissions&.count %></td>
     </tr>
@@ -78,6 +85,13 @@
   <div class="accordion_panel-content" style="width: 100%">
     <% transmission.attributes.each do |attr_name, attr_value| %>
       <b><%= attr_name %>:</b> <%= attr_value %><br>
+    <% end %>
+        <% if transmission.process_status? %>
+      <b>Process Status:</b>
+      <ul>
+        <% transmission.process_status.attributes.each do |attr_name, attr_value| %>
+          <li><b><%= attr_name %>:</b> <%= attr_value %></li>
+        <% end %>
     <% end %>
   </div>
 </div>
@@ -106,7 +120,7 @@
           <td><%= transaction&.title %></td>
           <td><%= transaction&.started_at %></td>
           <td><%= transaction&.ended_at %></td>
-          <td><%= transaction&.process_status["initial_state_key"] %></td>
+          <td><%= transaction&.process_status&.latest_state %></td>
           <td></td>
           <td><%= transaction.transactable_type&.humanize&.split('::')&.last %></td>
           <td><%= transaction.subject_hbx_id %></td>
@@ -126,6 +140,13 @@
       <% else %>
         <%= attr_value %><br>
       <%end%>
+    <% end %>
+    <% if transaction.process_status? %>
+      <b>Process Status:</b>
+      <ul>
+        <% transaction.process_status.attributes.each do |attr_name, attr_value| %>
+          <li><b><%= attr_name %>:</b> <%= attr_value %></li>
+        <% end %>
     <% end %>
       </div>
     </div>

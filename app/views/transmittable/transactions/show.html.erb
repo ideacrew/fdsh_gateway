@@ -27,7 +27,7 @@
       <td><%= @transaction&.title %></td>
       <td><%= @transaction&.started_at %></td>
       <td><%= @transaction&.ended_at %></td>
-      <td><%= @transaction.status ? @transaction.status : @transaction.process_status[:initial_state_key] %></td>
+      <td><%= @transaction.process_status ? @transaction.process_status&.latest_state : @transaction.status %></td>
       <td></td>
       <td><%= @transaction.transactable_type&.humanize&.split('::')&.last %></td>
       <td><%= @transaction.subject_hbx_id %></td>
@@ -45,6 +45,13 @@
   <div class="accordion_panel-content" style="width: 100%">
     <% @transaction.attributes.each do |attr_name, attr_value| %>
       <b><%= attr_name %>:</b> <%= attr_value %><br>
+    <% end %>
+    <% if @transaction.process_status? %>
+      <b>Process Status:</b>
+      <ul>
+        <% @transaction.process_status.attributes.each do |attr_name, attr_value| %>
+          <li><b><%= attr_name %>:</b> <%= attr_value %></li>
+        <% end %>
     <% end %>
   </div>
 </div>
@@ -77,7 +84,7 @@
       <td><%= transmission&.key %></td>
       <td><%= transmission&.started_at %></td>
       <td><%= transmission&.ended_at %></td>
-      <td><%= transmission.status ? transmission.status : transmission.process_status[:initial_state_key] %></td>
+      <td><%= transmission.status ? transmission.status : transmission.process_status&.latest_state %></td>
       <td></td>
       <td><%= transmission.transactions_transmissions&.count %></td>
       <td><% if transmission.job %><%= link_to "Job Details", transmission.job %><% end %></td>

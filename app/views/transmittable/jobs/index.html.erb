@@ -20,7 +20,7 @@
 <tr>
   <td><%= job.job_id %></td>
   <td><%= job.key %></td>
-  <td><%= job.process_status["initial_state_key"] %></td>
+  <td><%= job.process_status&.latest_state %></td>
   <td><%= job.started_at %></td>
   <td><%= job.created_at %></td>
   <td><%= job.ended_at %></td>
