@@ -16,6 +16,7 @@ module Fdsh
 
       def validate_params(params)
         return Failure('Process state event should be a string') unless params[:event].is_a?(String)
+        return Failure('Process state message should be a string') unless params[:message].is_a?(String)
         return Failure('Process state key should be a symbol') unless params[:state_key].is_a?(Symbol)
         return Failure('Process state should have a started_at Datetime') unless params[:started_at].is_a?(DateTime)
 
@@ -35,8 +36,9 @@ module Fdsh
       def create_process_status_hash(values)
         Success({
                   initial_state_key: values[:state_key],
+                  latest_state: values[:state_key],
                   elapsed_time: values[:elapsed_time],
-                  states: [initial_process_state(values)]
+                  process_states: [initial_process_state(values)]
                 })
       end
     end

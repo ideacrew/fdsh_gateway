@@ -47,6 +47,8 @@ module Transmittable
     belongs_to :account, class_name: 'Accounts::Account', optional: true
     belongs_to :job, class_name: 'Transmittable::Job', optional: true
     has_many :transactions_transmissions, class_name: 'Transmittable::TransactionsTransmissions'
+    has_one :process_status, as: :statusable, class_name: 'Transmittable::ProcessStatus'
+    accepts_nested_attributes_for :process_status
 
     # State for the Transmission
     field :status, type: Symbol
@@ -55,7 +57,6 @@ module Transmittable
     field :key, type: Symbol
     field :title, type: String
     field :description, type: String
-    field :process_status, type: Hash
     field :transmission_id, type: String
 
     # Indexes

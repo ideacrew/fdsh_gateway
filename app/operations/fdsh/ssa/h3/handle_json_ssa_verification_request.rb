@@ -10,9 +10,9 @@ module Fdsh
 
         # @return [Dry::Monads::Result]
         def call(params)
-          _values = yield transmittable_payload(params)
-          jwt = yield generate_jwt(values[:message_id], params[:correlation_id])
-          _ssa_verification_result_soap = yield RequestJsonSsaVerification.new.call(params[:payload], params[:correlation_id], jwt)
+          values = yield transmittable_payload(params)
+          # jwt = yield generate_jwt(values[:message_id], params[:correlation_id])
+          # ssa_verification_result_soap = yield RequestJsonSsaVerification.new.call(params[:payload], params[:correlation_id], jwt)
           # TODO: here
           # ssa_response_verification = to_validate_bearer_token
           # ssa_verification_outcome = process_ssa_verification
@@ -21,10 +21,10 @@ module Fdsh
           # ssa_verification_result = yield ::Soap::RemoveSoapEnvelope.new.call(ssa_verification_result_soap.body)
           # ssa_verification_outcome = yield ProcessSsaVerificationResponse.new.call(ssa_verification_result)
 
-          event  = yield build_event(params[:correlation_id], ssa_verification_outcome)
-          result = yield publish(event)
+          # event  = yield build_event(params[:correlation_id], ssa_verification_outcome)
+          # result = yield publish(event)
 
-          Success(result)
+          Success(values)
         end
 
         protected
@@ -34,7 +34,9 @@ module Fdsh
                                                                             title: 'SSA Verification Request',
                                                                             description: 'Request for SSA verification to CMS',
                                                                             payload: params[:payload],
-                                                                            correlation_id: params[:correlation_id] })
+                                                                            correlation_id: params[:correlation_id],
+                                                                            started_at: DateTime.now,
+                                                                            publish_on: DateTime.now })
 
           result.success? ? Success(result.value!) : result
         end

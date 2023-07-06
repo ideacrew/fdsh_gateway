@@ -9,7 +9,7 @@ module Transmittable
     end
 
     def index
-      @jobs = Transmittable::Job.all.page params[:page]
+      @jobs = Transmittable::Job.newest.page params[:page]
     end
 
   end

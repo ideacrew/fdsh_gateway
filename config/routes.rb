@@ -10,6 +10,7 @@ Rails.application.routes.draw do
 
   namespace :transmittable do
     resources :jobs, only: [:index, :show]
+    resources :transactions, only: [:index, :show]
   end
 
 end

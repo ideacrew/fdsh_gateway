@@ -10,7 +10,8 @@ module Subscribers
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
           correlation_id = properties.correlation_id
-          verification_result = if properties.payload_type == 'json'
+          payload_type = properties[:headers]["payload_type"]
+          verification_result = if payload_type == 'json'
                                   ::Fdsh::Ssa::H3::HandleJsonSsaVerificationRequest.new.call({
                                                                                                correlation_id: correlation_id,
                                                                                                payload: payload

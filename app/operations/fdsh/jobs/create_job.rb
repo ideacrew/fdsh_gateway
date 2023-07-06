@@ -54,11 +54,13 @@ module Fdsh
       end
 
       def create_process_status
-        Fdsh::Jobs::CreateProcessStatusHash.new.call({ event: 'initial', state_key: :initial, started_at: DateTime.now }).value!
+        Fdsh::Jobs::CreateProcessStatusHash.new.call({ event: 'initial', state_key: :initial, started_at: DateTime.now,
+                                                       message: 'created job' }).value!
       end
 
       def create_job(job_entity)
-        Success(Transmittable::Job.create(job_entity.to_h.except(:errors)))
+        job = Transmittable::Job.create(job_entity.to_h.except(:errors))
+        job.save ? Success(job) : Failure("Unable to save job due to invalid params")
       end
     end
   end

@@ -8,6 +8,8 @@ module Transmittable
 
     belongs_to :transactable, polymorphic: true, index: true
     has_many :transactions_transmissions, class_name: 'Transmittable::TransactionsTransmissions'
+    has_one :process_status, as: :statusable, class_name: 'Transmittable::ProcessStatus'
+    accepts_nested_attributes_for :process_status
 
     field :transmit_action, type: Symbol
 
@@ -28,7 +30,6 @@ module Transmittable
     field :key, type: Symbol
     field :title, type: String
     field :description, type: String
-    field :process_status, type: Hash
     field :ended_at, type: DateTime
     field :json_payload, type: Hash
 

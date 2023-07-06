@@ -51,6 +51,7 @@ module Fdsh
         # trigger publish event here!
         # parse response from jwt service
         # create response transmission
+        # update various statuses as request/response got through
       end
 
     end

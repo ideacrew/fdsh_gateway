@@ -42,7 +42,8 @@ module Fdsh
       end
 
       def create_process_status(event, state_key)
-        Fdsh::Jobs::CreateProcessStatusHash.new.call({ event: event, state_key: state_key, started_at: DateTime.now }).value!
+        Fdsh::Jobs::CreateProcessStatusHash.new.call({ event: event, state_key: state_key, started_at: DateTime.now,
+                                                       message: 'created transaction' }).value!
       end
 
       def create_transaction_entity(transaction_hash)
