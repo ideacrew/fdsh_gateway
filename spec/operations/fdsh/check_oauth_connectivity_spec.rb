@@ -11,7 +11,7 @@ RSpec.describe Fdsh::CheckOauthConnectivity, "given invalid JSON" do
   context "valid token" do
 
     before(:each) do
-      stub_request(:post, "https://impl.hub.cms.gov/Imp1/auth/oauth/v2/token")
+      stub_request(:post, "https://impl.hub.cms.gov/auth/oauth/v2/token")
         .with(
           body: { "client_id" => nil, "client_secret" => nil, "grant_type" => "client_credentials" },
           headers: {

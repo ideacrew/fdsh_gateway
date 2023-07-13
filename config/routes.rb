@@ -8,4 +8,6 @@ Rails.application.routes.draw do
 
   resources :transactions, only: [:show]
 
+  get '/connectivity_tests/oauth', to: 'connectivity_tests#oauth'
+
 end
