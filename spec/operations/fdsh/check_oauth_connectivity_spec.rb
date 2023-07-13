@@ -39,7 +39,7 @@ RSpec.describe Fdsh::CheckOauthConnectivity, "given invalid JSON" do
         .to_return(status: 200, body: "", headers: {})
     end
 
-    it "should succeed if there is a valid token" do
+    it "should succeed" do
       expect(subject.success?).to be_truthy
       expect(subject.failure).to be_falsey
     end
@@ -48,7 +48,7 @@ RSpec.describe Fdsh::CheckOauthConnectivity, "given invalid JSON" do
   context "invalid token" do
 
     before(:each) do
-      stub_request(:post, "https://impl.hub.cms.gov/Imp1/auth/oauth/v2/token")
+      stub_request(:post, "https://impl.hub.cms.gov/auth/oauth/v2/token")
         .with(
           body: { "client_id" => nil, "client_secret" => nil, "grant_type" => "client_credentials" },
           headers: {
@@ -61,7 +61,7 @@ RSpec.describe Fdsh::CheckOauthConnectivity, "given invalid JSON" do
         .to_return(status: 200, body: "{\r\n  \"error\":\"invalid_request\",\r\n  \"error_description\":\"Missing\"\r\n}", headers: {})
     end
 
-    it "should succeed if there is a valid token" do
+    it "should fail" do
       expect(subject.success?).to be_falsey
       expect(subject.failure).to be_truthy
     end
