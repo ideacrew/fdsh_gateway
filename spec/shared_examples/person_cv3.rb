@@ -6,7 +6,7 @@ RSpec.shared_context 'person hash for cv3', shared_context: :metadata do
       :hbx_id => "a7619992755141bea940230b3a0a97d4",
       :person_name => {
         :first_name => "vlp",
-        :middle_name => nil,
+        :middle_name => "middle",
         :last_name => "first",
         :name_sfx => nil,
         :name_pfx => nil,

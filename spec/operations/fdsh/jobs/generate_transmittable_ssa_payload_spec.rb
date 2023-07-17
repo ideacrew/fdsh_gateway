@@ -84,8 +84,8 @@ RSpec.describe Fdsh::Jobs::GenerateTransmittableSsaPayload, dbclean: :after_each
       expect(@result.success?).to be_truthy
     end
 
-    it "Should return the payload in hash" do
-      expect(@result.value![:payload]).not_to eq nil
+    it "Should return the transaction in hash" do
+      expect(@result.value![:transaction]).not_to eq nil
     end
 
     it "Should return the message_id in hash" do

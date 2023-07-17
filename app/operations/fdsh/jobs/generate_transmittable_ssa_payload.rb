@@ -12,9 +12,9 @@ module Fdsh
         transmission = yield create_transmission(job, values)
         person_subject = yield create_person_subject(values)
         transaction = yield create_transaction(transmission, values, person_subject)
-        transmittable_payload = yield generate_transmittable_payload(transaction, values[:payload])
+        transaction = yield generate_transmittable_payload(transaction, values[:payload])
 
-        get_transmittable_payload(job, transmittable_payload)
+        get_transmittable_payload(job, transaction)
       end
 
       private
@@ -82,14 +82,14 @@ module Fdsh
         transaction.json_payload = result.value! if result.success?
         transaction.save
 
-        transaction.json_payload ? Success(transaction.json_payload) : Failure("Unable to save transaction with payload")
+        transaction.json_payload ? Success(transaction) : Failure("Unable to save transaction with payload")
       end
 
-      def get_transmittable_payload(job, transmittable_payload)
+      def get_transmittable_payload(job, transaction)
         message_id = job.message_id
 
-        if transmittable_payload && message_id
-          Success({ payload: transmittable_payload,
+        if transaction.json_payload && message_id
+          Success({ transaction: transaction,
                     message_id: message_id })
         else
           Failure("Transaction do not consists of a payload or no message id found")

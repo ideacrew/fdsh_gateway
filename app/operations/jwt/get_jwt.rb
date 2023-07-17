@@ -1,69 +1,32 @@
 # frozen_string_literal: true
 
+require 'faraday'
+
 module Jwt
   # Request a JWT from the CMS service
-  class JwtTransmissions
+  class GetJwt
     include Dry::Monads[:result, :do, :try]
 
-    def call(params)
-      validated_params = yield validate_params(params)
-      jwt_request_transmission = yield create_jwt_request_transmission(validated_params)
-      # operation below doesn't exist yet!
-      _jwt = yield Jwt::GetJwt.new.call(jwt_request_transmission)
-      # transaction = yield update_request_transaction(request_transaction, jwt)
-      # _jwt_response_transmission = yield create_jwt_response_transmission(jwt, transaction, validated_params[:job])
-      Success(jwt)
+    def call
+      fetch_jwt
     end
 
     protected
 
-    def validate_params(params)
-      return Failure('transaction required') unless params[:transaction]
-      return Failure('job required') unless params[:job]
-      # return Failure('key required') unless params[:key]
+    def fetch_jwt
+      host = ENV['TOKEN_HOST'] || 'https://impl.hub.cms.gov'
+      path = ENV['TOKEN_PATH'] || 'auth/oauth/v2/token'
+      token_response = Rails.cache.fetch("cms_access_token", expires_in: 29.minutes.to_i, race_condition_ttl: 5.seconds) do
+        auth_conn = Faraday.new(url: host)
+        response = auth_conn.post(path, grant_type: "client_credentials", client_id: ENV['TOKEN_CLIENT_ID'],
+                                        client_secret: ENV['TOKEN_CLIENT_SECRET'])
+        resp = JSON.parse(response.env.response_body, symbolize_names: true)
 
-      Success(params)
-    end
+        break if resp[:errors]
 
-    def create_jwt_request_transmission(values)
-      transmission = create_transmission(:jwt_response, :initial)
-      create_transactions_transmissions(transmission, values[:transaction])
-      Success(transmission)
-    end
-
-    # def update_request_transaction(transaction, jwt)
-    #   transaction.payload.merge!({ token: jwt })
-    #   transaction.save
-    #   Success(transaction)
-    # end
-
-    def create_jwt_response_transmission(_jwt, transaction)
-      # get status from response?
-      # create new transmission for the given job, with a key of :jwt_response, status from above
-      transmission = create_transmission(:jwt_response, status)
-      # create a transactions_transmissions entry between the given transaction and the transmission
-      create_transactions_transmissions(transmission, transaction)
-    end
-
-    def create_transmission(key, _state)
-      params = {
-        key: key,
-        title: key.humanize.titlecase,
-        started_at: DateTime.now,
-        # process_status: create_process_status, # generic initial process status! maybe move that to aca_entities?
-        errors: [],
-        payload: payload
-      }
-      # the operation below doesn't exist yet!
-      transmission = AcaEntities::Protocols::Transmittable::Operations::Transmission.new.call(params)
-      transmission.save
-    end
-
-    def create_transactions_transmissions(transmission, transaction)
-      ::Transmittable::TransactionsTransmissions.create(
-        transmission: transmission,
-        transaction: transaction
-      )
+        resp[:access_token]
+      end
+      token_response ? Success(token_response) : Failure("Unable to fetch JWT")
     end
   end
 end

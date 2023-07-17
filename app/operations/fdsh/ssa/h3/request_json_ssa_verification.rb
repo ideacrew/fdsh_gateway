@@ -10,38 +10,31 @@ module Fdsh
 
         PublishEventStruct = Struct.new(:name, :payload, :headers)
 
-        PUBLISH_EVENT = "ssa_verification_requested"
-
+        PUBLISH_EVENT = "verify_ssa_composite_service_rest_request"
         # @param params [String] the json payload of the person
         # @return [Dry::Monads::Result]
-        def call(_params)
-          # Get payload that is ready to transmitted
-          xml_string = yield encode_xml_and_schema_validate(ssa_verification_request)
-          ssa_verification_request_xml = yield encode_request_xml(xml_string)
-
-          publish_event(ssa_verification_request_xml)
+        def call(params)
+          validated_params = yield validate_params(params)
+          publish_event(validated_params)
         end
 
         protected
 
-        def encode_xml_and_schema_validate(ssa_verification_request)
-          AcaEntities::Serializers::Xml::Fdsh::Ssa::H3::Operations::SsaRequestToXml.new.call(ssa_verification_request)
+        def validate_params(params)
+          return Failure('Cannot publish payload without transaction') unless params[:values][:transaction].is_a?(::Transmittable::Transaction)
+          return Failure('Cannot publish payload without correlation_id') unless params[:correlation_id].is_a?(String)
+          return Failure('Cannot publish payload without jwt token') unless params[:token].is_a?(String)
+          return Failure('Cannot publish payload without transaction json payload') unless params[:values][:transaction].json_payload
+
+          Success(params)
         end
 
-        def encode_request_xml(xml_string)
-          encoding_result = Try do
-            xml_doc = Nokogiri::XML(xml_string)
-            xml_doc.to_xml(:indent => 2, :encoding => 'UTF-8', :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION)
-          end
+        def publish_event(params)
+          event = PublishEventStruct.new(PUBLISH_EVENT, params[:values][:transaction].json_payload, { authorization: "Bearer #{params[:token]}",
+                                                                                                      'message-id': params[:values][:message_id],
+                                                                                                      'partner-id': ENV['CMS_PARTNER_ID'] })
 
-          encoding_result.or do |e|
-            Failure(e)
-          end
-        end
-
-        def publish_event(ssa_verification_request_xml)
-          event = PublishEventStruct.new(PUBLISH_EVENT, ssa_verification_request_xml)
-          Success(Publishers::Fdsh::SsaServicePublisher.publish(event))
+          Success(::Publishers::Fdsh::VerifySSACompositeServiceRestPublisher.publish(event))
         end
       end
     end

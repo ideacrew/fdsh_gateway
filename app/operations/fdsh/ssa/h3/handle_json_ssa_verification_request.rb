@@ -11,20 +11,17 @@ module Fdsh
         # @return [Dry::Monads::Result]
         def call(params)
           values = yield transmittable_payload(params)
-          # jwt = yield generate_jwt(values[:message_id], params[:correlation_id])
-          # ssa_verification_result_soap = yield RequestJsonSsaVerification.new.call(params[:payload], params[:correlation_id], jwt)
-          # TODO: here
-          # ssa_response_verification = to_validate_bearer_token
-          # ssa_verification_outcome = process_ssa_verification
+          jwt = yield generate_jwt
+          ssa_response = yield publish_ssa_request(values, params[:correlation_id], jwt)
+          ssa_response = yield verify_response(values, ssa_response)
+          response_transmission = yield create_response_transmission(values, params[:correlation_id])
+          response_transaction = yield create_response_transaction(values, ssa_response, response_transmission)
+          # validated_response = yield validate_response(ssa_response)
+          # transformed_response = yield transform_response(response_transaction.json_payload)
+          event  = yield build_event(params[:correlation_id], response_transaction)
+          result = yield publish(event)
 
-          # TODO: be removed once the todo is done.
-          # ssa_verification_result = yield ::Soap::RemoveSoapEnvelope.new.call(ssa_verification_result_soap.body)
-          # ssa_verification_outcome = yield ProcessSsaVerificationResponse.new.call(ssa_verification_result)
-
-          # event  = yield build_event(params[:correlation_id], ssa_verification_outcome)
-          # result = yield publish(event)
-
-          Success(values)
+          Success(result)
         end
 
         protected
@@ -41,12 +38,78 @@ module Fdsh
           result.success? ? Success(result.value!) : result
         end
 
-        def generate_jwt(message_id, correlation_id)
-          ::Fdsh::Jobs::GenerateJwt.new.call(message_id: message_id, correlation_id: correlation_id)
+        def generate_jwt
+          Jwt::GetJwt.new.call({})
         end
 
-        def build_event(correlation_id, initial_verification_outcome)
-          payload = initial_verification_outcome.to_h
+        def publish_ssa_request(values, correlation_id, jwt)
+          transaction = values[:transaction]
+          transmission = transaction.transactions_transmissions.last.transmission
+          result = Fdsh::Ssa::H3::RequestJsonSsaVerification.new.call({ values: values, correlation_id: correlation_id, token: jwt })
+          update_status(transmission, :transmitted, "transmitted to cms")
+          result.success? ? Success(result.value!) : result
+        end
+
+        def verify_response(values, ssa_response)
+          transmission = values[:transaction].transactions_transmissions.last.transmission
+          if ssa_response[:status] == 200
+            update_status(transmission, :succeeded, "successfully recieved response from cms")
+            Success(ssa_response)
+          else
+            update_status(transmission, :failed, "failed response from cms")
+            Failure(ssa_response)
+          end
+        end
+
+        def update_status(transmission, state, message)
+          transmission.process_status.latest_state = state
+          transmission.process_status.process_states << Transmittable::ProcessState.new(event: state.to_s,
+                                                                                        message: message,
+                                                                                        started_at: DateTime.now,
+                                                                                        state_key: state)
+          transmission.save
+
+          transmission.job.process_status.latest_state = state
+          transmission.job.process_status.process_states << Transmittable::ProcessState.new(event: state.to_s,
+                                                                                            message: message,
+                                                                                            started_at: DateTime.now,
+                                                                                            state_key: state)
+          transmission.job.save
+        end
+
+        def create_response_transmission(values, correlation_id)
+          job = values[:transaction].transactions_transmissions.last.transmission.job
+          result = Fdsh::Jobs::CreateTransmission.new.call(values.merge({ key: :ssa_verification_request,
+                                                                          started_at: DateTime.now,
+                                                                          job: job,
+                                                                          event: 'received',
+                                                                          state_key: :received,
+                                                                          correlation_id: correlation_id }))
+
+          result.success? ? Success(result.value!) : result
+        end
+
+        def create_response_transaction(values, ssa_response, transmission)
+          subject = values[:transaction].transactable
+          result = Fdsh::Jobs::CreateTransaction.new.call(values.merge({ key: :ssa_verification_request,
+                                                                         started_at: DateTime.now,
+                                                                         transmission: transmission,
+                                                                         subject: subject,
+                                                                         event: 'received',
+                                                                         state_key: :received }))
+
+          if result.success?
+            response_transaction = result.value!
+            response_transaction.json_payload = ssa_response
+            response_transaction.save
+            Success(response_transaction)
+          else
+            result
+          end
+        end
+
+        def build_event(correlation_id, transformed_response)
+          payload = transformed_response.json_payload # To be updated
 
           event('events.fdsh.ssa_verification_complete', attributes: payload, headers: { correlation_id: correlation_id })
         end
