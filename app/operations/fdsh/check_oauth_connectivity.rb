@@ -25,7 +25,7 @@ module Fdsh
     private
 
     def publish(token)
-      event = PublishEventStruct.new(PUBLISH_EVENT, CONNECTIVITY_TEST_PAYLOAD, { authorization: "Bearer #{token}" })
+      event = PublishEventStruct.new(PUBLISH_EVENT, CONNECTIVITY_TEST_PAYLOAD, { authorization: "Bearer #{token}", messageid: SecureRandom.uuid })
       Success(::Publishers::Fdsh::OauthConnectivityPublisher.publish(event))
     end
   end
