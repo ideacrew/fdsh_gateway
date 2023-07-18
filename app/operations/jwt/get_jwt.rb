@@ -28,5 +28,6 @@ module Jwt
       end
       token_response ? Success(token_response) : Failure("Unable to fetch JWT")
     end
+    
   end
 end

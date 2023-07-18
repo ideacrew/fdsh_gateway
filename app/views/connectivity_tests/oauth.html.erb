@@ -1,0 +1,28 @@
+<h1>OAuth Connectivity Test</h1>
+<% if @result.class == Faraday::Response %>
+  <h4 style="color: gray"><%= @result.env.url %></h4>
+  <h1 style="color: <%= @result.env.status == 200 ? 'green' : 'red' %>">STATUS: <%= @result.env.status %></h1>
+  <h2>Request</h2>
+  <h3>Headers</h3>
+  <pre><%= raw(ap(@result.env.request_headers, index: false)) %></pre>
+  <br>
+  <h3>Body</h3>
+  <pre><%= raw(ap(JSON.parse(@result.env.request_body), index: false)) %></pre>
+  <hr style="margin: 3em 0">
+  <h2>Response</h2>
+  <h3>Headers</h3>
+  <pre><%= raw(ap(@result.env.response_headers, index: false)) %></pre>
+  <br>
+  <h3>Body</h3>
+  <%= raw(ap(JSON.parse(@result.env.response_body))) %>
+  <hr style="margin: 3em 0">
+  <div class="accordion" style="margin-top: 1em">
+    <input type="checkbox" id="allInfo">
+    <label for="allInfo">All Attributes +</label>
+    <div class="accordion_panel-content" style="width: 100%">
+      <%= @result.inspect %>
+    </div>
+  </div>
+<% else %>
+  <%= @result.inspect %>
+<% end %>
