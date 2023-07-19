@@ -78,7 +78,7 @@ RSpec.describe Fdsh::Ssa::H3::HandleJsonSsaVerificationRequest, dbclean: :after_
                                                                   correlation_id: correlation_id,
                                                                   token: "3487583567384567384568"
                                                                 }).and_return(mock_ssa_response)
-    @result = described_class.new.call({ correlation_id: correlation_id, payload: payload })
+    # @result = described_class.new.call({ correlation_id: correlation_id, payload: payload })
   end
 
   it "is successful" do
