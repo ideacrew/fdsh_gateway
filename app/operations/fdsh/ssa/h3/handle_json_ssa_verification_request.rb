@@ -62,9 +62,9 @@ module Fdsh
         def update_status(transaction, transmission, state, message)
           transaction.process_status.latest_state = state
           transaction.process_status.process_states << Transmittable::ProcessState.new(event: state.to_s,
-                                                                                        message: message,
-                                                                                        started_at: DateTime.now,
-                                                                                        state_key: state)
+                                                                                       message: message,
+                                                                                       started_at: DateTime.now,
+                                                                                       state_key: state)
           transaction.save
 
           transmission.process_status.latest_state = state
@@ -114,7 +114,7 @@ module Fdsh
         end
 
         def transform_response(ssa_response, transaction, transmission)
-          result = AcaEntities::Fdsh::Ssa::H3::Operations::SsaVerificationJsonResponse.new.call(person)
+          result = AcaEntities::Fdsh::Ssa::H3::Operations::SsaVerificationJsonResponse.new.call(ssa_response)
           if result.success?
             update_status(transaction, transmission, :succeeded, "successfully transformed response from cms")
           else
