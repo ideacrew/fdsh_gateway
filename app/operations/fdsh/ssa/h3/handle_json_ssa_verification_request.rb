@@ -16,11 +16,9 @@ module Fdsh
           ssa_response = yield verify_response(values, ssa_response)
           response_transmission = yield create_response_transmission(values, params[:correlation_id])
           response_transaction = yield create_response_transaction(values, ssa_response, response_transmission)
-          # validated_response = yield validate_response(ssa_response)
-          # transformed_response = yield transform_response(response_transaction.json_payload)
-          event  = yield build_event(params[:correlation_id], response_transaction)
+          transformed_response = yield transform_response(ssa_response, response_transaction, response_transmission)
+          event  = yield build_event(params[:correlation_id], transformed_response)
           result = yield publish(event)
-
           Success(result)
         end
 
@@ -46,22 +44,29 @@ module Fdsh
           transaction = values[:transaction]
           transmission = transaction.transactions_transmissions.last.transmission
           result = Fdsh::Ssa::H3::RequestJsonSsaVerification.new.call({ values: values, correlation_id: correlation_id, token: jwt })
-          update_status(transmission, :transmitted, "transmitted to cms")
+          update_status(transaction, transmission, :transmitted, "transmitted to cms")
           result.success? ? Success(result.value!) : result
         end
 
         def verify_response(values, ssa_response)
           transmission = values[:transaction].transactions_transmissions.last.transmission
           if ssa_response[:status] == 200
-            update_status(transmission, :succeeded, "successfully recieved response from cms")
+            update_status(values[:transaction], transmission, :succeeded, "successfully recieved response from cms")
             Success(ssa_response)
           else
-            update_status(transmission, :failed, "failed response from cms")
+            update_status(values[:transaction], transmission, :failed, "failed response from cms")
             Failure(ssa_response)
           end
         end
 
-        def update_status(transmission, state, message)
+        def update_status(transaction, transmission, state, message)
+          transaction.process_status.latest_state = state
+          transaction.process_status.process_states << Transmittable::ProcessState.new(event: state.to_s,
+                                                                                        message: message,
+                                                                                        started_at: DateTime.now,
+                                                                                        state_key: state)
+          transaction.save
+
           transmission.process_status.latest_state = state
           transmission.process_status.process_states << Transmittable::ProcessState.new(event: state.to_s,
                                                                                         message: message,
@@ -108,8 +113,18 @@ module Fdsh
           end
         end
 
-        def build_event(correlation_id, transformed_response)
-          payload = transformed_response.json_payload # To be updated
+        def transform_response(ssa_response, transaction, transmission)
+          result = AcaEntities::Fdsh::Ssa::H3::Operations::SsaVerificationJsonResponse.new.call(person)
+          if result.success?
+            update_status(transaction, transmission, :succeeded, "successfully transformed response from cms")
+          else
+            update_status(transaction, transmission, :succeeded, "failed to transform response from cms due to: #{result.failure}")
+          end
+          result
+        end
+
+        def build_event(correlation_id, response)
+          payload = response.to_h
 
           event('events.fdsh.ssa_verification_complete', attributes: payload, headers: { correlation_id: correlation_id })
         end
