@@ -16,7 +16,7 @@ module Fdsh
           ssa_response = yield verify_response(values, ssa_response)
           response_transmission = yield create_response_transmission(values, params[:correlation_id])
           response_transaction = yield create_response_transaction(values, ssa_response, response_transmission)
-          transformed_response = yield transform_response(ssa_response, response_transaction, response_transmission)
+          transformed_response = yield transform_response(response_transaction, response_transmission)
           event  = yield build_event(params[:correlation_id], transformed_response)
           result = yield publish(event)
           Success(result)
@@ -50,7 +50,7 @@ module Fdsh
 
         def verify_response(values, ssa_response)
           transmission = values[:transaction].transactions_transmissions.last.transmission
-          if ssa_response[:status] == 200
+          if ssa_response.status == 200
             update_status(values[:transaction], transmission, :succeeded, "successfully recieved response from cms")
             Success(ssa_response)
           else
@@ -84,7 +84,7 @@ module Fdsh
 
         def create_response_transmission(values, correlation_id)
           job = values[:transaction].transactions_transmissions.last.transmission.job
-          result = Fdsh::Jobs::CreateTransmission.new.call(values.merge({ key: :ssa_verification_request,
+          result = Fdsh::Jobs::CreateTransmission.new.call(values.merge({ key: :ssa_verification_response,
                                                                           started_at: DateTime.now,
                                                                           job: job,
                                                                           event: 'received',
@@ -96,7 +96,7 @@ module Fdsh
 
         def create_response_transaction(values, ssa_response, transmission)
           subject = values[:transaction].transactable
-          result = Fdsh::Jobs::CreateTransaction.new.call(values.merge({ key: :ssa_verification_request,
+          result = Fdsh::Jobs::CreateTransaction.new.call(values.merge({ key: :ssa_verification_response,
                                                                          started_at: DateTime.now,
                                                                          transmission: transmission,
                                                                          subject: subject,
@@ -105,7 +105,7 @@ module Fdsh
 
           if result.success?
             response_transaction = result.value!
-            response_transaction.json_payload = ssa_response
+            response_transaction.json_payload = JSON.parse(ssa_response.env.response_body)
             response_transaction.save
             Success(response_transaction)
           else
@@ -113,8 +113,8 @@ module Fdsh
           end
         end
 
-        def transform_response(ssa_response, transaction, transmission)
-          result = AcaEntities::Fdsh::Ssa::H3::Operations::SsaVerificationJsonResponse.new.call(ssa_response[:body])
+        def transform_response(transaction, transmission)
+          result = AcaEntities::Fdsh::Ssa::H3::Operations::SsaVerificationJsonResponse.new.call(transaction.json_payload)
           if result.success?
             update_status(transaction, transmission, :succeeded, "successfully transformed response from cms")
           else

@@ -16,7 +16,7 @@ module Fdsh
     # @param [Hash] opts The options to process
     # @return [Dry::Monads::Result]
     def call(_response)
-      token = yield ::Jwt::GetJwt.new.call
+      token = yield ::Jwt::GetJwt.new.call({})
       publish(token)
     end
 

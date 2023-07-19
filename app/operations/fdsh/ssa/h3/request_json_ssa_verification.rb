@@ -31,8 +31,8 @@ module Fdsh
 
         def publish_event(params)
           event = PublishEventStruct.new(PUBLISH_EVENT, params[:values][:transaction].json_payload, { authorization: "Bearer #{params[:token]}",
-                                                                                                      'message-id': params[:values][:message_id],
-                                                                                                      'partner-id': ENV['CMS_PARTNER_ID'] })
+                                                                                                      messageid: params[:values][:message_id],
+                                                                                                      partnerid: ENV['CMS_PARTNER_ID'] })
 
           Success(::Publishers::Fdsh::VerifySSACompositeServiceRestPublisher.publish(event))
         end
