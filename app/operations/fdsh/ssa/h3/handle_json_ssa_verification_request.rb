@@ -114,7 +114,7 @@ module Fdsh
         end
 
         def transform_response(ssa_response, transaction, transmission)
-          result = AcaEntities::Fdsh::Ssa::H3::Operations::SsaVerificationJsonResponse.new.call(ssa_response)
+          result = AcaEntities::Fdsh::Ssa::H3::Operations::SsaVerificationJsonResponse.new.call(ssa_response[:body])
           if result.success?
             update_status(transaction, transmission, :succeeded, "successfully transformed response from cms")
           else

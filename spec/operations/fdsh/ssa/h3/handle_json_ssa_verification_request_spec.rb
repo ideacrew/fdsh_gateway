@@ -31,6 +31,25 @@ RSpec.describe Fdsh::Ssa::H3::HandleJsonSsaVerificationRequest, dbclean: :after_
     transaction.save
     transaction
   end
+  let!(:min_response) do
+    {
+      ssaCompositeResponse: {
+        ssaCompositeIndividualResponseArray: [
+          {
+            responseMetadata: {
+              responseText: "responseText",
+              responseCode: "HS000000"
+            },
+            personSocialSecurityNumber: "100101000"
+          }
+        ],
+        responseMetadata: {
+          responseText: "responseText",
+          responseCode: "HE123456"
+        }
+      }
+    }
+  end
   let!(:transaction_transmission) {FactoryBot.create(:transactions_transmissions, transmission: transmission, transaction: transaction)}
   let!(:transmittable_hash)  { { message_id: job.message_id, transaction: transaction }}
   let(:mock_transmittable_payload_request) { instance_double(::Fdsh::Jobs::GenerateTransmittableSsaPayload) }
@@ -38,7 +57,7 @@ RSpec.describe Fdsh::Ssa::H3::HandleJsonSsaVerificationRequest, dbclean: :after_
   let(:mock_jwt_request) { instance_double(::Jwt::GetJwt) }
   let(:mock_jwt_response) { Dry::Monads::Result::Success.call("3487583567384567384568") }
   let(:mock_ssa_request_verification) { instance_double(::Fdsh::Ssa::H3::RequestJsonSsaVerification) }
-  let(:mock_ssa_response) { Dry::Monads::Result::Success.call(status: 200, body: "", headers: {}) }
+  let(:mock_ssa_response) { Dry::Monads::Result::Success.call(status: 200, body: min_response, headers: {}) }
 
   before :each do
     allow(::Fdsh::Jobs::GenerateTransmittableSsaPayload).to receive(:new).and_return(mock_transmittable_payload_request)
