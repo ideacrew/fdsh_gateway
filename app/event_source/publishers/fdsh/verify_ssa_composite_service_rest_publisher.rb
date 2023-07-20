@@ -3,7 +3,7 @@
 module Publishers
   module Fdsh
     # Publish SSA json payload for response from CMS
-    class VerifySSACompositeServiceRestPublisher
+    class VerifySsaCompositeServiceRestPublisher
       include ::EventSource::Publisher[http: '/VerifySSACompositeServiceRest']
 
       register_event '/VerifySSACompositeServiceRest'

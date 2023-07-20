@@ -34,7 +34,7 @@ module Fdsh
                                                                                                       messageid: params[:values][:message_id],
                                                                                                       partnerid: ENV['CMS_PARTNER_ID'] })
 
-          Success(::Publishers::Fdsh::VerifySSACompositeServiceRestPublisher.publish(event))
+          Success(::Publishers::Fdsh::VerifySsaCompositeServiceRestPublisher.publish(event))
         end
       end
     end
