@@ -3,7 +3,7 @@
 module Subscribers
   module Fdsh
     # Receive response from cms requests for ssa json payload
-    class VerifySSACompositeServiceRestSubscriber
+    class VerifySsaCompositeServiceRestSubscriber
       include ::EventSource::Subscriber[http: '/VerifySSACompositeServiceRest']
 
       subscribe(:on_VerifySSACompositeServiceRest) do |body, status, _headers|
