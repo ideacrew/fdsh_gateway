@@ -42,6 +42,8 @@ module Fdsh
         end
         Success("Process status updated successfully")
       rescue StandardError => e
+        Fdsh::Jobs::AddError.new.call({ transmittable_objects: transmittable_objects, key: :update_process_status,
+                                        message: "Error updating process status: #{e.message}" })
         Failure("Error updating process status: #{e.message}")
       end
     end

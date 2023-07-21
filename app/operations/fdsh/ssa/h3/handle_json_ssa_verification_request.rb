@@ -14,9 +14,9 @@ module Fdsh
           jwt = yield generate_jwt
           ssa_response = yield publish_ssa_request(values, params[:correlation_id], jwt)
           ssa_response = yield verify_response(ssa_response)
-          response_transmission = yield create_response_transmission(values, params[:correlation_id])
-          response_transaction = yield create_response_transaction(values, ssa_response)
-          transformed_response = yield transform_response(response_transaction, response_transmission)
+          _response_transmission = yield create_response_transmission(values, params[:correlation_id])
+          _response_transaction = yield create_response_transaction(values, ssa_response)
+          transformed_response = yield transform_response
           event  = yield build_event(params[:correlation_id], transformed_response)
           result = yield publish(event)
           Success(result)
@@ -52,11 +52,18 @@ module Fdsh
             return status_result if status_result.failure?
             Success(result.value!)
           else
+            add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
+                       "Failed to receive response from cms",
+                       :publish_ssa_request)
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission, job: @job }, :failed,
                                           "Failed to receive response from cms")
             return status_result if status_result.failure?
             result
           end
+        end
+
+        def add_errors(transmittable_objects, message, error_key)
+          Fdsh::Jobs::AddError.new.call({ transmittable_objects: transmittable_objects, key: error_key, message: message })
         end
 
         def verify_response(ssa_response)
@@ -66,6 +73,9 @@ module Fdsh
             return status_result if status_result.failure?
             Success(ssa_response)
           else
+            add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
+                       "Did not recieve a success response from cmss",
+                       :verify_response)
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission, job: @job }, :failed,
                                           "Did not recieve a success response from cmss")
             return status_result if status_result.failure?
@@ -91,6 +101,9 @@ module Fdsh
             @response_transmission = result.value!
             Success(@response_transmission)
           else
+            add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
+                       "Failed to create response transmission",
+                       :create_response_transmission)
             status_result = update_status({ job: @job }, :failed, "Failed to create response transmission")
             return status_result if status_result.failure?
             result
@@ -114,18 +127,24 @@ module Fdsh
             @response_transaction.save
             Success(@response_transaction)
           else
+            add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
+                       "Failed to create response transaction",
+                       :create_response_transaction)
             status_result = update_status({ transmission: @response_transmission, job: @job }, :failed, "Failed to create response transaction")
             return status_result if status_result.failure?
             result
           end
         end
 
-        def transform_response(transaction, _transmission)
-          result = AcaEntities::Fdsh::Ssa::H3::Operations::SsaVerificationJsonResponse.new.call(transaction.json_payload)
+        def transform_response
+          result = AcaEntities::Fdsh::Ssa::H3::Operations::SsaVerificationJsonResponse.new.call(@response_transaction.json_payload)
           status_result = if result.success?
                             update_status({ transaction: @response_transaction, transmission: @response_transmission }, :succeeded,
                                           "successfully transformed response from cms")
                           else
+                            add_errors({ transaction: @response_transaction, transmission: @response_transmission, job: @job },
+                                       "Failed to transform response from cms due to: #{result.failure}",
+                                       :transform_response)
                             update_status({ transaction: @response_transaction, transmission: @response_transmission, job: @job }, :failed,
                                           "Failed to transform response from cms due to: #{result.failure}")
                           end

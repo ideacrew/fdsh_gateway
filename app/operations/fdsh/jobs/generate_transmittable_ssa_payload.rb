@@ -8,13 +8,13 @@ module Fdsh
 
       def call(params)
         values = yield validate_params(params)
-        job = yield create_job(values)
-        transmission = yield create_transmission(job, values)
+        _job = yield create_job(values)
+        @transmission = yield create_transmission(values)
         person_subject = yield create_person_subject(values)
-        transaction = yield create_transaction(transmission, values, person_subject)
-        transaction = yield generate_transmittable_payload(transaction, values[:payload])
+        @transaction = yield create_transaction(values, person_subject)
+        @transaction = yield generate_transmittable_payload(values[:payload])
 
-        get_transmittable_payload(job, transaction)
+        transmittable
       end
 
       private
@@ -33,18 +33,23 @@ module Fdsh
         result = Fdsh::Jobs::FindOrCreateJob.new.call(values)
 
         if result.success?
-          job = result.value!
-          job.generate_message_id
-          Success(job)
+          @job = result.value!
+          @job.generate_message_id
+          Success(@job)
         else
           result
         end
       end
 
-      def create_transmission(job, values)
-        result = Fdsh::Jobs::CreateTransmission.new.call(values.merge({ job: job, event: 'initial', state_key: :initial }))
+      def create_transmission(values)
+        result = Fdsh::Jobs::CreateTransmission.new.call(values.merge({ job: @job, event: 'initial', state_key: :initial }))
 
-        result.success? ? Success(result.value!) : result
+        return result if result.success?
+        add_errors({ job: @job }, result.failure, :create_request_transmission)
+      end
+
+      def add_errors(transmittable_objects, message, error_key)
+        Fdsh::Jobs::AddError.new.call({ transmittable_objects: transmittable_objects, key: error_key, message: message })
       end
 
       def create_person_subject(values)
@@ -63,35 +68,47 @@ module Fdsh
                                             middle_name: person_hash[:person_name][:middle_name],
                                             dob: person_hash[:person_demographics][:dob])
 
-          ssa_person.persisted? ? Success(ssa_person) : Failure("Unable to save person subject")
+          return Success(ssa_person) if ssa_person.persisted?
+          add_errors({ job: @job, transmission: @transmission }, "Unable to save person subject", :create_ssa_subject)
+          Failure("Unable to save person subject")
         end
       end
 
-      def create_transaction(transmission, values, subject)
-        result = Fdsh::Jobs::CreateTransaction.new.call(values.merge({ transmission: transmission,
+      def create_transaction(values, subject)
+        result = Fdsh::Jobs::CreateTransaction.new.call(values.merge({ transmission: @transmission,
                                                                        subject: subject,
                                                                        event: 'initial',
                                                                        state_key: :initial }))
-
-        result.success? ? Success(result.value!) : result
+        return result if result.success?
+        add_errors({ job: @job, transmission: @transmission }, result.failure, :create_transaction)
+        result
       end
 
-      def generate_transmittable_payload(transaction, payload)
+      def generate_transmittable_payload(payload)
         result = Fdsh::Ssa::H3::TransformPersonToJsonSsa.new.call(payload)
 
-        transaction.json_payload = result.value! if result.success?
-        transaction.save
+        @transaction.json_payload = result.value! if result.success?
+        @transaction.save
 
-        transaction.json_payload ? Success(transaction) : Failure("Unable to save transaction with payload")
+        @transaction.json_payload ? Success(@transaction) : Failure("Unable to save transaction with payload")
+
+        return Success(@transaction) if @transaction.json_payload
+        add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
+                   "Unable to save transaction with payload",
+                   :generate_transmittable_payload)
+        result
       end
 
-      def get_transmittable_payload(job, transaction)
-        message_id = job.message_id
+      def transmittable
+        message_id = @job.message_id
 
-        if transaction.json_payload && message_id
-          Success({ transaction: transaction,
+        if @transaction.json_payload && message_id
+          Success({ transaction: @transaction,
                     message_id: message_id })
         else
+          add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
+                     "Transaction do not consists of a payload or no message id found",
+                     :transmittable)
           Failure("Transaction do not consists of a payload or no message id found")
         end
       end
