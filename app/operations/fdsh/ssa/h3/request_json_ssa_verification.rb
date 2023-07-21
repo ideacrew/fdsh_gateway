@@ -48,8 +48,8 @@ module Fdsh
           Success(::Publishers::Fdsh::VerifySsaCompositeServiceRestPublisher.publish(event))
         end
 
-        def update_status(_transmittable_hash)
-          Fdsh::Jobs::UpdateProcessStatus.new.call({ transmittable_objects: params[:transmittable_objects], state: :transmitted,
+        def update_status(transmittable_hash)
+          Fdsh::Jobs::UpdateProcessStatus.new.call({ transmittable_objects: transmittable_hash, state: :transmitted,
                                                      message: "transmitted to cms" })
         end
       end

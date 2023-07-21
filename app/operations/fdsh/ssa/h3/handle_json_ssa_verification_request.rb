@@ -83,6 +83,8 @@ module Fdsh
                                                                           job: @job,
                                                                           event: 'received',
                                                                           state_key: :received,
+                                                                          title: 'SSA Verification Response',
+                                                                          description: 'Response for SSA verification from CMS',
                                                                           correlation_id: correlation_id }))
 
           if result.success?
@@ -100,6 +102,8 @@ module Fdsh
           result = Fdsh::Jobs::CreateTransaction.new.call(values.merge({ key: :ssa_verification_response,
                                                                          started_at: DateTime.now,
                                                                          transmission: @response_transmission,
+                                                                         title: 'SSA Verification Response',
+                                                                         description: 'Response for SSA verification from CMS',
                                                                          subject: subject,
                                                                          event: 'received',
                                                                          state_key: :received }))

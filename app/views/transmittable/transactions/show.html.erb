@@ -60,6 +60,19 @@
 <% @transaction.transactable.attributes.each do |attr_name, attr_value| %>
   <b><%= attr_name %>:</b> <%= attr_value %><br>
 <% end %>
+<% if @transaction.transactable.transactions.count > 1 %>
+<div class="accordion" style="margin-top: 1em">
+  <input type="checkbox" id="subjectInfo">
+  <label for="subjectInfo">Subject Transactions +</label>
+  <div class="accordion_panel-content" style="width: 100%">
+    <ul>
+      <% @transaction.transactable.transactions.each do |tr| %>
+        <li><%= link_to "#{tr.key} - #{tr.started_at}", tr %></li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+<% end %>
 <br><br>
 <h2>Transmissions</h2>
 <% @transaction.transactions_transmissions.map{|tt| tt.transmission}.each do |transmission| %>
