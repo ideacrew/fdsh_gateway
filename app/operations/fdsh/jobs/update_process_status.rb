@@ -30,7 +30,11 @@ module Fdsh
                                                                                                 message: values[:message],
                                                                                                 started_at: DateTime.now,
                                                                                                 state_key: values[:state])
-          transmittable_object.ended_at = DateTime.now if [:failed, :completed, :succeeded].include?(values[:state])
+          if [:failed, :completed, :succeeded].include?(values[:state])
+            transmittable_object.ended_at = DateTime.now
+            last_process_state = transmittable_object&.process_status&.process_states&.last
+            last_process_state.ended_at = DateTime.now if last_process_state
+          end
           transmittable_object.save
         end
         Success("Process status updated successfully")
