@@ -21,20 +21,36 @@ module Fdsh
         protected
 
         def validate_params(params)
-          return Failure('Cannot publish payload without transaction') unless params[:values][:transaction].is_a?(::Transmittable::Transaction)
+          return Failure('Cannot publish payload without transmittable objects') unless params[:transmittable_objects]
+          unless params[:transmittable_objects][:transaction].is_a?(::Transmittable::Transaction)
+            return Failure('Cannot publish payload without transaction')
+          end
+          unless params[:transmittable_objects][:transmission].is_a?(::Transmittable::Transmission)
+            return Failure('Cannot publish payload without transaction')
+          end
+          return Failure('Cannot publish payload without transaction') unless params[:transmittable_objects][:job].is_a?(::Transmittable::Job)
           return Failure('Cannot publish payload without correlation_id') unless params[:correlation_id].is_a?(String)
           return Failure('Cannot publish payload without jwt token') unless params[:token].is_a?(String)
-          return Failure('Cannot publish payload without transaction json payload') unless params[:values][:transaction].json_payload
+          return Failure('Cannot publish payload without transaction json payload') unless params[:transmittable_objects][:transaction].json_payload
+          return Failure('Cannot publish payload without message id') unless params[:transmittable_objects][:job].message_id
 
           Success(params)
         end
 
         def publish_event(params)
-          event = PublishEventStruct.new(PUBLISH_EVENT, params[:values][:transaction].json_payload, { authorization: "Bearer #{params[:token]}",
-                                                                                                      messageid: params[:values][:message_id],
-                                                                                                      partnerid: ENV['CMS_PARTNER_ID'] })
+          event = PublishEventStruct.new(PUBLISH_EVENT, params[:transmittable_objects][:transaction].json_payload,
+                                         { authorization: "Bearer #{params[:token]}",
+                                           messageid: params[:transmittable_objects][:job].message_id,
+                                           partnerid: ENV['CMS_PARTNER_ID'] })
+          result = update_status(params[:transmittable_objects])
+          return Failure("Could not publish payload #{result.failure}") if result.failure?
 
           Success(::Publishers::Fdsh::VerifySsaCompositeServiceRestPublisher.publish(event))
+        end
+
+        def update_status(_transmittable_hash)
+          Fdsh::Jobs::UpdateProcessStatus.new.call({ transmittable_objects: params[:transmittable_objects], state: :transmitted,
+                                                     message: "transmitted to cms" })
         end
       end
     end
