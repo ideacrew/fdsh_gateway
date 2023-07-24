@@ -28,7 +28,6 @@ module Fdsh
         end
         Success("Added error successfully")
       end
-
     end
   end
 end

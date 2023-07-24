@@ -8,7 +8,7 @@ module Transmittable
 
     belongs_to :errorable, polymorphic: true, inverse_of: :errorable, index: true
 
-    field :key, type: String
+    field :key, type: Symbol
     field :message, type: String
   end
 end

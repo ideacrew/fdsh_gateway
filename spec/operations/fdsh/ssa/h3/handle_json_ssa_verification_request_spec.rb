@@ -1,37 +1,12 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'shared_examples/person_cv3'
+require 'shared_examples/ssa_transmittable'
 
 RSpec.describe Fdsh::Ssa::H3::HandleJsonSsaVerificationRequest, dbclean: :after_each do
-  include_context "person hash for cv3"
+  include_context "ssa transmittable job transmission transaction"
 
   let(:correlation_id) { "SOME GENERATED CORRELATION ID" }
-  let(:payload) { person_params.to_json }
-  let!(:job) do
-    job = FactoryBot.create(:transmittable_job)
-    job.process_status = FactoryBot.create(:transmittable_process_status, statusable: job)
-    job.process_status.process_states << FactoryBot.create(:transmittable_process_state)
-    job.generate_message_id
-    job.save
-    job
-  end
-  let!(:transmission) do
-    transmission = FactoryBot.create(:transmittable_transmission, job: job)
-    transmission.process_status = FactoryBot.create(:transmittable_process_status, statusable: transmission)
-    transmission.process_status.process_states << FactoryBot.create(:transmittable_process_state)
-    transmission.save
-    transmission
-  end
-  let!(:person_subject) { FactoryBot.create(:saa_person) }
-  let!(:transaction) do
-    transaction = person_subject.transactions.create(key: :ssa_verification, started_at: DateTime.now, json_payload: JSON.parse(payload))
-    transaction.process_status = FactoryBot.create(:transmittable_process_status, statusable: transaction)
-    transaction.process_status.process_states << FactoryBot.create(:transmittable_process_state)
-    transaction.save
-    transaction
-  end
-  let!(:transaction_transmission) {FactoryBot.create(:transactions_transmissions, transmission: transmission, transaction: transaction)}
   let!(:transmittable_hash)  { { message_id: job.message_id, transaction: transaction }}
   let(:mock_transmittable_payload_request) { instance_double(Fdsh::Jobs::GenerateTransmittableSsaPayload) }
   let(:mock_transmittable_payload_response) { Dry::Monads::Result::Success.call(transmittable_hash) }
