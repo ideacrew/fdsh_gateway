@@ -28,7 +28,7 @@
       <td><%= @transaction&.started_at %></td>
       <td><%= @transaction&.ended_at %></td>
       <td><%= @transaction.process_status ? @transaction.process_status&.latest_state : @transaction.status %></td>
-      <td><%= @transaction.errors&.map{|error| error.message} %></td>
+      <td><%= @transaction.error_messages %></td>
       <td><%= @transaction.transactable_type&.humanize&.split('::')&.last %></td>
       <td><%= @transaction.subject_hbx_id %></td>
     </tr>
@@ -98,7 +98,7 @@
       <td><%= transmission&.started_at %></td>
       <td><%= transmission&.ended_at %></td>
       <td><%= transmission.status ? transmission.status : transmission.process_status&.latest_state %></td>
-      <td><%= transmission.errors&.map{|error| error.message} %></td>
+      <td><%= transmission.error_messages %></td>
       <td><%= transmission.transactions_transmissions&.count %></td>
       <td><% if transmission.job %><%= link_to "Job Details", transmission.job %><% end %></td>
     </tr>

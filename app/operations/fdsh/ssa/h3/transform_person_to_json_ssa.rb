@@ -48,7 +48,6 @@ module Fdsh
 
         def convert_person_to_request_json(person)
           result = AcaEntities::Fdsh::Ssa::H3::Operations::SsaVerificationJsonRequest.new.call(person)
-
           result.success? ? Success(JSON.parse(result.value!, symbolize_names: true)) : Failure("Unable to transform payload to JSON")
         end
       end

@@ -21,9 +21,10 @@ module Fdsh
         Success(params)
       end
 
-      def update_status(values)
+      def add_error(values)
         values[:transmittable_objects].each_value do |transmittable_object|
-          transmittable_object.errors.add(values[:key], :not_implemented, message: values[:message])
+          transmittable_object.transmittable_errors.create({ key: values[:key], message: values[:message] })
+          transmittable_object.save
         end
         Success("Added error successfully")
       end

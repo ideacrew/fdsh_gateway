@@ -6,6 +6,8 @@ module Transmittable
     include Mongoid::Document
     include Mongoid::Timestamps
 
+    embedded_in :process_status, class_name: 'Transmittable::ProcessStatus'
+
     field :event, type: String
     field :message, type: String
     field :state_key, type: Symbol

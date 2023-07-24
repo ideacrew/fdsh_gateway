@@ -46,10 +46,16 @@ module Fdsh
 
         return result if result.success?
         add_errors({ job: @job }, result.failure, :create_request_transmission)
+        status_result = update_status({ job: @job }, :failed, result.failure)
+        return status_result if status_result.failure?
       end
 
       def add_errors(transmittable_objects, message, error_key)
         Fdsh::Jobs::AddError.new.call({ transmittable_objects: transmittable_objects, key: error_key, message: message })
+      end
+
+      def update_status(transmittable_objects, state, message)
+        Fdsh::Jobs::UpdateProcessStatus.new.call({ transmittable_objects: transmittable_objects, state: state, message: message })
       end
 
       def create_person_subject(values)
@@ -70,6 +76,8 @@ module Fdsh
 
           return Success(ssa_person) if ssa_person.persisted?
           add_errors({ job: @job, transmission: @transmission }, "Unable to save person subject", :create_ssa_subject)
+          status_result = update_status({ job: @job, transmission: @transmission }, :failed, "Unable to save person subject")
+          return status_result if status_result.failure?
           Failure("Unable to save person subject")
         end
       end
@@ -81,22 +89,32 @@ module Fdsh
                                                                        state_key: :initial }))
         return result if result.success?
         add_errors({ job: @job, transmission: @transmission }, result.failure, :create_transaction)
+        status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed, result.failure)
+        return status_result if status_result.failure?
         result
       end
 
       def generate_transmittable_payload(payload)
         result = Fdsh::Ssa::H3::TransformPersonToJsonSsa.new.call(payload)
+        if result.success?
+          @transaction.json_payload = result.value! if result.success?
+          @transaction.save
 
-        @transaction.json_payload = result.value! if result.success?
-        @transaction.save
-
-        @transaction.json_payload ? Success(@transaction) : Failure("Unable to save transaction with payload")
-
-        return Success(@transaction) if @transaction.json_payload
-        add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
-                   "Unable to save transaction with payload",
-                   :generate_transmittable_payload)
-        result
+          return Success(@transaction) if @transaction.json_payload
+          add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
+                     "Unable to save transaction with payload",
+                     :generate_transmittable_payload)
+          status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed,
+                                        "Unable to save transaction with payload")
+          return status_result if status_result.failure?
+        else
+          add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
+                     "Unable to transform payload",
+                     :generate_transmittable_payload)
+          status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed, "Unable to transform payload")
+          return status_result if status_result.failure?
+          result
+        end
       end
 
       def transmittable
@@ -109,6 +127,9 @@ module Fdsh
           add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
                      "Transaction do not consists of a payload or no message id found",
                      :transmittable)
+          status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed,
+                                        "Transaction do not consists of a payload or no message id found")
+          return status_result if status_result.failure?
           Failure("Transaction do not consists of a payload or no message id found")
         end
       end

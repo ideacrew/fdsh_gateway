@@ -26,10 +26,10 @@ module Fdsh
           transmittable_object.process_status.latest_state = values[:state]
           last_process_state = transmittable_object&.process_status&.process_states&.last
           last_process_state.ended_at = DateTime.now if last_process_state
-          transmittable_object.process_status.process_states << Transmittable::ProcessState.new(event: values[:state].to_s,
-                                                                                                message: values[:message],
-                                                                                                started_at: DateTime.now,
-                                                                                                state_key: values[:state])
+          transmittable_object.process_status.process_states.create({ event: values[:state].to_s,
+                                                                      message: values[:message],
+                                                                      started_at: DateTime.now,
+                                                                      state_key: values[:state] })
           transmittable_object.process_status.save
           if [:failed, :completed, :succeeded].include?(values[:state])
             transmittable_object.ended_at = DateTime.now
