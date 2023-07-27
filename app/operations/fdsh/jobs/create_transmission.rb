@@ -36,7 +36,7 @@ module Fdsh
                   ended_at: values[:ended_at],
                   process_status: create_process_status(values[:event], values[:state_key]),
                   transmission_id: values[:correlation_id],
-                  errors: []
+                  transmittable_errors: []
                 })
       end
 
@@ -52,7 +52,7 @@ module Fdsh
       end
 
       def create_transmission(job, tranmission_entity)
-        Success(job.transmissions.create(tranmission_entity.to_h.except(:errors)))
+        Success(job.transmissions.create(tranmission_entity.to_h))
       end
     end
   end

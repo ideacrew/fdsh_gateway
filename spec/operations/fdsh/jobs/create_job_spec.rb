@@ -8,7 +8,6 @@ RSpec.describe Fdsh::Jobs::CreateJob, dbclean: :after_each do
   let(:title) { 'SSA Verification Request'}
   let(:description) { 'Request for SSA verification to CMS'}
   let(:payload) { { message: "A REQUEST PAYLOAD" } }
-  # let(:job_id) { "#{key}_#{DateTime.now.strftime('%Y%m%d%H%M%S%L')}" }
 
   let(:required_params) do
     {

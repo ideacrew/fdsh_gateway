@@ -8,7 +8,8 @@ module Fdsh
 
       def call(params)
         values = yield validate_params(params)
-        result = yield add_error(values)
+        error = yield create_error(values)
+        result = yield add_error(values, error)
         Success(result)
       end
 
@@ -21,12 +22,19 @@ module Fdsh
         Success(params)
       end
 
-      def add_error(values)
+      def add_error(values, error)
         values[:transmittable_objects].each_value do |transmittable_object|
-          transmittable_object.transmittable_errors.create({ key: values[:key], message: values[:message] })
+          transmittable_object.transmittable_errors.create(error.to_h)
           transmittable_object.save
         end
         Success("Added error successfully")
+      end
+
+      def create_error(values)
+        validation_result = AcaEntities::Protocols::Transmittable::Operations::TransmittableErrors::Create.new.call({ key: values[:key],
+                                                                                                                      message: values[:message] })
+
+        validation_result.success? ? Success(validation_result.value!) : Failure("Unable to add error due to invalid params")
       end
     end
   end

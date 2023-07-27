@@ -10,7 +10,8 @@ module Fdsh
 
         # @return [Dry::Monads::Result]
         def call(params)
-          values = yield transmittable_payload(params)
+          validate_params = yield validate_params(params)
+          values = yield transmittable_payload(validate_params)
           jwt = yield generate_jwt(values)
           ssa_response = yield publish_ssa_request(params[:correlation_id], jwt)
           ssa_response = yield verify_response(ssa_response)
@@ -23,6 +24,13 @@ module Fdsh
         end
 
         protected
+
+        def validate_params(params)
+          return Failure('Cannot process SSA request without correlation id') unless params[:correlation_id].is_a?(String)
+          return Failure('Cannot process SSA request without payload') if params[:payload].blank?
+
+          Success(params)
+        end
 
         def transmittable_payload(params)
           result = ::Fdsh::Jobs::GenerateTransmittableSsaPayload.new.call({ key: :ssa_verification_request,

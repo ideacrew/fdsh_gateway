@@ -36,7 +36,7 @@ module Fdsh
                   process_status: create_process_status(values[:event], values[:state_key]),
                   started_at: values[:started_at],
                   ended_at: values[:ended_at],
-                  errors: [],
+                  transmittable_errors: [],
                   json_payload: nil
                 })
       end
@@ -53,7 +53,7 @@ module Fdsh
       end
 
       def create_transaction(transaction_entity, subject)
-        Success(subject.transactions.create(transaction_entity.to_h.except(:errors)))
+        Success(subject.transactions.create(transaction_entity.to_h))
       end
 
       def create_transaction_transmission(transaction, transmission)

@@ -37,7 +37,7 @@ module Fdsh
                   ended_at: values[:ended_at],
                   time_to_live: values[:time_to_live],
                   process_status: create_process_status,
-                  errors: [],
+                  transmittable_errors: [],
                   allow_list: [],
                   deny_list: []
                 })
@@ -59,7 +59,7 @@ module Fdsh
       end
 
       def create_job(job_entity)
-        job = Transmittable::Job.create(job_entity.to_h.except(:errors))
+        job = Transmittable::Job.create(job_entity.to_h)
         job.save ? Success(job) : Failure("Unable to save job due to invalid params")
       end
     end

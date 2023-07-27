@@ -60,6 +60,22 @@ RSpec.describe Fdsh::Ssa::H3::HandleJsonSsaVerificationRequest, dbclean: :after_
       expect(transaction.process_status.latest_state).to eq :succeeded
       expect(job.transmissions.count).to eq 2
       expect(job.transmissions.pluck(:key)).to eq [:ssa_verification_request, :ssa_verification_response]
+      expect(job.transmissions.last.transactions_transmissions.last.transaction).not_to eq nil
+      expect(job.transmissions.last.transactions_transmissions.last.transaction.key).to eq :ssa_verification_response
+    end
+  end
+
+  context 'with a failure response' do
+    it "is failure without correlation id" do
+      result = described_class.new.call({ correlation_id: nil, payload: payload })
+      expect(result.failure?).to be_truthy
+      expect(result.failure).to eq 'Cannot process SSA request without correlation id'
+    end
+
+    it "is failure without payload" do
+      result = described_class.new.call({ correlation_id: correlation_id, payload: nil })
+      expect(result.failure?).to be_truthy
+      expect(result.failure).to eq 'Cannot process SSA request without payload'
     end
   end
 end
