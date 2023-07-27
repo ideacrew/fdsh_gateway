@@ -11,8 +11,8 @@ module Fdsh
         # @return [Dry::Monads::Result]
         def call(params)
           values = yield transmittable_payload(params)
-          jwt = yield generate_jwt
-          ssa_response = yield publish_ssa_request(values, params[:correlation_id], jwt)
+          jwt = yield generate_jwt(values)
+          ssa_response = yield publish_ssa_request(params[:correlation_id], jwt)
           ssa_response = yield verify_response(ssa_response)
           _response_transmission = yield create_response_transmission(values, params[:correlation_id])
           _response_transaction = yield create_response_transaction(values, ssa_response)
@@ -36,14 +36,24 @@ module Fdsh
           result.success? ? Success(result.value!) : result
         end
 
-        def generate_jwt
-          Jwt::GetJwt.new.call({})
-        end
-
-        def publish_ssa_request(values, correlation_id, jwt)
+        def generate_jwt(values)
           @request_transaction = values[:transaction]
           @request_transmission = @request_transaction.transactions_transmissions.last.transmission
           @job = @request_transmission.job
+          result = Jwt::GetJwt.new.call({})
+
+          return result if result.success?
+
+          add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
+                     result.failure,
+                     :generate_jwt)
+          status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission, job: @job }, :failed,
+                                        result.failure)
+          return status_result if status_result.failure?
+          result
+        end
+
+        def publish_ssa_request(correlation_id, jwt)
           result = Fdsh::Ssa::H3::RequestJsonSsaVerification.new.call({ correlation_id: correlation_id, token: jwt,
                                                                         transmittable_objects: { transaction: @request_transaction,
                                                                                                  transmission: @request_transmission, job: @job } })
@@ -53,7 +63,7 @@ module Fdsh
             Success(result.value!)
           else
             add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
-                       "Failed to receive response from cms",
+                       "Failed to receive response from cms due to #{result.failure}",
                        :publish_ssa_request)
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission, job: @job }, :failed,
                                           "Failed to receive response from cms")
@@ -74,10 +84,10 @@ module Fdsh
             Success(ssa_response)
           else
             add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
-                       "Did not recieve a success response from cmss",
+                       "Did not recieve a success response from cms, received status code #{ssa_response.status}",
                        :verify_response)
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission, job: @job }, :failed,
-                                          "Did not recieve a success response from cmss")
+                                          "Did not recieve a success response from cms")
             return status_result if status_result.failure?
             Failure(ssa_response)
           end
@@ -102,7 +112,7 @@ module Fdsh
             Success(@response_transmission)
           else
             add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
-                       "Failed to create response transmission",
+                       "Failed to create response transmission due to #{result.failure}",
                        :create_response_transmission)
             status_result = update_status({ job: @job }, :failed, "Failed to create response transmission")
             return status_result if status_result.failure?
@@ -128,7 +138,7 @@ module Fdsh
             Success(@response_transaction)
           else
             add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
-                       "Failed to create response transaction",
+                       "Failed to create response transaction due to #{result.failure}",
                        :create_response_transaction)
             status_result = update_status({ transmission: @response_transmission, job: @job }, :failed, "Failed to create response transaction")
             return status_result if status_result.failure?

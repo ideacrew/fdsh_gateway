@@ -45,7 +45,7 @@ module Fdsh
         result = Fdsh::Jobs::CreateTransmission.new.call(values.merge({ job: @job, event: 'initial', state_key: :initial }))
 
         return result if result.success?
-        add_errors({ job: @job }, result.failure, :create_request_transmission)
+        add_errors({ job: @job }, "Failed to create transmission due to #{result.failure}", :create_request_transmission)
         status_result = update_status({ job: @job }, :failed, result.failure)
         return status_result if status_result.failure?
       end
@@ -75,7 +75,8 @@ module Fdsh
                                             dob: person_hash[:person_demographics][:dob])
 
           return Success(ssa_person) if ssa_person.persisted?
-          add_errors({ job: @job, transmission: @transmission }, "Unable to save person subject", :create_ssa_subject)
+          add_errors({ job: @job, transmission: @transmission }, "Unable to save person subject due to #{ssa_person.errors&.full_messages}",
+                     :create_ssa_subject)
           status_result = update_status({ job: @job, transmission: @transmission }, :failed, "Unable to save person subject")
           return status_result if status_result.failure?
           Failure("Unable to save person subject")
@@ -88,7 +89,7 @@ module Fdsh
                                                                        event: 'initial',
                                                                        state_key: :initial }))
         return result if result.success?
-        add_errors({ job: @job, transmission: @transmission }, result.failure, :create_transaction)
+        add_errors({ job: @job, transmission: @transmission }, "Failed to create transaction due to #{result.failure}", :create_transaction)
         status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed, result.failure)
         return status_result if status_result.failure?
         result
