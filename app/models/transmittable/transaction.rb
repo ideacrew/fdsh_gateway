@@ -84,7 +84,7 @@ module Transmittable
     end
 
     def error_messages
-      return unless errors
+      return [] unless errors
 
       transmittable_errors&.map {|error| "#{error.key}: #{error.message}"}&.join(";")
     end

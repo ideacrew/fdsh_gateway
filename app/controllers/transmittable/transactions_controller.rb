@@ -5,7 +5,9 @@ module Transmittable
   class TransactionsController < ApplicationController
 
     def show
-      @transaction = Transmittable::Transaction.find(params[:id])
+      @transaction = Transmittable::Transaction.where(id: params[:id]).last
+
+      render json: "Transaction not found", status: 404 unless @transaction
     end
 
     def index

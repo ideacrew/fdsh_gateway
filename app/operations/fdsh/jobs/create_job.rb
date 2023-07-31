@@ -50,7 +50,7 @@ module Fdsh
       end
 
       def generate_job_id(key)
-        "#{key}_#{DateTime.now.strftime('%Y%m%d%H%M%S%L')}"
+        "#{key}_#{Time.now.to_i}"
       end
 
       def create_process_status

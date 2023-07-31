@@ -31,10 +31,8 @@ module Fdsh
       end
 
       def create_error(values)
-        validation_result = AcaEntities::Protocols::Transmittable::Operations::TransmittableErrors::Create.new.call({ key: values[:key],
-                                                                                                                      message: values[:message] })
-
-        validation_result.success? ? Success(validation_result.value!) : Failure("Unable to add error due to invalid params")
+        AcaEntities::Protocols::Transmittable::Operations::TransmittableErrors::Create.new.call({ key: values[:key],
+                                                                                                  message: values[:message] })
       end
     end
   end

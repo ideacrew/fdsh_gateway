@@ -52,7 +52,9 @@ module Fdsh
       end
 
       def create_transmission(job, tranmission_entity)
-        Success(job.transmissions.create(tranmission_entity.to_h))
+        transmission = job.transmissions.new(tranmission_entity.to_h)
+
+        transmission.save ? Success(transmission) : Failure("Failed to save transmission")
       end
     end
   end

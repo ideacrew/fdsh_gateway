@@ -5,11 +5,13 @@ module Transmittable
   class JobsController < ApplicationController
 
     def show
-      @job = Transmittable::Job.find(params[:id])
+      @job = Transmittable::Job.where(id: params[:id]).last
+
+      render json: "Job not found", status: 404 unless @job
     end
 
     def index
-      @jobs = Transmittable::Job.newest.page params[:page]
+      @jobs = Transmittable::Job.latest.page params[:page]
     end
 
   end
