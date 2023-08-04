@@ -39,7 +39,8 @@ module Fdsh
 
           # Transform application params To BuildMedicareRequest Contract params
           def build_request_entity(applications, transaction_encrypted_ssn)
-            ::AcaEntities::Fdsh::Rrv::Medicare::Operations::BuildMedicareRequest.new.call({applications: applications, transaction_encrypted_ssn: transaction_encrypted_ssn})
+            ::AcaEntities::Fdsh::Rrv::Medicare::Operations::BuildMedicareRequest.new.call({ applications: applications,
+                                                                                            transaction_encrypted_ssn: transaction_encrypted_ssn })
           end
 
           def encode_xml_and_schema_validate(rrv_medicare_request)
