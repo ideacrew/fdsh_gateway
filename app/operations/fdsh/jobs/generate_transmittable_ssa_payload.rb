@@ -90,7 +90,7 @@ module Fdsh
                                                                        state_key: :initial }))
         return result if result.success?
         add_errors({ job: @job, transmission: @transmission }, "Failed to create transaction due to #{result.failure}", :create_transaction)
-        status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed, result.failure)
+        status_result = update_status({ job: @job, transmission: @transmission }, :failed, result.failure)
         return status_result if status_result.failure?
         result
       end
