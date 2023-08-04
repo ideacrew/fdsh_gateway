@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'pry'
 
-RSpec.describe Fdsh::Ssa::H3::HandleSsaVerificationRequest, "given:
+RSpec.describe Fdsh::Ssa::H3::HandleXmlSsaVerificationRequest, "given:
   - a correlation id
   - a payload
   - the primary determination request is successful
@@ -15,7 +15,7 @@ RSpec.describe Fdsh::Ssa::H3::HandleSsaVerificationRequest, "given:
 
   let(:mock_request_operation) do
     instance_double(
-      ::Fdsh::Ssa::H3::RequestSsaVerification
+      ::Fdsh::Ssa::H3::RequestXmlSsaVerification
     )
   end
 
@@ -53,7 +53,7 @@ RSpec.describe Fdsh::Ssa::H3::HandleSsaVerificationRequest, "given:
   end
 
   before :each do
-    allow(::Fdsh::Ssa::H3::RequestSsaVerification).to receive(:new).and_return(
+    allow(::Fdsh::Ssa::H3::RequestXmlSsaVerification).to receive(:new).and_return(
       mock_request_operation
     )
     allow(::Fdsh::Ssa::H3::ProcessSsaVerificationResponse).to receive(:new).and_return(

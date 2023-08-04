@@ -8,6 +8,10 @@ module Transmittable
 
     belongs_to :transactable, polymorphic: true, index: true
     has_many :transactions_transmissions, class_name: 'Transmittable::TransactionsTransmissions'
+    has_one :process_status, as: :statusable, class_name: 'Transmittable::ProcessStatus'
+    accepts_nested_attributes_for :process_status
+    has_many :transmittable_errors, as: :errorable, class_name: 'Transmittable::Error'
+    accepts_nested_attributes_for :transmittable_errors
 
     field :transmit_action, type: Symbol
 
@@ -25,6 +29,12 @@ module Transmittable
     field :started_at, type: DateTime
     field :end_at, type: DateTime
 
+    field :key, type: Symbol
+    field :title, type: String
+    field :description, type: String
+    field :ended_at, type: DateTime
+    field :json_payload, type: Hash
+
     # Scopes
     scope :blocked,          -> { where(status: :blocked) }
     scope :errored,          -> { where(status: :errored) }
@@ -32,6 +42,8 @@ module Transmittable
     scope :superseded,       -> { where(status: :superseded) }
     scope :transmitted,      -> { where(status: :transmitted) }
     scope :transmit_pending, -> { where(transmit_action: :transmit) }
+
+    scope :newest, -> { order(created_at: :desc) }
 
     # Indexes
     index({ 'status' => 1 })
@@ -61,10 +73,20 @@ module Transmittable
       transaction_transmission.transmission
     end
 
+    def subject_hbx_id
+      transactable.has_attribute?(:hbx_id) ? transactable.hbx_id : transactable.hbx_assigned_id
+    end
+
     def transaction_errors=(value)
       raise(ArgumentError, "#{value} must be of type Hash") unless value.is_a?(Hash)
 
       write_attribute(:transaction_errors, transaction_errors.merge(value))
+    end
+
+    def error_messages
+      return [] unless errors
+
+      transmittable_errors&.map {|error| "#{error.key}: #{error.message}"}&.join(";")
     end
   end
 end
