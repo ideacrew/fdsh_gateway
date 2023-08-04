@@ -7,7 +7,7 @@ module Jwt
   class GetJwt
     include Dry::Monads[:result, :do, :try]
 
-    def call
+    def call(_params)
       fetch_jwt
     end
 

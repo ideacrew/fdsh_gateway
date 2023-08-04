@@ -4,13 +4,13 @@ module Fdsh
   module Ssa
     module H3
       # Invoke a Initial verification service, and, if appropriate, broadcast the response.
-      class HandleSsaVerificationRequest
+      class HandleXmlSsaVerificationRequest
         include Dry::Monads[:result, :do, :try]
         include EventSource::Command
 
         # @return [Dry::Monads::Result]
         def call(params)
-          ssa_verification_result_soap = yield RequestSsaVerification.new.call(params[:payload])
+          ssa_verification_result_soap = yield RequestXmlSsaVerification.new.call(params[:payload])
           ssa_verification_result = yield ::Soap::RemoveSoapEnvelope.new.call(ssa_verification_result_soap.body)
           ssa_verification_outcome = yield ProcessSsaVerificationResponse.new.call(ssa_verification_result)
 
