@@ -33,8 +33,10 @@ RSpec.describe Fdsh::Rrv::Medicare::Request::CreateTransactionFile do
   end
 
   let(:params) do
+    application = JSON.parse(Transaction.first.activities.last.message['request'])
     {
-      application_payload: [JSON.parse(Transaction.first.activities.last.message['request'])]
+      application_payload: [application],
+      transaction_encrypted_ssn: application["applicants"][0]["identifying_information"]["encrypted_ssn"]
     }
   end
 
