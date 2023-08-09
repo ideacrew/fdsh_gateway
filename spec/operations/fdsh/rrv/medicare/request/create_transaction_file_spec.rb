@@ -32,20 +32,44 @@ RSpec.describe Fdsh::Rrv::Medicare::Request::CreateTransactionFile do
     create_application_requests
   end
 
-  let(:params) do
-    {
-      application_payload: [JSON.parse(Transaction.first.activities.last.message['request'])]
-    }
+  context "with applicant ssn" do
+    let(:params) do
+      application = JSON.parse(Transaction.first.activities.last.message['request'])
+      {
+        application_payload: [application],
+        transaction_encrypted_ssn: application["applicants"][0]["identifying_information"]["encrypted_ssn"]
+      }
+    end
+
+    subject do
+      described_class.new.call(params)
+    end
+
+    it "should return transaction xml with applicants count" do
+      expect(Transaction.count).to eq 17
+      expect(subject.success?).to be_truthy
+      expect(Nokogiri::XML(subject.success[0]).errors.empty?).to be_truthy
+      expect(subject.success[1]).to eq 1
+    end
   end
 
-  subject do
-    described_class.new.call(params)
-  end
+  context "without applicant ssn" do
+    let(:params) do
+      application = JSON.parse(Transaction.first.activities.last.message['request'])
+      {
+        application_payload: [application],
+        transaction_encrypted_ssn: nil
+      }
+    end
 
-  it "should return transaction xml with applicants count" do
-    expect(Transaction.count).to eq 17
-    expect(subject.success?).to be_truthy
-    expect(Nokogiri::XML(subject.success[0]).errors.empty?).to be_truthy
-    expect(subject.success[1]).to eq 1
+    subject do
+      described_class.new.call(params)
+    end
+
+    it "should return transaction xml with applicants count" do
+      expect(Transaction.count).to eq 17
+      expect(subject.success?).to be_truthy
+      expect(subject.success[1]).to eq 0
+    end
   end
 end

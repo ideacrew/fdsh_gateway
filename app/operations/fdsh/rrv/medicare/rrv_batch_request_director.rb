@@ -73,8 +73,9 @@ module Fdsh
           Success(outbound_folder)
         end
 
-        def create_transaction_xml(application_params, _outbound_folder)
-          Fdsh::Rrv::Medicare::Request::CreateTransactionFile.new.call({ application_payload: [application_params] })
+        def create_transaction_xml(application_params, _outbound_folder, transaction_encrypted_ssn)
+          params = { application_payload: [application_params], transaction_encrypted_ssn: transaction_encrypted_ssn }
+          Fdsh::Rrv::Medicare::Request::CreateTransactionFile.new.call(params)
         end
 
         def open_transaction_file(_outbound_folder)
@@ -115,7 +116,8 @@ module Fdsh
                                                                          assistance_year: values[:assistance_year]
                                                                        }).max_by(&:created_at).message['request'])
 
-          result = create_transaction_xml(application_params, outbound_folder)
+          transaction_encrypted_ssn = transaction.correlation_id.gsub('rrv_mdcr_', '')
+          result = create_transaction_xml(application_params, outbound_folder, transaction_encrypted_ssn)
           return unless result.success?
 
           transaction_xml, applicants_count = result.success

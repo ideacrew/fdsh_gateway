@@ -12,7 +12,7 @@ module Fdsh
           def call(params)
             values               = yield validate(params)
             applications         = yield build_applications(values)
-            rrv_medicare_request = yield build_request_entity(applications)
+            rrv_medicare_request = yield build_request_entity(applications, values[:transaction_encrypted_ssn])
             xml_string           = yield encode_xml_and_schema_validate(rrv_medicare_request)
             rrv_medicare_xml     = yield encode_request_xml(xml_string)
             applicants_count     = rrv_medicare_request.IndividualRequests.count
@@ -38,8 +38,9 @@ module Fdsh
           end
 
           # Transform application params To BuildMedicareRequest Contract params
-          def build_request_entity(applications)
-            ::AcaEntities::Fdsh::Rrv::Medicare::Operations::BuildMedicareRequest.new.call(applications)
+          def build_request_entity(applications, transaction_encrypted_ssn)
+            ::AcaEntities::Fdsh::Rrv::Medicare::Operations::BuildMedicareRequest.new.call({ applications: applications,
+                                                                                            transaction_encrypted_ssn: transaction_encrypted_ssn })
           end
 
           def encode_xml_and_schema_validate(rrv_medicare_request)
