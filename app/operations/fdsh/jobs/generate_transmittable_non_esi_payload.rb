@@ -91,7 +91,7 @@ module Fdsh
       end
 
       def generate_transmittable_payload(payload)
-        result = Fdsh::NonEsi::TransformApplicationToJsonNonEsiRequest.new.call(payload)
+        result = ::Fdsh::NonEsi::H31::TransformApplicationToJsonNonEsiRequest.new.call(payload)
         if result.success?
           @transaction.json_payload = result.value!
           @transaction.save

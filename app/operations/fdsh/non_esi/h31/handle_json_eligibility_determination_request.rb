@@ -64,7 +64,8 @@ module Fdsh
         def publish_non_esi_mec_request(_correlation_id, _jwt)
           result = Fdsh::NonEsi::H31::RequestJsonNonEsiDetermination.new.call({ correlation_id: correlation_id, token: jwt,
                                                                                 transmittable_objects: { transaction: @request_transaction,
-                                                                                                         transmission: @request_transmission, job: @job } })
+                                                                                                         transmission: @request_transmission,
+                                                                                                         job: @job } })
           if result.success?
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :acked, "acked from cms")
             return status_result if status_result.failure?
@@ -156,7 +157,9 @@ module Fdsh
 
         def transform_response(application_payload)
           application_hash = JSON.parse(application_payload, symbolize_names: true)
-          result = AcaEntities::Fdsh::NonEsi::H31::Operations::NonEsiMecJsonResponse.new.call({application_hash: application_hash, response_payload: @response_transaction.json_payload})
+          payload = @response_transaction&.json_payload
+          result = AcaEntities::Fdsh::NonEsi::H31::Operations::NonEsiMecJsonResponse.new.call({ application_hash: application_hash,
+                                                                                                response_payload: payload })
           status_result = if result.success?
                             update_status({ transaction: @response_transaction, transmission: @response_transmission }, :succeeded,
                                           "successfully transformed response from cms")
