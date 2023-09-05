@@ -10,8 +10,8 @@ module Fdsh
         values = yield validate_params(params)
         _job = yield create_job(values)
         @transmission = yield create_transmission(values)
-        person_subject = yield create_person_subject(values)
-        @transaction = yield create_transaction(values, person_subject)
+        application_subject = yield create_application_subject(values)
+        @transaction = yield create_transaction(values, application_subject)
         @transaction = yield generate_transmittable_payload(values[:payload])
 
         transmittable
@@ -90,8 +90,8 @@ module Fdsh
         result
       end
 
-      def generate_transmittable_payload(_payload)
-        result = Sucess({ json_payload: "payload" }) # all transform code
+      def generate_transmittable_payload(payload)
+        result = Fdsh::NonEsi::TransformApplicationToJsonNonEsiRequest.new.call(payload)
         if result.success?
           @transaction.json_payload = result.value!
           @transaction.save
