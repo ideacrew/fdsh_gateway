@@ -61,7 +61,7 @@ module Fdsh
           result
         end
 
-        def publish_non_esi_mec_request(_correlation_id, _jwt)
+        def publish_non_esi_mec_request(correlation_id, jwt)
           result = Fdsh::NonEsi::H31::RequestJsonNonEsiDetermination.new.call({ correlation_id: correlation_id, token: jwt,
                                                                                 transmittable_objects: { transaction: @request_transaction,
                                                                                                          transmission: @request_transmission,
@@ -177,14 +177,14 @@ module Fdsh
         def build_event(correlation_id, response)
           payload = response.to_h
 
-          event('events.fdsh.ssa_verification_complete', attributes: payload, headers: { correlation_id: correlation_id })
+          event('events.fdsh.non_esi_determination_complete', attributes: payload, headers: { correlation_id: correlation_id })
         end
 
         def publish(event)
           event.publish
           status_result = update_status({ job: @job }, :succeeded, "successfully sent response to EA")
           return status_result if status_result.failure?
-          Success('SSA verificattion response published successfully')
+          Success('Non ESI determination response published successfully')
         end
       end
     end
