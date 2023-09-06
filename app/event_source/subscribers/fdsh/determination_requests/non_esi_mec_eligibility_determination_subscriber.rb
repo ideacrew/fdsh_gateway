@@ -14,12 +14,19 @@ module Subscribers
           # Sequence of steps that are executed as single operation
           correlation_id = properties.correlation_id
           event_key = "determine_non_esi_mec_eligibility"
-
-          determination_result = ::Fdsh::NonEsi::H31::HandleEligibilityDeterminationRequest.new.call({
-                                                                                                       payload: payload,
-                                                                                                       correlation_id: correlation_id,
-                                                                                                       event_key: event_key
-                                                                                                     })
+          non_esi_payload_format = properties[:headers]['non_esi_payload_format']
+          determination_result = if non_esi_payload_format == 'json'
+                                   ::Fdsh::NonEsi::H31::HandleJsonEligibilityDeterminationRequest.new.call({
+                                                                                                             payload: payload,
+                                                                                                             correlation_id: correlation_id
+                                                                                                           })
+                                 else
+                                   ::Fdsh::NonEsi::H31::HandleEligibilityDeterminationRequest.new.call({
+                                                                                                         payload: payload,
+                                                                                                         correlation_id: correlation_id,
+                                                                                                         event_key: event_key
+                                                                                                       })
+                                 end
 
           if determination_result.success?
             logger.info("OK: :on_fdsh_non_esi_mec_eligibility_determination_subscriber successful and acked")
