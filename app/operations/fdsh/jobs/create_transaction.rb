@@ -53,14 +53,17 @@ module Fdsh
       end
 
       def create_transaction(transaction_entity, subject)
-        Success(subject.transactions.create(transaction_entity.to_h))
+        transaction = subject.transactions.create(transaction_entity.to_h)
+
+        transaction.persisted? ? Success(transaction) : Failure("Unable to create Transaction due to invalid params")
       end
 
       def create_transaction_transmission(transaction, transmission)
-        Success(::Transmittable::TransactionsTransmissions.create(
-                  transmission: transmission,
-                  transaction: transaction
-                ))
+        result = ::Transmittable::TransactionsTransmissions.create(
+          transmission: transmission,
+          transaction: transaction
+        )
+        result.persisted? ? Success(result) : Failure("Unable to create transactions_transmissions due to invalid params")
       end
     end
   end

@@ -26,11 +26,19 @@ module Subscribers
                          "failed for application id #{correlation_id} due to:#{esi_result.inspect}")
           end
 
-          non_esi_result = ::Fdsh::NonEsi::H31::HandleEligibilityDeterminationRequest.new.call({
-                                                                                                 payload: payload,
-                                                                                                 correlation_id: correlation_id,
-                                                                                                 event_key: 'determine_non_esi_mec_eligibility'
-                                                                                               })
+          non_esi_payload_format = properties[:headers]['non_esi_payload_format']
+          non_esi_result = if non_esi_payload_format == 'json'
+                             ::Fdsh::NonEsi::H31::HandleJsonEligibilityDeterminationRequest.new.call({
+                                                                                                       payload: payload,
+                                                                                                       correlation_id: correlation_id
+                                                                                                     })
+                           else
+                             ::Fdsh::NonEsi::H31::HandleEligibilityDeterminationRequest.new.call({
+                                                                                                   payload: payload,
+                                                                                                   correlation_id: correlation_id,
+                                                                                                   event_key: 'determine_non_esi_mec_eligibility'
+                                                                                                 })
+                           end
 
           if non_esi_result.success?
             logger.info("OK: :on_fdsh_mec_eligibility_determination_subscriber successful and acked")
