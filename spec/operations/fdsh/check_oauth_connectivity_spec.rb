@@ -8,8 +8,11 @@ RSpec.describe Fdsh::CheckOauthConnectivity, "given invalid JSON" do
     described_class.new.call({})
   end
 
-  context "valid token" do
+  around(:each) do |_example|
+    stub_const('ENV', 'TOKEN_HOST' => 'https://impl.hub.cms.gov')
+  end
 
+  context "valid token" do
     before(:each) do
       stub_request(:post, "https://impl.hub.cms.gov/auth/oauth/v2/token")
         .with(
@@ -65,6 +68,18 @@ RSpec.describe Fdsh::CheckOauthConnectivity, "given invalid JSON" do
       expect(subject.success?).to be_falsey
       expect(subject.failure).to be_truthy
     end
+  end
+
+  context 'xml response' do
+    it "should fail" do
+      expect(subject.success?).to be_falsey
+      expect(subject.failure).to be_truthy
+    end
+
+    it "should return the failure message" do
+      expect(subject.failure).to eq "Non JSON response for JWT request"
+    end
+
   end
 end
 
