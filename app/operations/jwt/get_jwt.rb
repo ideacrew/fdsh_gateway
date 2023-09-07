@@ -20,9 +20,9 @@ module Jwt
         auth_conn = Faraday.new(url: host)
         response = auth_conn.post(path, grant_type: "client_credentials", client_id: ENV.fetch('TOKEN_CLIENT_ID', nil),
                                         client_secret: ENV.fetch('TOKEN_CLIENT_SECRET', nil))
-        return Failure("Non JSON response for JWT request") unless json?(response)
+        return Failure("Non JSON response for JWT request") unless json?(response.env.response_body)
         resp = JSON.parse(response.env.response_body, symbolize_names: true)
-
+        
         break if resp[:errors]
 
         resp[:access_token]
