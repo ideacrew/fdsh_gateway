@@ -14,7 +14,7 @@ module Subscribers
           # Sequence of steps that are executed as single operation
           correlation_id = properties.correlation_id
           event_key = "determine_esi_mec_eligibility"
-
+          esi_payload_format = properties[:headers]['esi_payload_format']
           determination_result = if esi_payload_format == 'json'
                                    ::Fdsh::Esi::Rj14::HandleJsonEligibilityDeterminationRequest.new.call({
                                                                                                            payload: payload,
