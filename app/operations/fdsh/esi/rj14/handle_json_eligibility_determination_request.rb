@@ -13,10 +13,10 @@ module Fdsh
           validate_params = yield validate_params(params)
           values = yield transmittable_payload(validate_params)
           jwt = yield generate_jwt(values)
-          non_esi_response = yield publish_esi_mec_request(params[:correlation_id], jwt)
-          non_esi_response = yield verify_response(non_esi_response)
+          esi_response = yield publish_esi_mec_request(params[:correlation_id], jwt)
+          esi_response = yield verify_response(esi_response)
           _response_transmission = yield create_response_transmission(values, params[:correlation_id])
-          _response_transaction = yield create_response_transaction(values, non_esi_response)
+          _response_transaction = yield create_response_transaction(values, esi_response)
           transformed_response = yield transform_response(validate_params[:payload])
           event  = yield build_event(params[:correlation_id], transformed_response)
           result = yield publish(event)
@@ -73,7 +73,7 @@ module Fdsh
           else
             add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
                        "Failed to receive response from cms due to #{result.failure}",
-                       :publish_ssa_request)
+                       :publish_esi_mec_request)
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission, job: @job }, :failed,
                                           "Failed to receive response from cms")
             return status_result if status_result.failure?
@@ -85,20 +85,20 @@ module Fdsh
           Fdsh::Jobs::AddError.new.call({ transmittable_objects: transmittable_objects, key: error_key, message: message })
         end
 
-        def verify_response(non_esi_response)
-          if non_esi_response.status == 200
+        def verify_response(esi_response)
+          if esi_response.status == 200
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :succeeded,
                                           "Successfully received response from cms")
             return status_result if status_result.failure?
-            Success(non_esi_response)
+            Success(esi_response)
           else
             add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
-                       "Did not receive a success response from cms, received status code #{non_esi_response.status}",
+                       "Did not receive a success response from cms, received status code #{esi_response.status}",
                        :verify_response)
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission, job: @job }, :failed,
                                           "Did not receive a success response from cms")
             return status_result if status_result.failure?
-            Failure(non_esi_response)
+            Failure(esi_response)
           end
         end
 
@@ -107,13 +107,13 @@ module Fdsh
         end
 
         def create_response_transmission(values, correlation_id)
-          result = Fdsh::Jobs::CreateTransmission.new.call(values.merge({ key: :non_esi_mec_response,
+          result = Fdsh::Jobs::CreateTransmission.new.call(values.merge({ key: :esi_mec_response,
                                                                           started_at: DateTime.now,
                                                                           job: @job,
                                                                           event: 'received',
                                                                           state_key: :received,
-                                                                          title: 'Non Esi MEC Response',
-                                                                          description: 'Response for Non Esi MEC verification from CMS',
+                                                                          title: 'Esi MEC Response',
+                                                                          description: 'Response for Esi MEC verification from CMS',
                                                                           correlation_id: correlation_id }))
 
           if result.success?
@@ -129,20 +129,20 @@ module Fdsh
           end
         end
 
-        def create_response_transaction(values, ssa_response)
+        def create_response_transaction(values, esi_response)
           subject = values[:transaction].transactable
-          result = Fdsh::Jobs::CreateTransaction.new.call(values.merge({ key: :non_esi_mec_response,
+          result = Fdsh::Jobs::CreateTransaction.new.call(values.merge({ key: :esi_mec_response,
                                                                          started_at: DateTime.now,
                                                                          transmission: @response_transmission,
-                                                                         title: 'Non Esi MEC Response',
-                                                                         description: 'Response for Non Esi MEC Response verification from CMS',
+                                                                         title: 'Esi MEC Response',
+                                                                         description: 'Response for Esi MEC Response verification from CMS',
                                                                          subject: subject,
                                                                          event: 'received',
                                                                          state_key: :received }))
 
           if result.success?
             @response_transaction = result.value!
-            @response_transaction.json_payload = JSON.parse(ssa_response.env.response_body)
+            @response_transaction.json_payload = JSON.parse(esi_response.env.response_body)
             @response_transaction.save
             Success(@response_transaction)
           else
@@ -177,14 +177,14 @@ module Fdsh
         def build_event(correlation_id, response)
           payload = response.to_h
 
-          event('events.fdsh.non_esi_determination_complete', attributes: payload, headers: { correlation_id: correlation_id })
+          event('events.fdsh.esi_determination_complete', attributes: payload, headers: { correlation_id: correlation_id })
         end
 
         def publish(event)
           event.publish
           status_result = update_status({ job: @job }, :succeeded, "successfully sent response to EA")
           return status_result if status_result.failure?
-          Success('Non ESI determination response published successfully')
+          Success('ESI determination response published successfully')
         end
       end
     end

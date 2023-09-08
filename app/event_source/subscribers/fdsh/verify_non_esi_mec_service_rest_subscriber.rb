@@ -6,7 +6,7 @@ module Subscribers
     class VerifyNonEsiMecServiceRestSubscriber
       include ::EventSource::Subscriber[http: '/VerifyNonEsiMecServiceRest']
 
-      subscribe(:on_VerifySSACompositeServiceRest) do |body, status, _headers|
+      subscribe(:on_VerifyNonEsiMecServiceRest) do |body, status, _headers|
         if status.to_s == "200"
           logger.info "Subscribers::Fdsh::NonEsiMecServiceSubscribe: on_VerifyNonEsiMecServiceRest OK #{status}, #{body}"
         else

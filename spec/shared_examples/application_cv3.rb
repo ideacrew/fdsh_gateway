@@ -189,6 +189,15 @@ RSpec.shared_context 'application hash for cv3', shared_context: :metadata do
             :title => "Non ESI MEC",
             :updated_by => nil
           },
+          :esi_evidence => {
+            :description => nil,
+            :due_on => nil,
+            :aasm_state => "attested",
+            :external_service => nil,
+            :key => :esi_mec,
+            :title => "ESI MEC",
+            :updated_by => nil
+          },
           :mitc_relationships => [],
           :mitc_is_required_to_file_taxes => false
         }
