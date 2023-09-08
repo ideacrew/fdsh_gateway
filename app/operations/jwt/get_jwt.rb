@@ -22,7 +22,7 @@ module Jwt
                                         client_secret: ENV.fetch('TOKEN_CLIENT_SECRET', nil))
         return Failure("Non JSON response for JWT request") unless json?(response.env.response_body)
         resp = JSON.parse(response.env.response_body, symbolize_names: true)
-        
+
         break if resp[:errors]
 
         resp[:access_token]
