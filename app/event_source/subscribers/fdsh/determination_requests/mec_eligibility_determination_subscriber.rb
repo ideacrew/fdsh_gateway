@@ -13,12 +13,19 @@ module Subscribers
         subscribe(:on_magi_medicaid_application_determined) do |delivery_info, properties, payload|
           # Sequence of steps that are executed as single operation
           correlation_id = properties.correlation_id
-          esi_result = ::Fdsh::Esi::H14::HandleEligibilityDeterminationRequest.new.call({
-                                                                                          payload: payload,
-                                                                                          correlation_id: correlation_id,
-                                                                                          event_key: 'determine_esi_mec_eligibility'
-                                                                                        })
+          esi_result = if esi_payload_format == 'json'
+                         ::Fdsh::Esi::Rj14::HandleJsonEligibilityDeterminationRequest.new.call({
+                                                                                                 payload: payload,
+                                                                                                 correlation_id: correlation_id
+                                                                                               })
+                       else
+                         ::Fdsh::Esi::H14::HandleEligibilityDeterminationRequest.new.call({
+                                                                                            payload: payload,
+                                                                                            correlation_id: correlation_id,
+                                                                                            event_key: 'determine_esi_mec_eligibility'
+                                                                                          })
 
+                       end
           if esi_result.success?
             logger.info("OK: :on_fdsh_mec_eligibility_determination_subscriber successful and acked")
           else

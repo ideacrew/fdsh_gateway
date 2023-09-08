@@ -3,7 +3,7 @@
 module Fdsh
   module Jobs
     # create job operation that takes params of key (required), started_at(required), publish_on(required), payload (required)
-    class GenerateTransmittableNonEsiPayload
+    class GenerateTransmittableEsiPayload
       include Dry::Monads[:result, :do, :try]
 
       def call(params)
@@ -91,7 +91,7 @@ module Fdsh
       end
 
       def generate_transmittable_payload(payload)
-        result = ::Fdsh::NonEsi::H31::TransformApplicationToJsonNonEsiRequest.new.call(payload)
+        result = ::Fdsh::Esi::Rj14::TransformApplicationToJsonEsiRequest.new.call(payload)
         if result.success?
           @transaction.json_payload = result.value!
           @transaction.save
