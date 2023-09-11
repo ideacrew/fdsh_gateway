@@ -50,6 +50,8 @@ module Fdsh
 
         def construct_params(parsed_xml)
           result_hash = {}
+          return Failure("Invalid ESI MEC Response XML") if parsed_xml.blank?
+
           if parsed_xml.ApplicantResponseSet
             result_hash.merge!({ ApplicantResponseSet: construct_applicant_response(parsed_xml.ApplicantResponseSet) })
           end
