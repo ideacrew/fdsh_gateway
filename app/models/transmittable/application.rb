@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module H31
+module Transmittable
   class Application
     include Mongoid::Document
     include Mongoid::Timestamps
