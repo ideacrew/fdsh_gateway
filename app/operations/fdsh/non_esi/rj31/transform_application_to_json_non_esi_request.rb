@@ -2,7 +2,7 @@
 
 module Fdsh
   module NonEsi
-    module H31
+    module Rj31
       # This class takes a json representing a application as input and generates non esi json payload.
       class TransformApplicationToJsonNonEsiRequest
         include Dry::Monads[:result, :do, :try]
@@ -35,7 +35,7 @@ module Fdsh
         end
 
         def convert_application_to_request_json(application_entity)
-          result = AcaEntities::Fdsh::NonEsi::H31::Operations::NonEsiMecJsonRequest.new.call(application_entity)
+          result = AcaEntities::Fdsh::NonEsi::Rj31::Operations::NonEsiMecJsonRequest.new.call(application_entity)
           result.success? ? Success(JSON.parse(result.value!, symbolize_names: true)) : Failure("Unable to transform payload to JSON")
         end
       end

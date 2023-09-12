@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'shared_examples/application_cv3'
 
-RSpec.describe Fdsh::NonEsi::H31::TransformApplicationToJsonNonEsiRequest, dbclean: :after_each do
+RSpec.describe Fdsh::NonEsi::Rj31::TransformApplicationToJsonNonEsiRequest, dbclean: :after_each do
   include_context "application hash for cv3"
 
   it 'converts the application hash for non esi mec hub call' do
