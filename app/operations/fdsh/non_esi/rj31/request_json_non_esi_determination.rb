@@ -2,7 +2,7 @@
 
 module Fdsh
   module NonEsi
-    module H31
+    module Rj31
       # This class takes a json representing a family as input and invokes RIDP.
       class RequestJsonNonEsiDetermination
         include Dry::Monads[:result, :do, :try]

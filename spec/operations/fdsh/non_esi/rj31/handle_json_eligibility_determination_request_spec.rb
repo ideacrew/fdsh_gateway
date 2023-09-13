@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'shared_examples/non_esi_transmittable'
 
-RSpec.describe Fdsh::NonEsi::H31::HandleJsonEligibilityDeterminationRequest, dbclean: :after_each do
+RSpec.describe Fdsh::NonEsi::Rj31::HandleJsonEligibilityDeterminationRequest, dbclean: :after_each do
   include_context "non esi transmittable job transmission transaction"
 
   let(:correlation_id) { "SOME GENERATED CORRELATION ID" }
@@ -12,7 +12,7 @@ RSpec.describe Fdsh::NonEsi::H31::HandleJsonEligibilityDeterminationRequest, dbc
   let(:mock_transmittable_payload_response) { Dry::Monads::Result::Success.call(transmittable_hash) }
   let(:mock_jwt_request) { instance_double(Jwt::GetJwt) }
   let(:mock_jwt_response) { Dry::Monads::Result::Success.call("3487583567384567384568") }
-  let(:mock_non_esi_request_verification) { instance_double(::Fdsh::NonEsi::H31::RequestJsonNonEsiDetermination) }
+  let(:mock_non_esi_request_verification) { instance_double(::Fdsh::NonEsi::Rj31::RequestJsonNonEsiDetermination) }
   let(:mock_non_esi_response) do
     Dry::Monads::Result::Success.call(Faraday::Response.new(status: 200, response_body: mock_non_esi_response_body.to_json))
   end
@@ -54,7 +54,7 @@ RSpec.describe Fdsh::NonEsi::H31::HandleJsonEligibilityDeterminationRequest, dbc
                                                                      }).and_return(mock_transmittable_payload_response)
     allow(Jwt::GetJwt).to receive(:new).and_return(mock_jwt_request)
     allow(mock_jwt_request).to receive(:call).with({}).and_return(mock_jwt_response)
-    allow(Fdsh::NonEsi::H31::RequestJsonNonEsiDetermination).to receive(:new).and_return(mock_non_esi_request_verification)
+    allow(Fdsh::NonEsi::Rj31::RequestJsonNonEsiDetermination).to receive(:new).and_return(mock_non_esi_request_verification)
     allow(mock_non_esi_request_verification).to receive(:call).with({
                                                                       correlation_id: correlation_id,
                                                                       token: "3487583567384567384568",
