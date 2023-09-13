@@ -36,10 +36,10 @@ module Subscribers
 
           non_esi_payload_format = properties[:headers]['non_esi_payload_format']
           non_esi_result = if non_esi_payload_format == 'json'
-                             ::Fdsh::NonEsi::H31::HandleJsonEligibilityDeterminationRequest.new.call({
-                                                                                                       payload: payload,
-                                                                                                       correlation_id: correlation_id
-                                                                                                     })
+                             ::Fdsh::NonEsi::Rj31::HandleJsonEligibilityDeterminationRequest.new.call({
+                                                                                                        payload: payload,
+                                                                                                        correlation_id: correlation_id
+                                                                                                      })
                            else
                              ::Fdsh::NonEsi::H31::HandleEligibilityDeterminationRequest.new.call({
                                                                                                    payload: payload,
