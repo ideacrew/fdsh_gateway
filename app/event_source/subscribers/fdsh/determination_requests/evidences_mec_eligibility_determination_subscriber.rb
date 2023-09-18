@@ -13,7 +13,7 @@ module Subscribers
         subscribe(:on_esi_determination_requested) do |delivery_info, properties, payload|
           # Sequence of steps that are executed as single operation
           correlation_id = properties.correlation_id
-          esi_payload_format = properties[:headers]['esi_payload_format']
+          esi_payload_format = properties[:headers]['esi_mec_payload_format']
           esi_result = if esi_payload_format == 'json'
                          ::Fdsh::Esi::Rj14::HandleJsonEligibilityDeterminationRequest.new.call({
                                                                                                  payload: payload,
