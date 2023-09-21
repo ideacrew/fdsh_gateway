@@ -121,6 +121,7 @@ module Fdsh
             {
               result: status,
               source: "FDSH",
+              action: 'pvc_bulk_call',
               source_transaction_id: @transaction&.id.to_s,
               code: individual_response&.dig(:ResponseMetadata, :ResponseCode),
               code_description: individual_response&.dig(:ResponseMetadata, :ResponseDescriptionText),

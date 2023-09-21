@@ -226,6 +226,11 @@ RSpec.describe Fdsh::Pvc::Medicare::Response::ProcessIndividualPvcResponse, dbcl
         result = described_class.new.send(:determine_medicare_status, individual_response, applicant, application_effective_on)
         expect(result).to eq 'attested'
       end
+
+      it 'request result should set action as pvc_bulk_call' do
+        result = described_class.new.send(:request_result_hash, individual_response.to_h, 'attested')
+        expect(result[:action]).to eq 'pvc_bulk_call'
+      end
     end
   end
 end
