@@ -4,9 +4,9 @@ module Publishers
   module Fdsh
     # Publish Esi json payload for response from CMS
     class VerifyEsiMecServiceRestPublisher
-      include ::EventSource::Publisher[http: '/VerifyESIMECServiceRest']
+      include ::EventSource::Publisher[http: '/VerifyEsiMecServiceRest']
 
-      register_event '/VerifyESIMECServiceRest'
+      register_event '/VerifyEsiMecServiceRest'
     end
   end
 end
