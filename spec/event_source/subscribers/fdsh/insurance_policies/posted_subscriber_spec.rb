@@ -15,7 +15,7 @@ RSpec.describe Subscribers::Fdsh::InsurancePolicies::PostedSubscriber, dbclean: 
         create(:month_of_year_transmission, reporting_year: Date.today.year + 1, month_of_year: 1)
       end
       it "should return success" do
-        result = described_class.new.send(:process_insurance_policies_posted_event_for_h36, logger, 
+        result = described_class.new.send(:process_insurance_policies_posted_event_for_h36, logger,
                                           { family: family_hash },
                                           headers: { 'assistance_year' => Date.today.year + 1 },
                                           correlation_id: '1234')
