@@ -57,17 +57,14 @@ module Subscribers
             }
           )
 
-          result = if enqueue.success?
-                     message = enqueue.success
-                     subscriber_logger.info "on_h36_insurance_policies_posted acked #{message.is_a?(Hash) ? message[:event] : message}"
-                     message
-                   else
-                     failure = error_messages(enqueue)
-                     subscriber_logger.info "process_h36_insurance_policies_posted_event: failure: #{failure}"
-                     failure
-                   end
+          if enqueue.success?
+            message = enqueue.success
+            subscriber_logger.info "on_h36_insurance_policies_posted acked #{message.is_a?(Hash) ? message[:event] : message}"
+          else
+            failure = error_messages(enqueue)
+            subscriber_logger.info "process_h36_insurance_policies_posted_event: failure: #{failure}"
+          end
           subscriber_logger.info "process_h36_insurance_policies_posted_event: ------- end"
-          result
         rescue StandardError => e
           subscriber_logger.error "process_h36_insurance_policies_posted_event: error: #{e} backtrace: #{e.backtrace}"
           subscriber_logger.error "process_h36_insurance_policies_posted_event: ------- end"

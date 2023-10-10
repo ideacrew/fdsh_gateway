@@ -15,13 +15,15 @@ RSpec.describe Subscribers::Fdsh::InsurancePolicies::PostedSubscriber, dbclean: 
         create(:month_of_year_transmission, reporting_year: Date.today.year + 1, month_of_year: 1)
       end
       it "should return success" do
-        result = described_class.new.send(:process_insurance_policies_posted_event_for_h36, logger,
-                                          { family: family_hash },
-                                          headers: { 'assistance_year' => Date.today.year + 1 },
-                                          correlation_id: '1234')
-        expect(result).to match(/Successfully enqueued irs_group/)
+        expect(month_of_year_transmission.transactions.all.count).to eq 0
+        described_class.new.send(:process_insurance_policies_posted_event_for_h36, logger,
+                                 { family: family_hash },
+                                 headers: { 'assistance_year' => Date.today.year + 1 },
+                                 correlation_id: '1234')
         expect(::H36::IrsGroups::IrsGroup.all.count).to eq 1
         expect(::H36::IrsGroups::IrsGroup.all.last.assistance_year).to eq Date.today.year + 1
+        month_of_year_transmission.reload
+        expect(month_of_year_transmission.transactions.all.count).to eq 1
       end
     end
 
@@ -30,12 +32,35 @@ RSpec.describe Subscribers::Fdsh::InsurancePolicies::PostedSubscriber, dbclean: 
         create(:month_of_year_transmission, reporting_year: Date.today.year, month_of_year: Date.today.month)
       end
       it "should return success" do
-        result = described_class.new.send(:process_insurance_policies_posted_event_for_h36, logger,
-                                          { family: family_hash },
-                                          headers: { 'assistance_year' => Date.today.year },
-                                          correlation_id: '1234')
-        expect(result).to match(/Successfully enqueued irs_group/)
+        expect(month_of_year_transmission.transactions.all.count).to eq 0
+        described_class.new.send(:process_insurance_policies_posted_event_for_h36, logger,
+                                 { family: family_hash },
+                                 headers: { 'assistance_year' => Date.today.year },
+                                 correlation_id: '1234')
         expect(::H36::IrsGroups::IrsGroup.all.last.assistance_year).to eq Date.today.year
+        month_of_year_transmission.reload
+        expect(month_of_year_transmission.transactions.all.count).to eq 1
+      end
+    end
+
+    context "previous assistance_year" do
+      let!(:month_of_year_transmission) do
+        create(:month_of_year_transmission, reporting_year: Date.today.year - 1, month_of_year: 13)
+      end
+
+      before do
+        allow(Date).to receive(:today).and_return Date.new(Date.today.year, 1, 1)
+      end
+
+      it "should return success" do
+        expect(month_of_year_transmission.transactions.all.count).to eq 0
+        described_class.new.send(:process_insurance_policies_posted_event_for_h36, logger,
+                                 { family: family_hash },
+                                 headers: { 'assistance_year' => Date.today.year - 1 },
+                                 correlation_id: '1234')
+        expect(::H36::IrsGroups::IrsGroup.all.last.assistance_year).to eq Date.today.year - 1
+        month_of_year_transmission.reload
+        expect(month_of_year_transmission.transactions.all.count).to eq 1
       end
     end
   end
