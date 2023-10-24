@@ -11,6 +11,9 @@ RSpec.describe Fdsh::Rrv::Medicare::RrvBatchRequestDirector do
 
   after :each do
     FileUtils.rm_rf("#{Rails.root}/rrv_outbound_files_test")
+    FileUtils.rm_rf(
+      "#{Rails.root}/log/rrv_batch_request_director_#{DateTime.now.strftime('%Y_%m_%d')}.log}"
+    )
   end
 
   let(:create_application_requests) do
@@ -57,5 +60,22 @@ RSpec.describe Fdsh::Rrv::Medicare::RrvBatchRequestDirector do
     expect(result.success?).to be_truthy
     expect(result.success).to eq "rrv_outbound_files_test"
     expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN.zip")].count).to eq 0
+  end
+
+  let(:logger_file_contents) do
+    File.open("#{Rails.root}/log/rrv_batch_request_director_#{DateTime.now.strftime('%Y_%m_%d')}.log}", 'r').read
+  end
+
+  context 'with valid params' do
+    before { subject.call(params) }
+
+    it 'logs information' do
+      expect(logger_file_contents).to include(
+        '----- Process Started with values:',
+        'Total transactions to process:',
+        'Created outbound folder:',
+        '----- Process Ended'
+      )
+    end
   end
 end
