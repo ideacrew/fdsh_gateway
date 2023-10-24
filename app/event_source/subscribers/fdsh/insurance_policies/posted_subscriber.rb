@@ -37,15 +37,18 @@ module Subscribers
           end
         end
 
+        # rubocop:disable Metrics/MethodLength
         def process_insurance_policies_posted_event_for_h36(subscriber_logger, response, metadata)
           subscriber_logger.info "process_h36_insurance_policies_posted_event: ------- start"
           month = if metadata[:headers]['assistance_year'].to_i == Date.today.year - 1
                     12 + Date.today.month
-                  else
+                  elsif metadata[:headers]['assistance_year'].to_i == Date.today.year + 1
+                    1
+                  elsif metadata[:headers]['assistance_year'].to_i == Date.today.year
                     Date.today.month
                   end
 
-          result = ::Fdsh::H36::IrsGroups::Enqueue.new.call(
+          enqueue = ::Fdsh::H36::IrsGroups::Enqueue.new.call(
             {
               assistance_year: metadata[:headers]['assistance_year'].to_i,
               correlation_id: metadata[:correlation_id],
@@ -54,17 +57,19 @@ module Subscribers
             }
           )
 
-          if result.success?
-            message = result.success
+          if enqueue.success?
+            message = enqueue.success
             subscriber_logger.info "on_h36_insurance_policies_posted acked #{message.is_a?(Hash) ? message[:event] : message}"
           else
-            subscriber_logger.info "process_h36_insurance_policies_posted_event: failure: #{error_messages(result)}"
+            failure = error_messages(enqueue)
+            subscriber_logger.info "process_h36_insurance_policies_posted_event: failure: #{failure}"
           end
           subscriber_logger.info "process_h36_insurance_policies_posted_event: ------- end"
         rescue StandardError => e
           subscriber_logger.error "process_h36_insurance_policies_posted_event: error: #{e} backtrace: #{e.backtrace}"
           subscriber_logger.error "process_h36_insurance_policies_posted_event: ------- end"
         end
+        # rubocop:enable Metrics/MethodLength
 
         def process_insurance_policies_posted_event_for_h41(subscriber_logger, response, metadata)
           subscriber_logger.info "process_insurance_policies_posted_event: ------- start"
