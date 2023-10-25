@@ -23,6 +23,10 @@ module Fdsh
         private
 
         def validate(params)
+          @batch_request_logger = ::Logger.new(
+            "#{Rails.root}/log/rrv_batch_request_director_#{DateTime.now.strftime('%Y_%m_%d')}.log}"
+          )
+
           return Failure('assistance year missing') unless params[:assistance_year]
           return Failure('transactions per file missing') unless params[:transactions_per_file]
           return Failure('outbound folder name missing') unless params[:outbound_folder_name]
@@ -33,6 +37,8 @@ module Fdsh
         end
 
         def query_rrv_requests(values)
+          @batch_request_logger.info "#{self.class} ----- Process Started with values: #{values}"
+
           transactions = Transaction.where(
             "activities" => {
               "$elemMatch" => {
@@ -44,6 +50,8 @@ module Fdsh
               "$gte" => values[:start_date].beginning_of_day
             }
           )
+
+          @batch_request_logger.info "Total transactions to process: #{transactions.count}"
 
           Success(transactions)
         end
@@ -69,6 +77,7 @@ module Fdsh
         def create_outbound_folder(values)
           folder = "#{Rails.root}/#{values[:outbound_folder_name]}"
           outbound_folder = FileUtils.mkdir_p(folder).first
+          @batch_request_logger.info "Created outbound folder: #{folder}"
 
           Success(outbound_folder)
         end
@@ -118,7 +127,10 @@ module Fdsh
 
           transaction_encrypted_ssn = transaction.correlation_id.gsub('rrv_mdcr_', '')
           result = create_transaction_xml(application_params, outbound_folder, transaction_encrypted_ssn)
-          return unless result.success?
+          unless result.success?
+            @batch_request_logger.error "Error creating transaction xml for transaction id: #{transaction.id}"
+            return
+          end
 
           transaction_xml, applicants_count = result.success
           append_xml(transaction_xml)
@@ -139,6 +151,7 @@ module Fdsh
 
             query_offset += processing_batch_size
             batch_offset += processing_batch_size
+            @batch_request_logger.info "Processed #{batch_offset} requests."
 
             # rubocop:disable Layout/LineLength
             unless (batch_offset >= values[:transactions_per_file]) || (batched_requests.count < processing_batch_size) || (transactions.count <= query_offset)
@@ -150,6 +163,7 @@ module Fdsh
             create_batch_file(outbound_folder)
             open_transaction_file(outbound_folder)
           end
+          @batch_request_logger.info "#{self.class} ----- Process Ended"
 
           Success(values[:outbound_folder_name])
         end
