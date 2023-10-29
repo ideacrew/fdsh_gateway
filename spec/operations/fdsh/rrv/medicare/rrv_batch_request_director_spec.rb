@@ -54,12 +54,21 @@ RSpec.describe Fdsh::Rrv::Medicare::RrvBatchRequestDirector do
     expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN.zip")].count).to eq 5
   end
 
-  it "should not pull transactions before start_date param" do
+  it "should not pull activities before start_date param" do
     result = described_class.new.call(params_2)
     expect(Transaction.count).to eq 17
     expect(result.success?).to be_truthy
     expect(result.success).to eq "rrv_outbound_files_test"
     expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN.zip")].count).to eq 0
+  end
+
+  it "should pull activities equal to or greater than start_date param" do
+    Transaction.all.first.activities.first.update!(created_at: Date.today + 10.days)
+    result = described_class.new.call(params_2)
+    expect(Transaction.count).to eq 17
+    expect(result.success?).to be_truthy
+    expect(result.success).to eq "rrv_outbound_files_test"
+    expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN.zip")].count).to eq 1
   end
 
   let(:logger_file_contents) do
