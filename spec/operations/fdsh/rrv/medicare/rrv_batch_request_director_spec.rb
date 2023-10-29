@@ -63,7 +63,7 @@ RSpec.describe Fdsh::Rrv::Medicare::RrvBatchRequestDirector do
   end
 
   let(:logger_file_contents) do
-    File.open("#{Rails.root}/log/rrv_batch_request_director_#{DateTime.now.strftime('%Y_%m_%d')}.log}", 'r').read
+    File.open("#{Rails.root}/log/rrv_batch_request_director_#{DateTime.now.strftime('%Y_%m_%d')}.log", 'r').read
   end
 
   context 'with valid params' do
