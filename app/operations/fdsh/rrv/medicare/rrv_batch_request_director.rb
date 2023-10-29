@@ -24,7 +24,7 @@ module Fdsh
 
         def validate(params)
           @batch_request_logger = ::Logger.new(
-            "#{Rails.root}/log/rrv_batch_request_director_#{DateTime.now.strftime('%Y_%m_%d')}.log}"
+            "#{Rails.root}/log/rrv_batch_request_director_#{DateTime.now.strftime('%Y_%m_%d')}.log"
           )
 
           return Failure('assistance year missing') unless params[:assistance_year]
@@ -43,11 +43,11 @@ module Fdsh
             "activities" => {
               "$elemMatch" => {
                 "event_key" => RRV_EVENT_KEY,
-                "assistance_year" => values[:assistance_year]
+                "assistance_year" => values[:assistance_year],
+                "created_at" => {
+                  "$gte" => values[:start_date].beginning_of_day
+                }
               }
-            },
-            "created_at" => {
-              "$gte" => values[:start_date].beginning_of_day
             }
           )
 
@@ -65,11 +65,11 @@ module Fdsh
             "activities" => {
               "$elemMatch" => {
                 "event_key" => RRV_EVENT_KEY,
-                "assistance_year" => values[:assistance_year]
+                "assistance_year" => values[:assistance_year],
+                "created_at" => {
+                  "$gte" => values[:start_date].beginning_of_day
+                }
               }
-            },
-            "created_at" => {
-              "$gte" => values[:start_date].beginning_of_day
             }
           ).skip(offset).limit(processing_batch_size)
         end
