@@ -1,24 +1,12 @@
-# README
+# FDSH Gateway
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Provides integration with FedHub services for OpenHBX applications.
 
-Things you may want to cover:
+## Documentation
 
-* Ruby version
+Documentation is automatically generated for both the project and the Ruby source code.
 
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+To build and view the documentation, make sure you have hugo installed (usually via `brew install hugo`) and then run:
+```
+bundle exec rake docserver
+```
