@@ -58,7 +58,20 @@ This version of the service has the following properties:
 1. The data payload is XML, and is validated using an XSD.
 2. The requests use the SOAP HTTP binding.
 3. Security credentials for the webservice is provided via WSS headers in the SOAP payload.
-4. Connetions use a server side SSL certificate.
+4. Connections use a server side SSL certificate.
+
+### Schemas
+
+The below XML schemas are provided for the web service:
+
+1. [RIDP](/docs/ridp/Sprint-99-XML-Schema-Package-RIDP-20200304.zip)
+2. [FARS](/docs/ridp/Sprint-99-XML-Schema-Package-FARS-20200304.zip)
+
+### Implementation
+
+FDSH Gateway currently implements this version of the service for RIDP, but does not implement the FARS portion.
+
+**TODO: Document the Subscribers, Publishers, Operations, and Domain Objects involved in this existing implementation**
 
 ## October 2022 Version
 
@@ -68,3 +81,14 @@ This version of the service has the following properties:
 2. Payload transport is via a RESTful web service.
 3. Security credentials for the webservice is provided using OAuth2 with a JWT token.
 4. Connections use both a Server and Client side SSL certificate pair.
+
+### Schemas
+
+The below JSON schemas are provided for the web service:
+
+1. [RIDP](/docs/ridp/RIDP-JSON-Schemas.zip)
+2. [FARS](/docs/ridp/FARS-JSON-Schemas.zip)
+
+### Implementation
+
+FDSH Gateway does not currently implement this version of the service, though implementation is planned.
