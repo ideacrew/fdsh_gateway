@@ -69,3 +69,4 @@ hugo/node_modules
 hugo/public
 hugo/static/doc
 hugo/package-lock.json
+hugo/resources/_gen
