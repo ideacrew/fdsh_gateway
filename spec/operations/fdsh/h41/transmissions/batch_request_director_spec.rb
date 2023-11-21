@@ -22,7 +22,7 @@ RSpec.describe Fdsh::Transmissions::BatchRequestDirector do
   context 'with invalid input params' do
     context 'bad report_type' do
       let(:input_params) do
-        { }
+        {}
       end
 
       it 'returns failure with errors' do
@@ -34,7 +34,7 @@ RSpec.describe Fdsh::Transmissions::BatchRequestDirector do
     context 'bad report_type' do
       let(:input_params) do
         {
-          transactions: [double],
+          transactions: [double]
         }
       end
 
@@ -67,7 +67,7 @@ RSpec.describe Fdsh::Transmissions::BatchRequestDirector do
   describe 'call' do
     let!(:insurance_polices) do
       create_list(:h41_insurance_policy, 20, :with_aptc_csr_tax_households, transaction_xml: transaction_xml,
-                  transmission: open_transmission)
+                                                                            transmission: open_transmission)
     end
 
     let(:outbound_folder) do
@@ -85,7 +85,7 @@ RSpec.describe Fdsh::Transmissions::BatchRequestDirector do
         transmission_kind: :original,
         old_batch_reference: nil,
         outbound_folder_name: 'h41_transmissions',
-        transmission_builder: init_content_file_builder({report_type: :original},
+        transmission_builder: init_content_file_builder({ report_type: :original },
                                                         Time.now.gmtime.strftime("%Y-%m-%dT%H:%M:%SZ"),
                                                         nil)
       }
