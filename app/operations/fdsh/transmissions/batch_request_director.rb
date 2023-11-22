@@ -53,9 +53,10 @@ module Fdsh
 
       def create_batch_content_files(values, outbound_folder)
         query_offset = 0
+        transactions_count = values[:transactions].count
         @counter = 0
 
-        while values[:transactions].count > query_offset
+        while transactions_count > query_offset
           open_content_file
           batched_requests = batched_request_for(values[:transactions], query_offset)
           record_sequence = 0

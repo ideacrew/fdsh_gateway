@@ -175,14 +175,16 @@ module Fdsh
         end
 
         def create_transmission_with(transactions, values, new_batch_reference, old_batch_reference = nil)
-          ::Fdsh::Transmissions::BatchRequestDirector.new.call({
-                                                                 transactions: transactions,
-                                                                 transmission_kind: values[:report_type],
-                                                                 old_batch_reference: old_batch_reference,
-                                                                 outbound_folder_name: 'h41_transmissions',
-                                                                 transmission_builder: init_content_file_builder(values, new_batch_reference,
-                                                                                                                 old_batch_reference)
-                                                               })
+          ::Fdsh::Transmissions::BatchRequestDirector.new.call(
+            {
+
+              transactions: Transmittable::Transaction.where(:id.in => transactions.pluck(:id)),
+              transmission_kind: values[:report_type],
+              old_batch_reference: old_batch_reference,
+              outbound_folder_name: 'h41_transmissions',
+              transmission_builder: init_content_file_builder(values, new_batch_reference, old_batch_reference)
+            }
+          )
         end
       end
     end
