@@ -77,8 +77,17 @@ module Fdsh
         end
 
         def construct_policy(policy, provider)
-          { MarketPlacePolicyNum: policy.policy_id, PolicyIssuerNm: provider.title,
+          { MarketPlacePolicyNum: policy.policy_id, PolicyIssuerNm: fetch_insurance_provider_title(provider.title),
             PolicyStartDt: policy.start_on, PolicyTerminationDt: policy.end_on }
+        end
+
+        def fetch_insurance_provider_title(title)
+          {
+            "Anthem Blue Cross and Blue Shield" => "Anthem Health Plans of Maine Inc",
+            "Harvard Pilgrim Health Care" => "Harvard Pilgrim Health Care Inc",
+            "Community Health Options" => "Maine Community Health Options",
+            "Taro Health" => "Taro Health Plan of Maine Inc"
+          }[title] || title
         end
 
         def construct_premium_information(tax_household)

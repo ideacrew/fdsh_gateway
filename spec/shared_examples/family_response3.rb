@@ -382,9 +382,11 @@ RSpec.shared_context 'family response', :shared_context => :metadata do
     ]
   end
 
+  let(:provider_title) {"MAINE COMMUNITY HEALTH OPTIONS" }
+
   let(:insurance_provider) do
     {
-      title: "MAINE COMMUNITY HEALTH OPTIONS",
+      title: provider_title,
       hios_id: "123456",
       fein: "311705652",
       insurance_products: [insurance_product]

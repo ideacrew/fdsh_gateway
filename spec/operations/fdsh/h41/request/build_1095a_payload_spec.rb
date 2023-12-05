@@ -47,6 +47,28 @@ RSpec.describe Fdsh::H41::Request::Build1095aPayload do
       end
     end
 
+    context "carrier name mapping" do
+      context "when provider name exists in the mapping" do
+        let(:provider_title) { "Taro Health" }
+        let(:transaction_type) { :corrected }
+        let(:record_sequence_num) { 'batch_id|file_id|record_id' }
+
+        it "returns the mapped value" do
+          expect(subject.success[:Policy][:PolicyIssuerNm]).to eq("Taro Health Plan of Maine Inc")
+        end
+      end
+
+      context "when provider name does not exist in the mapping" do
+        let(:provider_title) { "Anthem Health" }
+        let(:transaction_type) { :corrected }
+        let(:record_sequence_num) { 'batch_id|file_id|record_id' }
+
+        it "returns the provided value" do
+          expect(subject.success[:Policy][:PolicyIssuerNm]).to eq(provider_title)
+        end
+      end
+    end
+
     context 'for original transaction_type' do
       let(:transaction_type) { :original }
       let(:record_sequence_num) { nil }

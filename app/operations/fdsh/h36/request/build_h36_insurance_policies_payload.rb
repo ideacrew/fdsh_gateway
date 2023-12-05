@@ -53,7 +53,7 @@ module Fdsh
               ApplicableCoverageMonthNum: prepend_zeros(calendar_month.to_s, 2),
               QHPPolicyNum: policy.policy_id,
               QHPIssuerEIN: policy.insurance_provider.fein,
-              IssuerNm: policy.insurance_provider.title,
+              IssuerNm: fetch_insurance_provider_title(policy.insurance_provider.title),
               PolicyCoverageStartDt: policy.start_on,
               PolicyCoverageEndDt: policy.end_on,
               TotalQHPMonthlyPremiumAmt: format('%.2f', total_premium),
@@ -63,6 +63,15 @@ module Fdsh
             result.merge!(SLCSPMonthlyPremiumAmt: format('%.2f', slcsp_premium)) unless aptc_amount.to_f > 0
             result
           end
+        end
+
+        def fetch_insurance_provider_title(title)
+          {
+            "Anthem Blue Cross and Blue Shield" => "Anthem Health Plans of Maine Inc",
+            "Harvard Pilgrim Health Care" => "Harvard Pilgrim Health Care Inc",
+            "Community Health Options" => "Maine Community Health Options",
+            "Taro Health" => "Taro Health Plan of Maine Inc"
+          }[title] || title
         end
 
         def effectuated_for_month?(tax_households, calendar_month)

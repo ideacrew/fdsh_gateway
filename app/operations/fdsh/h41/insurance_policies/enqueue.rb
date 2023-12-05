@@ -12,7 +12,6 @@ module Fdsh
       #   5. Find H41 Transmissions(Corrected, Original, and Void) for given reporting year
       #   6. creates database model Transmittable::TransactionsTransmissions, the join table between Transactions and H41 Transmissions
       #   7. Updates all the :untransmitted transactions that map to the subject
-      # rubocop:disable Metrics/ClassLength
       class Enqueue
         include Dry::Monads[:result, :do]
 
@@ -321,7 +320,6 @@ module Fdsh
           Success(params)
         end
       end
-      # rubocop:enable Metrics/ClassLength
     end
   end
 end
