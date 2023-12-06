@@ -4,7 +4,6 @@ module Fdsh
   module H36
     module Request
       # BuildH36TaxHouseholdsPayload
-      # rubocop:disable Metrics/ClassLength
       class BuildH36TaxHouseholdsPayload
         include Dry::Monads[:result, :do, :try]
 
@@ -286,7 +285,6 @@ module Fdsh
           AcaEntities::Operations::Encryption::Decrypt.new.call({ value: encrypted_ssn }).value!.gsub("-", "")
         end
       end
-      # rubocop:enable Metrics/ClassLength
     end
   end
 end
