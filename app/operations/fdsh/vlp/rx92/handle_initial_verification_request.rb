@@ -182,7 +182,7 @@ module Fdsh
           status_result = update_status({ job: @job }, :succeeded, "successfully sent response to EA")
           return status_result if status_result.failure?
 
-          Success('Initial REST XML verificattion response published successfully')
+          Success('Initial REST XML verification response published successfully')
         end
 
         def add_errors(transmittable_objects, message, error_key)

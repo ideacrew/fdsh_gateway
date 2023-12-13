@@ -19,9 +19,9 @@ module Fdsh
         # @return [Dry::Monads::Result]
         def call(xml_response)
           parsed_xml         = yield process_xml(xml_response)
-          # we should move all the construction into aca_entities rather than having it in FDSH
+          # TODO: we should move all the construction into aca_entities rather than having it in FDSH
           params             = yield construct_params(parsed_xml)
-          # we should move all the validation into aca_entities rather than having it in FDSH
+          # TODO: we should move all the validation into aca_entities rather than having it in FDSH
           valid_response     = yield validate_initial_response(params)
           primary_response   = yield create_primary_response(valid_response)
 
@@ -31,7 +31,7 @@ module Fdsh
         private
 
         def process_xml(xml_body)
-          # switch this out for the new operation when ready
+          # TODO: switch this out for the new operation when ready
           result = AcaEntities::Serializers::Xml::Fdsh::Vlp::H92::InitialVerificationResponse.parse(xml_body, :single => true)
           Success(result)
         end
@@ -136,7 +136,7 @@ module Fdsh
 
         # Validate input object
         def validate_initial_response(payload)
-          # switch this out to use the new operation when ready
+          # TODO: switch this out to use the new operation when ready
           result = ::AcaEntities::Fdsh::Vlp::H92::InitialVerificationResponseContract.new.call(payload)
 
           if result.success?
@@ -147,7 +147,7 @@ module Fdsh
         end
 
         def create_primary_response(value)
-          # switch this out to use the new operation when ready
+          # TODO: switch this out to use the new operation when ready
           Success(::AcaEntities::Fdsh::Vlp::H92::InitialVerificationResponse.new(value.to_h))
         end
       end

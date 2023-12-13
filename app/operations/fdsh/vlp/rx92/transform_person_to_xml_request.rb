@@ -3,7 +3,7 @@
 module Fdsh
   module Vlp
     module Rx92
-      # This class takes a json representing a person as input and invokes RIDP.
+      # This class takes a json representing a person as input and returns an excoded XML.
       class TransformPersonToXmlRequest
         include Dry::Monads[:result, :do, :try]
         include EventSource::Command
@@ -14,7 +14,7 @@ module Fdsh
           json_hash = yield parse_json(params)
           person_hash = yield validate_person_json_hash(json_hash)
           person = yield build_person(person_hash)
-          initial_verification_request = yield TransformPersonToInitialRequest.new.call(person)
+          initial_verification_request = yield Fdsh::Vlp::Rx92::TransformPersonToInitialRequest.new.call(person)
           xml_string = yield encode_xml_and_schema_validate(initial_verification_request)
           encode_request_xml(xml_string)
         end
@@ -26,7 +26,7 @@ module Fdsh
             JSON.parse(json_string, :symbolize_names => true)
           end
           parsing_result.or do
-            Failure(:invalid_json)
+            Failure("Failed to parse JSON for VLP request due to #{e}")
           end
         end
 
