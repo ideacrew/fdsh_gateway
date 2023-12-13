@@ -34,6 +34,7 @@ module Transmittable
     field :description, type: String
     field :ended_at, type: DateTime
     field :json_payload, type: Hash
+    field :xml_payload, type: String
 
     # Scopes
     scope :blocked,          -> { where(status: :blocked) }
