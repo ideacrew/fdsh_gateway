@@ -14,6 +14,8 @@ module Subscribers
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
           correlation_id = properties.correlation_id
 
+          # need to add feature switch, checking for a payload type of rest_xml
+          # if it is rest xml go to the new handleverificationrequest
           verification_result = ::Fdsh::Vlp::H92::HandleInitialVerificationRequest.new.call({
                                                                                               payload: payload,
                                                                                               correlation_id: correlation_id
