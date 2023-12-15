@@ -89,5 +89,12 @@ module Transmittable
 
       transmittable_errors&.map {|error| "#{error.key}: #{error.message}"}&.join(";")
     end
+
+    def formatted_xml_payload
+      return false unless xml_payload
+      doc = Nokogiri::XML(xml_payload)
+      return if doc.errors
+      doc&.to_xhtml(indent: 2)
+    end
   end
 end

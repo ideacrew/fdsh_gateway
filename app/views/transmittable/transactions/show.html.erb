@@ -39,6 +39,10 @@
   <h3>JSON Payload</h3>
   <pre><%= raw(ap(@transaction.json_payload, index: false)) %></pre>
 <% end %>
+<% if @transaction.xml_payload %>
+  <h3>XML Payload</h3>
+  <pre><%= @transaction.formatted_xml_payload ? @transaction.formatted_xml_payload : @transaction.xml_payload  %></pre>
+<% end %>
 <div class="accordion" style="margin-top: 1em">
   <input type="checkbox" id="transactionInfo">
   <label for="transactionInfo">All Transaction Attributes +</label>
