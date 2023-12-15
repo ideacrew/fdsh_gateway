@@ -69,17 +69,15 @@ module Fdsh
                                                                                                transmission: @request_transmission, job: @job } })
           if result.success?
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :acked, "acked from cms")
-            return status_result if status_result.failure?
-            Success(result.value!)
           else
             add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
                        "Failed to receive response from cms due to #{result.failure}",
                        :publish_vlp_request)
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission, job: @job }, :failed,
                                           "Failed to receive response from cms")
-            return status_result if status_result.failure?
-            result
           end
+          return status_result if status_result.failure?
+          result
         end
 
         def create_response_transmission(values, correlation_id)
@@ -94,15 +92,14 @@ module Fdsh
 
           if result.success?
             @response_transmission = result.value!
-            Success(@response_transmission)
           else
             add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
                        "Failed to create response transmission due to #{result.failure}",
                        :create_response_transmission)
             status_result = update_status({ job: @job }, :failed, "Failed to create response transmission")
             return status_result if status_result.failure?
-            result
           end
+          result
         end
 
         def create_response_transaction(values, vlp_response)
@@ -121,15 +118,14 @@ module Fdsh
             # this is best guess, will need to verify when testing locally.
             @response_transaction.xml_payload = vlp_response.env.response_body
             @response_transaction.save
-            Success(@response_transaction)
           else
             add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
                        "Failed to create response transaction due to #{result.failure}",
                        :create_response_transaction)
             status_result = update_status({ transmission: @response_transmission, job: @job }, :failed, "Failed to create response transaction")
             return status_result if status_result.failure?
-            result
           end
+          result
         end
 
         # def publish_vlp_request(correlation_id, jwt)
@@ -158,17 +154,15 @@ module Fdsh
           if result.success?
             status_result = update_status({ transaction: @response_transaction, transmission: @response_transmission }, :succeeded,
                                           "processed the payload from VLP")
-            return status_result if status_result.failure?
-            Success(result.value!)
           else
             add_errors({ transaction: @response_transaction, transmission: @response_transmission, job: @job },
                        "Failed to process response from cms due to #{result.failure}",
                        :process_response)
             status_result = update_status({ transaction: @response_transaction, transmission: @response_transmission, job: @job }, :failed,
                                           "Failed to process response from cms")
-            return status_result if status_result.failure?
-            result
           end
+          return status_result if status_result.failure?
+          result
         end
 
         def build_event(correlation_id, initial_verification_outcome)

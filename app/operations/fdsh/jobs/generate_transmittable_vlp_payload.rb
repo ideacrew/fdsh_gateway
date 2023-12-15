@@ -47,25 +47,18 @@ module Fdsh
         add_errors({ job: @job }, "Failed to create transmission due to #{result.failure}", :create_request_transmission)
         status_result = update_status({ job: @job }, :failed, result.failure)
         return status_result if status_result.failure?
-      end
-
-      def add_errors(transmittable_objects, message, error_key)
-        Fdsh::Jobs::AddError.new.call({ transmittable_objects: transmittable_objects, key: error_key, message: message })
-      end
-
-      def update_status(transmittable_objects, state, message)
-        Fdsh::Jobs::UpdateProcessStatus.new.call({ transmittable_objects: transmittable_objects, state: state, message: message })
+        result
       end
 
       def create_person_subject(values)
-        existing_person = ::Trans::Person.where(correlation_id: values[:correlation_id]).first
+        existing_person = ::Transmittable::Person.where(hbx_id: values[:correlation_id]).first
 
         if existing_person
           Success(existing_person)
         else
           person_hash = JSON.parse(values[:payload], symbolize_names: true)
           person = ::Transmittable::Person.create(hbx_id: person_hash[:hbx_id],
-                                                  correlation_id: values[:correlation_id],
+                                                  # correlation_id: values[:correlation_id],
                                                   encrypted_ssn: person_hash[:person_demographics][:encrypted_ssn],
                                                   surname: person_hash[:person_name][:last_name],
                                                   given_name: person_hash[:person_name][:first_name],
@@ -133,6 +126,14 @@ module Fdsh
           return status_result if status_result.failure?
           Failure("Transaction do not consists of a payload or no message id found")
         end
+      end
+
+      def add_errors(transmittable_objects, message, error_key)
+        Fdsh::Jobs::AddError.new.call({ transmittable_objects: transmittable_objects, key: error_key, message: message })
+      end
+
+      def update_status(transmittable_objects, state, message)
+        Fdsh::Jobs::UpdateProcessStatus.new.call({ transmittable_objects: transmittable_objects, state: state, message: message })
       end
     end
   end

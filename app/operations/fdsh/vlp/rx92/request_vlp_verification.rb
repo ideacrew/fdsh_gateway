@@ -27,9 +27,9 @@ module Fdsh
             return Failure('Cannot publish payload without transaction')
           end
           unless params[:transmittable_objects][:transmission].is_a?(::Transmittable::Transmission)
-            return Failure('Cannot publish payload without transaction')
+            return Failure('Cannot publish payload without transmission')
           end
-          return Failure('Cannot publish payload without transaction') unless params[:transmittable_objects][:job].is_a?(::Transmittable::Job)
+          return Failure('Cannot publish payload without job') unless params[:transmittable_objects][:job].is_a?(::Transmittable::Job)
           return Failure('Cannot publish payload without correlation_id') unless params[:correlation_id].is_a?(String)
           return Failure('Cannot publish payload without jwt token') unless params[:token].is_a?(String)
           return Failure('Cannot publish payload without transaction xml payload') unless params[:transmittable_objects][:transaction].xml_payload
