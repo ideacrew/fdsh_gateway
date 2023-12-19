@@ -13,13 +13,20 @@ module Subscribers
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
           correlation_id = properties.correlation_id
+          payload_type = properties.payload_type
 
           # need to add feature switch, checking for a payload type of rest_xml
           # if it is rest xml go to the new handleverificationrequest
-          verification_result = ::Fdsh::Vlp::H92::HandleInitialVerificationRequest.new.call({
-                                                                                              payload: payload,
-                                                                                              correlation_id: correlation_id
-                                                                                            })
+          verification_result = if payload_type == "rest_xml"
+                                  Fdsh::Vlp::Rx142::InitialVerification::HandleInitialVerificationRequest.new.call({ payload: payload,
+                                                                                                                     correlation_id: correlation_id })
+
+                                else
+                                  ::Fdsh::Vlp::H92::HandleInitialVerificationRequest.new.call({
+                                                                                                payload: payload,
+                                                                                                correlation_id: correlation_id
+                                                                                              })
+                                end
 
           if verification_result.success?
             logger.info("OK: :on_fdsh_verification_requests_vlp_initial_verification_requested successful and acked")

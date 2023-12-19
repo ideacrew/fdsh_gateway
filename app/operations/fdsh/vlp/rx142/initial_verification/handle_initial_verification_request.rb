@@ -131,26 +131,6 @@ module Fdsh
             result
           end
 
-          # def publish_vlp_request(correlation_id, jwt)
-          #   result = Fdsh::Vlp::Rx92::RequestVlpInitialVerification.new.call({
-          # correlation_id: correlation_id, token: jwt,
-          # transmittable_objects: { transaction: @request_transaction,
-          # transmission: @request_transmission, job: @job } })
-          #   if result.success?
-          #     status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :acked, "acked from cms")
-          #     return status_result if status_result.failure?
-          #     Success(result.value!)
-          #   else
-          #     add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
-          #                "Failed to receive response from cms due to #{result.failure}",
-          #                :publish_vlp_request)
-          #     status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission, job: @job }, :failed,
-          #                                   "Failed to receive response from cms")
-          #     return status_result if status_result.failure?
-          #     result
-          #   end
-          # end
-
           def process_response(response)
             result = ProcessInitialVerificationResponse.new.call(response)
 

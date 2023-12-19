@@ -89,7 +89,7 @@ module Fdsh
       def generate_transmittable_payload(payload)
         # need to switch out the transformation to the rest xml once that operation has been created
         # result = ::Fdsh::Vlp::Rx92::TransformPersonToXmlRequest.new.call(payload)
-        result = Fdsh::Vlp::Rx92::TransformPersonToXmlRequest.new.call(payload)
+        result = Fdsh::Vlp::Rx142::InitialVerification::TransformPersonToXmlRequest.new.call(payload)
         if result.success?
           @transaction.xml_payload = result.value!
           @transaction.save
