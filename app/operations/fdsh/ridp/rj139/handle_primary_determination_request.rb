@@ -34,12 +34,12 @@ module Fdsh
 
         def transmittable_payload(params)
           result = ::Fdsh::Jobs::GenerateTransmittableRidpPrimaryPayload.new.call({ key: :ridp_primary_verification_request,
-                                                                            title: 'RIDP Primary Request',
-                                                                            description: 'RIDP primary verification request to CMS',
-                                                                            payload: params[:payload],
-                                                                            correlation_id: params[:correlation_id],
-                                                                            started_at: DateTime.now,
-                                                                            publish_on: DateTime.now })
+                                                                                    title: 'RIDP Primary Request',
+                                                                                    description: 'RIDP primary verification request to CMS',
+                                                                                    payload: params[:payload],
+                                                                                    correlation_id: params[:correlation_id],
+                                                                                    started_at: DateTime.now,
+                                                                                    publish_on: DateTime.now })
 
           result.success? ? Success(result.value!) : result
         end
@@ -63,8 +63,11 @@ module Fdsh
 
         def publish_ridp_primary_request(correlation_id, jwt)
           result = Fdsh::Ridp::Rj139::RequestRidpPrimaryVerification.new.call({ correlation_id: correlation_id, token: jwt,
-                                                                        transmittable_objects: { transaction: @request_transaction,
-                                                                                                 transmission: @request_transmission, job: @job } })
+                                                                                transmittable_objects: {
+                                                                                  transaction: @request_transaction,
+                                                                                  transmission: @request_transmission,
+                                                                                  job: @job
+                                                                                } })
           if result.success?
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :acked, "acked from cms")
             return status_result if status_result.failure?
@@ -147,10 +150,7 @@ module Fdsh
         end
 
         def transform_response
-          # need to create this operation in aca_entities. we also may need to do some additional processing, see the h139 files
-          # create_ridp_attestation / process_primary response. what we're going to need to return to enroll is an attestation rather than
-          # a full family or person. this is where I would like to focus on 1/2/2024
-          result = AcaEntities::Fdsh::Ridp::Rj139::Operations::PrimaryResponse.new.call(@response_transaction.json_payload)
+          result = ::Fdsh::Jobs::ProcessPrimaryResponse.new.call(@response_transaction.json_payload)
           status_result = if result.success?
                             update_status({ transaction: @response_transaction, transmission: @response_transmission }, :succeeded,
                                           "successfully transformed response from cms")
@@ -181,8 +181,12 @@ module Fdsh
 
         def publish(event)
           event.publish
-          # we will need to adjust the logic here. we need to only close it out if there is not a final determination field in the response payload! If not, we'll need an alternate status/key
-          # I actually think we need to create a new transmission/transaction going back to enroll, which is what we'll look for when we get the secondary response.
+          # we will need to adjust the logic here. we need to only close it out if there is not a final determination field in the response payload!
+          # If not, we'll need an alternate status/key
+          # I actually think we need to create a new transmission/transaction going back to enroll,
+          # which is what we'll look for when we get the secondary response.
+          # we also might need to put in some time logic here as there is a time limit!
+          # basically: how do we know when to close a job and how do we link a primary and secondary!
           status_result = update_status({ job: @job }, :succeeded, "successfully sent response to EA")
           return status_result if status_result.failure?
           Success('RIDP primary verificattion response published successfully')

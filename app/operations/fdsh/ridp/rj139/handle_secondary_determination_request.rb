@@ -34,12 +34,12 @@ module Fdsh
 
         def transmittable_payload(params)
           result = ::Fdsh::Jobs::GenerateTransmittableRidpSecondaryPayload.new.call({ key: :ridp_secondary_verification_request,
-                                                                            title: 'RIDP Secondary Request',
-                                                                            description: 'RIDP Secondary verification request to CMS',
-                                                                            payload: params[:payload],
-                                                                            correlation_id: params[:correlation_id],
-                                                                            started_at: DateTime.now,
-                                                                            publish_on: DateTime.now })
+                                                                                      title: 'RIDP Secondary Request',
+                                                                                      description: 'RIDP Secondary verification request to CMS',
+                                                                                      payload: params[:payload],
+                                                                                      correlation_id: params[:correlation_id],
+                                                                                      started_at: DateTime.now,
+                                                                                      publish_on: DateTime.now })
 
           result.success? ? Success(result.value!) : result
         end
@@ -63,8 +63,9 @@ module Fdsh
 
         def publish_ridp_secondary_request(correlation_id, jwt)
           result = Fdsh::Ridp::Rj139::RequestRidpPrimaryVerification.new.call({ correlation_id: correlation_id, token: jwt,
-                                                                        transmittable_objects: { transaction: @request_transaction,
-                                                                                                 transmission: @request_transmission, job: @job } })
+                                                                                transmittable_objects: { transaction: @request_transaction,
+                                                                                                         transmission: @request_transmission,
+                                                                                                         job: @job } })
           if result.success?
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :acked, "acked from cms")
             return status_result if status_result.failure?
