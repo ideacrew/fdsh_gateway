@@ -30,14 +30,13 @@ module Fdsh
       end
 
       def find_job(values)
-
         # we're going to first need to find the existing person
         @existing_person = ::Transmittable::Person.where(correlation_id: values[:correlation_id]).first
 
         if @existing_person
           # need to work out the logic for finding the correct job via the subject
           @job = @existing_person.transactions.where(status)
-          
+
           @job ? Success(@job) : Failure("No existing primary determination in need of secondary response")
         else
           Failure("No existing person subject")
@@ -69,12 +68,12 @@ module Fdsh
           person_hash = JSON.parse(values[:payload], symbolize_names: true)
 
           person = ::Transmittable::Person.create(hbx_id: person_hash[:hbx_id],
-                                            correlation_id: values[:correlation_id],
-                                            encrypted_ssn: person_hash[:person_demographics][:encrypted_ssn],
-                                            surname: person_hash[:person_name][:last_name],
-                                            given_name: person_hash[:person_name][:first_name],
-                                            middle_name: person_hash[:person_name][:middle_name],
-                                            dob: person_hash[:person_demographics][:dob])
+                                                  correlation_id: values[:correlation_id],
+                                                  encrypted_ssn: person_hash[:person_demographics][:encrypted_ssn],
+                                                  surname: person_hash[:person_name][:last_name],
+                                                  given_name: person_hash[:person_name][:first_name],
+                                                  middle_name: person_hash[:person_name][:middle_name],
+                                                  dob: person_hash[:person_demographics][:dob])
 
           return Success(person) if person.persisted?
           add_errors({ job: @job, transmission: @transmission }, "Unable to save person subject due to #{person.errors&.full_messages}",
