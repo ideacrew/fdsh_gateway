@@ -14,12 +14,21 @@ module Subscribers
         ) do |delivery_info, properties, payload|
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
+          # the correlation_id is the primary applicant's person hbx_id
           correlation_id = properties.correlation_id
 
-          determination_result = ::Fdsh::Ridp::H139::HandlePrimaryDeterminationRequest.new.call({
-                                                                                                  payload: payload,
-                                                                                                  correlation_id: correlation_id
-                                                                                                })
+          primary_payload_format = properties[:headers]['payload_format']
+          determination_result = if primary_payload_format == 'json'
+                                   ::Fdsh::Ridp::Rj14::HandlePrimaryDeterminationRequest.new.call({
+                                                                                                    payload: payload,
+                                                                                                    correlation_id: correlation_id
+                                                                                                  })
+                                 else
+                                   :Fdsh::Ridp::H139::HandlePrimaryDeterminationRequest.new.call({
+                                                                                                   payload: payload,
+                                                                                                   correlation_id: correlation_id
+                                                                                                 })
+                                 end
 
           if determination_result.success?
             logger.info("OK: :on_fdsh_determination_requests_ridp_primary_determination_requested successful and acked")

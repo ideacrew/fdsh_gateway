@@ -9,7 +9,7 @@ module Fdsh
         include EventSource::Command
 
         PublishEventStruct = Struct.new(:name, :payload, :headers)
-ß
+
         PUBLISH_EVENT = "ridp_primary_verification_request_rest"
         # @param params [String] the json payload of the person
         # @return [Dry::Monads::Result]
