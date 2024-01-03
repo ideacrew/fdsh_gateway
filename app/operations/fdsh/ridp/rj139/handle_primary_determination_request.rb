@@ -136,7 +136,9 @@ module Fdsh
 
           if result.success?
             @response_transaction = result.value!
-            @response_transaction.json_payload = JSON.parse(ridp_response.env.response_body)
+            parsed_payload = JSON.parse(ridp_response.env.response_body)
+            @response_transaction.json_payload = parsed_payload
+            @response_transaction.metadata = parsed_payload['ridpResponse']['sessionIdentification']
             @response_transaction.save
             Success(@response_transaction)
           else

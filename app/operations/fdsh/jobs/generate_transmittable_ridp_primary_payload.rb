@@ -47,15 +47,7 @@ module Fdsh
         return result if result.success?
         add_errors({ job: @job }, "Failed to create transmission due to #{result.failure}", :create_request_transmission)
         status_result = update_status({ job: @job }, :failed, result.failure)
-        return status_result if status_result.failure?
-      end
-
-      def add_errors(transmittable_objects, message, error_key)
-        Fdsh::Jobs::AddError.new.call({ transmittable_objects: transmittable_objects, key: error_key, message: message })
-      end
-
-      def update_status(transmittable_objects, state, message)
-        Fdsh::Jobs::UpdateProcessStatus.new.call({ transmittable_objects: transmittable_objects, state: state, message: message })
+        status_result if status_result.failure?
       end
 
       def create_person_subject(values)
@@ -64,8 +56,8 @@ module Fdsh
         if existing_person
           Success(existing_person)
         else
-          person_hash = JSON.parse(values[:payload], symbolize_names: true)
-
+          family = JSON.parse(values[:payload], symbolize_names: true)
+          person_hash = family[:family_members].detect {|member| member[:is_primary_applicant] == true}[:person]
           person = ::Transmittable::Person.create(hbx_id: person_hash[:hbx_id],
                                                   correlation_id: values[:correlation_id],
                                                   encrypted_ssn: person_hash[:person_demographics][:encrypted_ssn],
@@ -98,16 +90,9 @@ module Fdsh
       def generate_transmittable_payload(payload)
         result = Fdsh::Ridp::Rj139::TransformFamilyToPrimaryRequest.new.call(payload)
         if result.success?
-          @transaction.json_payload = result.value! if result.success?
+          @transaction.json_payload = JSON.parse(result.value!)
           @transaction.save
-
-          return Success(@transaction) if @transaction.json_payload
-          add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
-                     "Unable to save transaction with payload",
-                     :generate_transmittable_payload)
-          status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed,
-                                        "Unable to save transaction with payload")
-          return status_result if status_result.failure?
+          @transaction.json_payload ? Success(@transaction) : Failure("Unable to save transaction with payload")
         else
           add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
                      "Unable to transform payload",
@@ -116,6 +101,14 @@ module Fdsh
           return status_result if status_result.failure?
           result
         end
+      rescue StandardError
+        add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
+                   "Unable to save transaction with payload",
+                   :generate_transmittable_payload)
+        status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed,
+                                      "Unable to save transaction with payload")
+        return status_result if status_result.failure?
+        result
       end
 
       def transmittable
@@ -133,6 +126,14 @@ module Fdsh
           return status_result if status_result.failure?
           Failure("Transaction do not consists of a payload or no message id found")
         end
+      end
+
+      def add_errors(transmittable_objects, message, error_key)
+        Fdsh::Jobs::AddError.new.call({ transmittable_objects: transmittable_objects, key: error_key, message: message })
+      end
+
+      def update_status(transmittable_objects, state, message)
+        Fdsh::Jobs::UpdateProcessStatus.new.call({ transmittable_objects: transmittable_objects, state: state, message: message })
       end
     end
   end

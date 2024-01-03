@@ -24,6 +24,7 @@ module Fdsh
         private
 
         def validate_family_json_hash(json_hash)
+          json_hash = JSON.parse(json_hash, symbolize_names: true)
           validation_result = AcaEntities::Contracts::Families::FamilyContract.new.call(json_hash)
 
           validation_result.success? ? Success(validation_result.values) : Failure(validation_result.errors)

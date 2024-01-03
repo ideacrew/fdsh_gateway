@@ -83,6 +83,7 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
         is_active: true,
         is_disabled: false,
         addresses: [{ kind: 'mailing', address_1: '742 Washington Ave, 1', state: 'ME', city: city, zip: '67662' }],
+        phones: [],
         verification_types: verification_types
       }
     }
