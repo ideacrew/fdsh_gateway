@@ -67,12 +67,12 @@ module Fdsh
           person_hash = JSON.parse(values[:payload], symbolize_names: true)
 
           person = ::Transmittable::Person.create(hbx_id: person_hash[:hbx_id],
-                                            correlation_id: values[:correlation_id],
-                                            encrypted_ssn: person_hash[:person_demographics][:encrypted_ssn],
-                                            surname: person_hash[:person_name][:last_name],
-                                            given_name: person_hash[:person_name][:first_name],
-                                            middle_name: person_hash[:person_name][:middle_name],
-                                            dob: person_hash[:person_demographics][:dob])
+                                                  correlation_id: values[:correlation_id],
+                                                  encrypted_ssn: person_hash[:person_demographics][:encrypted_ssn],
+                                                  surname: person_hash[:person_name][:last_name],
+                                                  given_name: person_hash[:person_name][:first_name],
+                                                  middle_name: person_hash[:person_name][:middle_name],
+                                                  dob: person_hash[:person_demographics][:dob])
 
           return Success(person) if person.persisted?
           add_errors({ job: @job, transmission: @transmission }, "Unable to save person subject due to #{person.errors&.full_messages}",
