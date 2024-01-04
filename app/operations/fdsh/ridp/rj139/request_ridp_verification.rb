@@ -4,13 +4,13 @@ module Fdsh
   module Ridp
     module Rj139
       # This class takes a json representing a person as input and invokes RIDP primary request.
-      class RequestRidpPrimaryVerification
+      class RequestRidpVerification
         include Dry::Monads[:result, :do, :try]
         include EventSource::Command
 
         PublishEventStruct = Struct.new(:name, :payload, :headers)
 
-        PUBLISH_EVENT = "ridp_primary_verification_request_rest"
+        PUBLISH_EVENT = "ridp_verification_request_rest"
         # @param params [String] the json payload of the person
         # @return [Dry::Monads::Result]
         def call(params)
@@ -45,7 +45,7 @@ module Fdsh
           result = update_status(params[:transmittable_objects])
           return Failure("Could not publish payload #{result.failure}") if result.failure?
 
-          Success(::Publishers::Fdsh::RidpPrimaryRequestRestPublisher.publish(event))
+          Success(::Publishers::Fdsh::RidpRestPublisher.publish(event))
         end
 
         def update_status(transmittable_hash)

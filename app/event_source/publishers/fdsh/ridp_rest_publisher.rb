@@ -2,8 +2,8 @@
 
 module Publishers
   module Fdsh
-    # Publish RIDP primary request json payload for response from CMS
-    class RidpPrimaryRequestRestPublisher
+    # Publish RIDP request json payload for response from CMS
+    class RidpRestPublisher
       include ::EventSource::Publisher[http: '/RIDPCrossCoreService']
 
       register_event '/RIDPCrossCoreService'
