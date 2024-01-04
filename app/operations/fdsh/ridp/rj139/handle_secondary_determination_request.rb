@@ -62,10 +62,10 @@ module Fdsh
         end
 
         def publish_ridp_secondary_request(correlation_id, jwt)
-          result = Fdsh::Ridp::Rj139::RequestRidpPrimaryVerification.new.call({ correlation_id: correlation_id, token: jwt,
-                                                                                transmittable_objects: { transaction: @request_transaction,
-                                                                                                         transmission: @request_transmission,
-                                                                                                         job: @job } })
+          result = Fdsh::Ridp::Rj139::RequestRidpVerification.new.call({ correlation_id: correlation_id, token: jwt,
+                                                                         transmittable_objects: { transaction: @request_transaction,
+                                                                                                  transmission: @request_transmission,
+                                                                                                  job: @job } })
           if result.success?
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :acked, "acked from cms")
             return status_result if status_result.failure?
@@ -148,10 +148,8 @@ module Fdsh
         end
 
         def transform_response
-          # need to create this operation in aca_entities. we also may need to do some additional processing, see the h139 files
-          # create_ridp_attestation / process_secondary_response. what we're going to need to return to enroll is an attestation rather than
-          # a full family or person. this is where I would like to focus on 1/2/2024
-          result = AcaEntities::Fdsh::Ridp::Rj139::Operations::PrimaryResponse.new.call(@response_transaction.json_payload)
+          # this operation needs to be created
+          result = ::Fdsh::Ridp::Rj139::ProcessSecondaryResponse.new.call(@response_transaction.json_payload)
           status_result = if result.success?
                             update_status({ transaction: @response_transaction, transmission: @response_transmission }, :succeeded,
                                           "successfully transformed response from cms")

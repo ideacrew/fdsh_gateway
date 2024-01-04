@@ -8,11 +8,11 @@ module Fdsh
 
       def call(params)
         values = yield validate_params(params)
-        _job = yield find_job(values)
+        payload = yield generate_transmittable_payload(values[:payload])
+        _job = yield find_job(values, payload)
         @transmission = yield create_transmission(values)
         person_subject = yield create_person_subject(values)
-        @transaction = yield create_transaction(values, person_subject)
-        @transaction = yield generate_transmittable_payload(values[:payload])
+        @transaction = yield create_transaction(values, person_subject, payload)
 
         transmittable
       end
@@ -29,22 +29,22 @@ module Fdsh
         Success(params)
       end
 
-      def find_job(values)
-        # we're going to first need to find the existing person
-        @existing_person = ::Transmittable::Person.where(correlation_id: values[:correlation_id]).first
+      def generate_transmittable_payload(payload)
+        # there is a missing call within this operation to an aca_entities operation that will need to be added!
+        Fdsh::Ridp::Rj139::TransformFamilyToSecondaryRequest.new.call(payload)
+      end
 
-        if @existing_person
-          # need to work out the logic for finding the correct job via the subject
-          @job = @existing_person.transactions.where(status)
-
-          @job ? Success(@job) : Failure("No existing primary determination in need of secondary response")
-        else
-          Failure("No existing person subject")
-        end
+      def find_job(_values, payload)
+        parsed_payload = JSON.parse(payload, deep_symbolize_keys)
+        session_id = parsed_payload[:secondaryRequest][:sessionIdentification]
+        return Failure("No session_id found") unless session_id
+        # need to adjust this to check for job status as well
+        @job = Transmittable::Job.where(title: "RIDP Primary Request for #{session_id}")
+        @job ? Success(@job) : Failure("No existing job present")
       end
 
       def create_transmission(values)
-        # need to adjust these
+        # need to adjust these values
         result = Fdsh::Jobs::CreateTransmission.new.call(values.merge({ job: @job, event: 'initial', state_key: :initial }))
 
         return result if result.success?
@@ -84,39 +84,17 @@ module Fdsh
         end
       end
 
-      def create_transaction(values, subject)
+      def create_transaction(values, subject, payload)
         result = Fdsh::Jobs::CreateTransaction.new.call(values.merge({ transmission: @transmission,
                                                                        subject: subject,
                                                                        event: 'initial',
-                                                                       state_key: :initial }))
+                                                                       state_key: :initial,
+                                                                       json_payload: payload }))
         return result if result.success?
         add_errors({ job: @job, transmission: @transmission }, "Failed to create transaction due to #{result.failure}", :create_transaction)
         status_result = update_status({ job: @job, transmission: @transmission }, :failed, result.failure)
         return status_result if status_result.failure?
         result
-      end
-
-      def generate_transmittable_payload(payload)
-        result = Fdsh::Ridp::Rj139::TransformFamilyToPrimaryRequest.new.call(payload)
-        if result.success?
-          @transaction.json_payload = result.value! if result.success?
-          @transaction.save
-
-          return Success(@transaction) if @transaction.json_payload
-          add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
-                     "Unable to save transaction with payload",
-                     :generate_transmittable_payload)
-          status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed,
-                                        "Unable to save transaction with payload")
-          return status_result if status_result.failure?
-        else
-          add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
-                     "Unable to transform payload due to #{result.failure}",
-                     :generate_transmittable_payload)
-          status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed, "Unable to transform payload")
-          return status_result if status_result.failure?
-          result
-        end
       end
 
       def transmittable

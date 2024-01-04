@@ -62,12 +62,12 @@ module Fdsh
         end
 
         def publish_ridp_primary_request(correlation_id, jwt)
-          result = Fdsh::Ridp::Rj139::RequestRidpPrimaryVerification.new.call({ correlation_id: correlation_id, token: jwt,
-                                                                                transmittable_objects: {
-                                                                                  transaction: @request_transaction,
-                                                                                  transmission: @request_transmission,
-                                                                                  job: @job
-                                                                                } })
+          result = Fdsh::Ridp::Rj139::RequestRidpVerification.new.call({ correlation_id: correlation_id, token: jwt,
+                                                                         transmittable_objects: {
+                                                                           transaction: @request_transaction,
+                                                                           transmission: @request_transmission,
+                                                                           job: @job
+                                                                         } })
           if result.success?
             status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :acked, "acked from cms")
             return status_result if status_result.failure?
