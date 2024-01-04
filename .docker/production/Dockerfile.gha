@@ -61,7 +61,8 @@ ENV HOME=/fdsh_gateway
 
 ENV PATH=$HOME/bin:$BUNDLE_BIN:$GEM_HOME/gems/bin:$PATH
 
-RUN gem update --system \
+# rubygems-update > 3.4.22 requires ruby >= 3.0.0
+RUN gem update --system 3.4.22\
     && rm -f /usr/local/bin/ruby/gems/*/specifications/default/bundler-*.gemspec \
     && gem install bundler -v $BUNDLER_VERSION
 
