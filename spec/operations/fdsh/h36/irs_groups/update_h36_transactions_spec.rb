@@ -44,11 +44,11 @@ RSpec.describe Fdsh::H36::IrsGroups::UpdateH36Transactions do
   end
 
   context "when current date is between January and March" do
-    context "valid params" do
-      before :each do
-        allow(Date).to receive(:today).and_return(Date.new(2024, 1, 1))
-      end
+    before :each do
+      allow(Date).to receive(:today).and_return(Date.new(2024, 1, 1))
+    end
 
+    context "valid params" do
       let(:irs_group) do
         create(:h36_irs_group, assistance_year: Date.today.year - 1)
       end
@@ -92,11 +92,11 @@ RSpec.describe Fdsh::H36::IrsGroups::UpdateH36Transactions do
   end
 
   context "when current date is between April and December" do
-    context "valid params" do
-      before :each do
-        allow(Date).to receive(:today).and_return(Date.new(2023, 12, 1))
-      end
+    before :each do
+      allow(Date).to receive(:today).and_return(Date.new(2023, 12, 1))
+    end
 
+    context "valid params" do
       let(:irs_group) do
         create(:h36_irs_group, assistance_year: Date.today.year - 1)
       end
@@ -124,5 +124,9 @@ RSpec.describe Fdsh::H36::IrsGroups::UpdateH36Transactions do
         expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.transactions.count).to eq 5
       end
     end
+  end
+
+  after do
+    allow(Date).to receive(:today).and_return(Date.today)
   end
 end
