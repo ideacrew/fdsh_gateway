@@ -20,9 +20,9 @@ module Subscribers
           primary_payload_format = properties[:headers]['payload_format']
           determination_result = if primary_payload_format == 'json'
                                    ::Fdsh::Ridp::Rj139::HandlePrimaryDeterminationRequest.new.call({
-                                                                                                    payload: payload,
-                                                                                                    correlation_id: correlation_id
-                                                                                                  })
+                                                                                                     payload: payload,
+                                                                                                     correlation_id: correlation_id
+                                                                                                   })
                                  else
                                    :Fdsh::Ridp::H139::HandlePrimaryDeterminationRequest.new.call({
                                                                                                    payload: payload,
