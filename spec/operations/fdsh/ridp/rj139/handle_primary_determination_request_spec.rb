@@ -136,7 +136,7 @@ RSpec.describe Fdsh::Ridp::Rj139::HandlePrimaryDeterminationRequest, dbclean: :a
     allow(mock_process_response).to receive(:call).with(mock_primary_response_body.deep_stringify_keys).and_return(mock_attestation)
   end
 
-  context 'with a successful response' do
+  context 'with a final descision code response' do
     before do
       @result = described_class.new.call({ correlation_id: correlation_id, payload: payload })
     end
@@ -150,6 +150,37 @@ RSpec.describe Fdsh::Ridp::Rj139::HandlePrimaryDeterminationRequest, dbclean: :a
       expect(job.transmissions.pluck(:key)).to eq [:ridp_primary_verification_request, :ridp_primary_verification_response]
       expect(job.transmissions.last.transactions_transmissions.last.transaction).not_to eq nil
       expect(job.transmissions.last.transactions_transmissions.last.transaction.key).to eq :ridp_primary_verification_response
+      expect(job.transmissions.last.transactions_transmissions.last.transaction.metadata).to eq nil
+    end
+  end
+
+  context 'without a final descision code response' do
+    before do
+      mock_primary_response_body[:ridpResponse].delete(:finalDecisionCode)
+      mock_primary_response = Dry::Monads::Result::Success.call(Faraday::Response.new(status: 200, response_body: mock_primary_response_body.to_json))
+      allow(Fdsh::Ridp::Rj139::RequestRidpPrimaryVerification).to receive(:new).and_return(mock_primary_request_verification)
+      allow(mock_primary_request_verification).to receive(:call).with({
+                                                                        correlation_id: correlation_id,
+                                                                        token: "3487583567384567384568",
+                                                                        transmittable_objects: { transaction: transaction, transmission: transmission,
+                                                                                                 job: job }
+                                                                      }).and_return(mock_primary_response)
+      allow(Fdsh::Ridp::Rj139::ProcessPrimaryResponse).to receive(:new).and_return(mock_process_response)
+      allow(mock_process_response).to receive(:call).with(mock_primary_response_body.deep_stringify_keys).and_return(mock_attestation)
+      @result = described_class.new.call({ correlation_id: correlation_id, payload: payload })
+    end
+
+    it "is successful" do
+      expect(@result.success?).to be_truthy
+      expect(job.process_status.latest_state).to eq :transmitted
+      expect(job.title).to eq "RIDP Primary Request for # Ik5/ 77RnhJ"
+      expect(transmission.process_status.latest_state).to eq :succeeded
+      expect(transaction.process_status.latest_state).to eq :succeeded
+      expect(job.transmissions.count).to eq 2
+      expect(job.transmissions.pluck(:key)).to eq [:ridp_primary_verification_request, :ridp_primary_verification_response]
+      expect(job.transmissions.last.transactions_transmissions.last.transaction).not_to eq nil
+      expect(job.transmissions.last.transactions_transmissions.last.transaction.key).to eq :ridp_primary_verification_response
+      expect(job.transmissions.last.transactions_transmissions.last.transaction.metadata).not_to eq nil
     end
   end
 
