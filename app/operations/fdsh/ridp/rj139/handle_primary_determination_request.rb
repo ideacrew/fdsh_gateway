@@ -136,10 +136,7 @@ module Fdsh
 
           if result.success?
             @response_transaction = result.value!
-            parsed_payload = JSON.parse(ridp_response.env.response_body)
-            @response_transaction.json_payload = parsed_payload
-            @response_transaction.metadata = { session_id: parsed_payload['ridpResponse']['sessionIdentification'] }
-            @response_transaction.save
+            update_response_transmission(ridp_response)
             Success(@response_transaction)
           else
             add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
@@ -149,6 +146,17 @@ module Fdsh
             return status_result if status_result.failure?
             result
           end
+        end
+
+        def update_response_transmission(ridp_response)
+          parsed_payload = JSON.parse(ridp_response.env.response_body)
+          @response_transaction.json_payload = parsed_payload
+          @final_decision = parsed_payload.dig("ridpResponse", "finalDecisionCode")
+          unless @final_decision
+            @response_transaction.metadata = { session_id: parsed_payload['ridpResponse']['sessionIdentification'] }
+            @job.title = "RIDP Primary Request for #{parsed_payload['ridpResponse']['sessionIdentification']}"
+          end
+          @response_transaction.save
         end
 
         def transform_response
@@ -183,13 +191,14 @@ module Fdsh
 
         def publish(event)
           event.publish
-          # we will need to adjust the logic here. we need to only close it out if there is not a final determination field in the response payload!
-          # If not, we'll need an alternate status/key
-          # I actually think we need to create a new transmission/transaction going back to enroll,
+          # I actually think we may need to create a new transmission/transaction going back to enroll,
           # which is what we'll look for when we get the secondary response.
           # we also might need to put in some time logic here as there is a time limit!
-          # basically: how do we know when to close a job and how do we link a primary and secondary!
-          status_result = update_status({ job: @job }, :succeeded, "successfully sent response to EA")
+          status_result = if @final_decision
+                            update_status({ job: @job }, :succeeded, "successfully sent response to EA")
+                          else
+                            update_status({ job: @job }, :transmitted, "transmitted response to EA, expecting response")
+                          end
           return status_result if status_result.failure?
           Success('RIDP primary verificattion response published successfully')
         end
