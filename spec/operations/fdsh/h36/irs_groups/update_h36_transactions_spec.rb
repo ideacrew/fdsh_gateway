@@ -77,8 +77,8 @@ RSpec.describe Fdsh::H36::IrsGroups::UpdateH36Transactions do
 
       it "should create a new open transmission and should not update prior transmission to pending state" do
         expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 2
-        result = Fdsh::H36::IrsGroups::UpdateH36Transactions.new.call(assistance_year: Date.today.year,
-                                                                      current_month: Date.today.month == 1 ? Date.today.month + 1 : Date.today.month - 1)
+        current_month = Date.today.month == 1 ? Date.today.month + 1 : Date.today.month - 1
+        result = Fdsh::H36::IrsGroups::UpdateH36Transactions.new.call(assistance_year: Date.today.year, current_month: current_month)
         expect(result.success?).to be_truthy
         transmission_previous_year.reload
         transmission_current_year.reload
