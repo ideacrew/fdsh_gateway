@@ -61,7 +61,9 @@ ENV HOME=/fdsh_gateway
 
 ENV PATH=$HOME/bin:$BUNDLE_BIN:$GEM_HOME/gems/bin:$PATH
 
-RUN gem update --system \
+# NOTE: 3.4.22 is latest rubygems-update version that works with ruby 2.7.6
+# 3.5 requires ruby 3.0+
+RUN gem install rubygems-update -v 3.4.22\
     && rm -f /usr/local/bin/ruby/gems/*/specifications/default/bundler-*.gemspec \
     && gem install bundler -v $BUNDLER_VERSION
 
@@ -178,6 +180,6 @@ COPY --chown=nonroot:nonroot ./.docker/config/credentials.yml.enc $HOME/config
 COPY --chown=nonroot:nonroot ./.docker/config/master.key $HOME/config
 COPY --chown=nonroot:nonroot ./.docker/config/production.rb $HOME/config/environments
 
-USER nonroot 
+USER nonroot
 
 ENV RAILS_ENV=production
