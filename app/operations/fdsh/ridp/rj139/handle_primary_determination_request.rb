@@ -138,7 +138,7 @@ module Fdsh
             @response_transaction = result.value!
             parsed_payload = JSON.parse(ridp_response.env.response_body)
             @response_transaction.json_payload = parsed_payload
-            @response_transaction.metadata = parsed_payload['ridpResponse']['sessionIdentification']
+            @response_transaction.metadata = { session_id: parsed_payload['ridpResponse']['sessionIdentification'] }
             @response_transaction.save
             Success(@response_transaction)
           else
@@ -152,7 +152,7 @@ module Fdsh
         end
 
         def transform_response
-          result = ::Fdsh::Jobs::ProcessPrimaryResponse.new.call(@response_transaction.json_payload)
+          result = ::Fdsh::Ridp::Rj139::ProcessPrimaryResponse.new.call(@response_transaction.json_payload)
           status_result = if result.success?
                             update_status({ transaction: @response_transaction, transmission: @response_transmission }, :succeeded,
                                           "successfully transformed response from cms")

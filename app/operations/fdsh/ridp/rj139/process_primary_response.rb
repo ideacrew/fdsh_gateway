@@ -25,7 +25,7 @@ module Fdsh
         private
 
         def construct_response_params(payload)
-          AcaEntities::Fdsh::Ridp::Rj139::CmsPrimaryResponseToCv3PrimaryResponse(payload)
+          AcaEntities::Fdsh::Ridp::Rj139::Operations::CmsPrimaryResponseToCv3PrimaryResponse.new.call(payload)
         end
 
         def create_primary_response(value)
