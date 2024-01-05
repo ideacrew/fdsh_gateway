@@ -148,7 +148,6 @@ module Fdsh
         end
 
         def transform_response
-          # this operation needs to be created
           result = ::Fdsh::Ridp::Rj139::ProcessSecondaryResponse.new.call(@response_transaction.json_payload)
           status_result = if result.success?
                             update_status({ transaction: @response_transaction, transmission: @response_transmission }, :succeeded,
