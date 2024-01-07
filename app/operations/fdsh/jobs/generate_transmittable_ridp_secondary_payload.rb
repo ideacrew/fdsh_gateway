@@ -8,8 +8,8 @@ module Fdsh
 
       def call(params)
         values = yield validate_params(params)
-        payload = yield generate_transmittable_payload(values[:payload])
-        _job = yield find_job(values, payload)
+        payload = yield generate_transmittable_payload(values[:payload]) # this should be the last second step
+        _job = yield find_job(values) # change this to find_or_create_job
         @transmission = yield create_transmission(values)
         person_subject = yield create_person_subject(values)
         @transaction = yield create_transaction(values, person_subject, payload)
@@ -34,12 +34,13 @@ module Fdsh
         Fdsh::Ridp::Rj139::TransformFamilyToSecondaryRequest.new.call(payload)
       end
 
-      def find_job(_values, payload)
-        parsed_payload = JSON.parse(payload, deep_symbolize_keys)
-        session_id = parsed_payload[:secondaryRequest][:sessionIdentification]
-        return Failure("No session_id found") unless session_id
+      def find_job(values)
+        # if there is no job we need to create one
+        # parsed_payload = JSON.parse(payload, deep_symbolize_keys)
+        # session_id = parsed_payload[:secondaryRequest][:sessionIdentification]
+        return Failure("No session_id found") unless values[:session_id]
         # need to adjust this to check for job status as well
-        @job = Transmittable::Job.where(title: "RIDP Primary Request for #{session_id}")
+        @job = Transmittable::Job.where(title: "RIDP Primary Request for #{values[:session_id]}")
         @job ? Success(@job) : Failure("No existing job present")
       end
 
