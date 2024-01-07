@@ -27,6 +27,7 @@ module Fdsh
 
         def validate_params(params)
           return Failure('Cannot process RIDP secondary request without correlation id') unless params[:correlation_id].is_a?(String)
+          return Failure('Cannot process RIDP secondary request without session id') unless params[:session_id].is_a?(String)
           return Failure('Cannot process RIDP secondary request without payload') if params[:payload].blank?
 
           Success(params)
@@ -39,7 +40,8 @@ module Fdsh
                                                                                       payload: params[:payload],
                                                                                       correlation_id: params[:correlation_id],
                                                                                       started_at: DateTime.now,
-                                                                                      publish_on: DateTime.now })
+                                                                                      publish_on: DateTime.now,
+                                                                                      session_id: params[:session_id]})
 
           result.success? ? Success(result.value!) : result
         end

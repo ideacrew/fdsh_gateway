@@ -52,11 +52,20 @@ module Subscribers
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
           correlation_id = properties.correlation_id
+          session_id = properties.session_id
 
-          determination_result = ::Fdsh::Ridp::H139::HandleSecondaryDeterminationRequest.new.call({
-                                                                                                    payload: payload,
-                                                                                                    correlation_id: correlation_id
-                                                                                                  })
+          determination_result = if primary_payload_format == 'json'
+                                   ::Fdsh::Ridp::Rj139::HandleSecondaryDeterminationRequest.new.call({
+                                                                                                       payload: payload,
+                                                                                                       correlation_id: correlation_id,
+                                                                                                       session_id: session_id
+                                                                                                     })
+                                 else
+                                   ::Fdsh::Ridp::H139::HandleSecondaryDeterminationRequest.new.call({
+                                                                                                      payload: payload,
+                                                                                                      correlation_id: correlation_id
+                                                                                                    })
+                                 end
 
           if determination_result.success?
             logger.info("OK: :on_fdsh_determination_requests_ridp_secondary_determination_requested successful and acked")
