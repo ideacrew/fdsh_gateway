@@ -101,6 +101,7 @@ module Fdsh
           status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed,
                                         "Unable to save transaction with payload")
           return status_result if status_result.failure?
+          result
         else
           add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
                      "Unable to transform payload",
