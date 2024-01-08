@@ -54,7 +54,6 @@ RSpec.describe Fdsh::Vlp::Rx142::InitialVerification::HandleInitialVerificationR
   end
 
   it "is successful" do
-    # WIP
-    # expect(subject.success?).to be_truthy
+    expect(subject.success?).to be_truthy
   end
 end
