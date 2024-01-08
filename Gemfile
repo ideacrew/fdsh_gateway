@@ -5,7 +5,8 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.7.3'
 
-gem 'aca_entities', git:  'https://github.com/ideacrew/aca_entities.git', branch: 'trunk'
+# do not merge this into trunk, just pushing up branch reference for gha for now.
+gem 'aca_entities', git:  'https://github.com/ideacrew/aca_entities.git', branch: '185701084_ridp_primary_request_and_async_api'
 gem 'gateway_styles', git:  'https://github.com/ideacrew/gateway-styles.git', branch: 'trunk'
 
 # Reduces boot times through caching; required in config/boot.rb
