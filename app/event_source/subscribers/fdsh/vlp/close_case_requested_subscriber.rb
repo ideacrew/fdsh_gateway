@@ -13,10 +13,10 @@ module Subscribers
           case_number = properties.case_number
 
           verification_result = ::Fdsh::Vlp::Rx142::CloseCase::HandleCloseCaseRequest.new.call({
-                                                                                                payload: payload,
-                                                                                                correlation_id: correlation_id,
-                                                                                                case_number: case_number
-                                                                                              })
+                                                                                                 payload: payload,
+                                                                                                 correlation_id: correlation_id,
+                                                                                                 case_number: case_number
+                                                                                               })
 
           if verification_result.success?
             logger.info("OK: :on_close_case_requested successful and acked")

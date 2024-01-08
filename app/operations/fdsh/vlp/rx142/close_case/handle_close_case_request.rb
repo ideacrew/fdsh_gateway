@@ -147,7 +147,7 @@ module Fdsh
             result
           end
 
-          def update_job(correlation_id, _close_case_outcome)
+          def update_job(_correlation_id, _close_case_outcome)
             status_result = update_status({ job: @job }, :succeeded, "successfully handled Close Case response from CMS")
             return status_result if status_result.failure?
 

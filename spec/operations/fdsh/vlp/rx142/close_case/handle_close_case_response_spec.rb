@@ -43,11 +43,11 @@ RSpec.describe Fdsh::Vlp::Rx142::CloseCase::HandleCloseCaseRequest do
     allow(mock_jwt_request).to receive(:call).with({}).and_return(mock_jwt_response)
     allow(Fdsh::Vlp::Rx142::CloseCase::RequestCloseCase).to receive(:new).and_return(mock_vlp_request_close_case)
     allow(mock_vlp_request_close_case).to receive(:call).with({
-                                                                  correlation_id: correlation_id,
-                                                                  token: "3487583567384567384568",
-                                                                  transmittable_objects: { transaction: transaction, transmission: transmission,
-                                                                                           job: job }
-                                                                }).and_return(mock_close_case_response)
+                                                                correlation_id: correlation_id,
+                                                                token: "3487583567384567384568",
+                                                                transmittable_objects: { transaction: transaction, transmission: transmission,
+                                                                                         job: job }
+                                                              }).and_return(mock_close_case_response)
   end
 
   subject do
