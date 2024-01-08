@@ -90,8 +90,7 @@ module Fdsh
       def generate_transmittable_payload(payload)
         # need to switch out the transformation to the rest xml once that operation has been created
         close_case_payload = { CaseNumber: payload[:case_number] }
-        verified_request = ::AcaEntities::Fdsh::Vlp::Rx142::CloseCase::Operations::VerifyCloseCaseRequest.new.call(close_case_payload)
-        result = ::AcaEntities::Serializers::Xml::Fdsh::Vlp::Rx142::CloseCase::Operations::CloseCaseRequestToXml.new.call(verified_request.value!)
+        result = ::Fdsh::Vlp::Rx142::CloseCase::CreateCloseCaseXmlRequest.new.call(close_case_payload)
 
         if result.success?
           @transaction.xml_payload = result.value!
@@ -103,16 +102,14 @@ module Fdsh
                      :generate_transmittable_payload)
           status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed,
                                         "Unable to save transaction with payload")
-          return status_result if status_result.failure?
-          result
         else
           add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
                      "Unable to transform payload",
                      :generate_transmittable_payload)
           status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed, "Unable to transform payload")
-          return status_result if status_result.failure?
-          result
         end
+        return status_result if status_result.failure?
+        result
       end
 
       def transmittable
