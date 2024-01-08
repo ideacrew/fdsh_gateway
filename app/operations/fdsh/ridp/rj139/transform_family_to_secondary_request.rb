@@ -13,14 +13,13 @@ module Fdsh
 
         # @param [Hash] opts The options to generate Ridp secondary Request Payload
         # @return [Dry::Monads::Result<]
-        def call(params)
+        def call(params, transmission_id)
           json_hash = yield parse_json(params)
           family_hash = yield validate_family_json_hash(json_hash)
           family = yield build_family(family_hash)
           primary_person               = yield fetch_primary_family_members_person(family)
           secondary_request_evidence   = yield fetch_secondary_request_evidence(primary_person)
-          require 'pry'; binding.pry
-          secondary_request_json       = yield fetch_secondary_request(secondary_request_evidence)
+          secondary_request_json       = yield fetch_secondary_request(secondary_request_evidence, transmission_id)
 
           Success(secondary_request_json)
         end
@@ -69,9 +68,13 @@ module Fdsh
           end
         end
 
-        def fetch_secondary_request(evidence)
+        def fetch_secondary_request(evidence, transmission_id)
           request = evidence[:secondary_request]
-          # need to build this operation in aca_entities!
+          # we need to somehow get the hub identifier in here!
+          # it is not a part of the evidence, so will be sent in the header?
+          # then we'll need to pass it to the operation and merge it into the request
+          # require 'pry'; binding.pry
+          request[:transmission_id] = transmission_id
           ::AcaEntities::Fdsh::Ridp::Rj139::Operations::EvidenceToSecondaryRequest.new.call(request)
         end
       end

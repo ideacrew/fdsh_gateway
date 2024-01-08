@@ -41,7 +41,8 @@ module Fdsh
                                                                                       correlation_id: params[:correlation_id],
                                                                                       started_at: DateTime.now,
                                                                                       publish_on: DateTime.now,
-                                                                                      session_id: params[:session_id]})
+                                                                                      session_id: params[:session_id],
+                                                                                      transmission_id: params[:transmission_id] })
 
           result.success? ? Success(result.value!) : result
         end

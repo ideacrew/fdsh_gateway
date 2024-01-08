@@ -20,8 +20,9 @@ RSpec.describe Fdsh::Jobs::GenerateTransmittableRidpSecondaryPayload, dbclean: :
       payload: payload,
       started_at: DateTime.now,
       publish_on: DateTime.now,
-      correlation_id: 'test',
-      session_id: 'test'
+      correlation_id: '12348',
+      session_id: 'test',
+      transmission_id: 'test'
     }
   end
 
@@ -66,46 +67,79 @@ RSpec.describe Fdsh::Jobs::GenerateTransmittableRidpSecondaryPayload, dbclean: :
 
     it 'should return a failure with missing correlation_id' do
       result = subject.call(all_params.except(:correlation_id))
-      expect(result.failure).to eq('Transmittable payload cannot be created without a correlation_id a string')
+      expect(result.failure).to eq('Transmittable payload cannot be created without a transmission_id and correlation_id')
     end
 
     it 'should return a failure when correlation_id is not a string' do
       all_params[:correlation_id] = Date.today
       result = subject.call(all_params)
-      expect(result.failure).to eq('Transmittable payload cannot be created without a correlation_id a string')
+      expect(result.failure).to eq('Transmittable payload cannot be created without a transmission_id and correlation_id')
+    end
+
+    it 'should return a failure with missing transmission_id' do
+      result = subject.call(all_params.except(:transmission_id))
+      expect(result.failure).to eq('Transmittable payload cannot be created without a transmission_id and correlation_id')
+    end
+
+    it 'should return a failure when transmission_id is not a string' do
+      all_params[:transmission_id] = Date.today
+      result = subject.call(all_params)
+      expect(result.failure).to eq('Transmittable payload cannot be created without a transmission_id and correlation_id')
     end
   end
 
   context 'sending valid params' do
     let(:json_payload) do
       { "ridpRequest" =>
-  { "primaryRequest" =>
-    { "person" => { "personSurName" => "Smith", "personGivenName" => "John", "personBirthDate" => "1972-04-04", "personPreferredLanguage" => "eng" },
-      "contactInformation" => { "streetName" => "742 Washington Ave 1", "cityName" => "Augusta", "usStateCode" => "ME", "zipCode" => "67662" } } } }
-    end
-    before do
-      # require 'pry'; binding.pry
-      @result = subject.call(all_params)
-    end
-
-    it "Should not have any errors" do
-      expect(@result.success?).to be_truthy
+        { "secondaryRequest" =>
+          { "hubReferenceNumber" => "test",
+            "sessionIdentification" => "347567asghfjgshfg",
+            "verificationAnswerArray" => [
+              { "verificationAnswerSet" => { "verificationAnswer" => "1", "verificationQuestionNumber" => "1" } },
+              { "verificationAnswerSet" => { "verificationAnswer" => "1", "verificationQuestionNumber" => "2" } },
+              { "verificationAnswerSet" => { "verificationAnswer" => "2", "verificationQuestionNumber" => "3" } }
+            ] } } }
     end
 
-    it "Should return the transaction in hash" do
-      expect(@result.value![:transaction]).not_to eq nil
+    context 'without existing subject' do
+      before do
+        @result = subject.call(all_params)
+      end
+
+      it "Should have an errors" do
+        expect(@result.success?).to be_falsey
+      end
+
+      it "Should return a failure" do
+        expect(@result.failure).to eq "Unable to find existing person subject"
+      end
     end
 
-    it "Should have json payload on transaction" do
-      expect(@result.value![:transaction].json_payload).not_to eq nil
-    end
+    context 'with existing subject' do
+      before do
+        FactoryBot.create(:transmittable_person)
+        @result = subject.call(all_params)
+      end
 
-    it "Should have json payload on transaction" do
-      expect(@result.value![:transaction].json_payload).to eq json_payload
-    end
+      it "Should not have any errors" do
+        expect(@result.success?).to be_truthy
+      end
 
-    it "Should return the message_id in hash" do
-      expect(@result.value![:message_id]).not_to eq nil
+      it "Should return the transaction in hash" do
+        expect(@result.value![:transaction]).not_to eq nil
+      end
+
+      it "Should have json payload on transaction" do
+        expect(@result.value![:transaction].json_payload).not_to eq nil
+      end
+
+      it "Should have json payload on transaction" do
+        expect(@result.value![:transaction].json_payload).to eq json_payload
+      end
+
+      it "Should return the message_id in hash" do
+        expect(@result.value![:message_id]).not_to eq nil
+      end
     end
   end
 end
