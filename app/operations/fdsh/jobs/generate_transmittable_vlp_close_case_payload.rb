@@ -59,7 +59,7 @@ module Fdsh
         else
           person_hash = JSON.parse(values[:payload], symbolize_names: true)
           person = ::Transmittable::Person.create(hbx_id: person_hash[:hbx_id],
-                                                  # correlation_id: values[:correlation_id],
+                                                  correlation_id: values[:correlation_id],
                                                   encrypted_ssn: person_hash[:person_demographics][:encrypted_ssn],
                                                   surname: person_hash[:person_name][:last_name],
                                                   given_name: person_hash[:person_name][:first_name],
@@ -90,7 +90,9 @@ module Fdsh
       def generate_transmittable_payload(payload)
         # need to switch out the transformation to the rest xml once that operation has been created
         close_case_payload = { CaseNumber: payload[:case_number] }
-        result = ::AcaEntities::Fdsh::Vlp::Rx142::CloseCase::Operations::VerifyCloseCaseRequest.new.call(close_case_payload)
+        verified_request = ::AcaEntities::Fdsh::Vlp::Rx142::CloseCase::Operations::VerifyCloseCaseRequest.new.call(close_case_payload)
+        result = ::AcaEntities::Serializers::Xml::Fdsh::Vlp::Rx142::CloseCase::Operations::CloseCaseRequestToXml.new.call(verified_request.value!)
+
         if result.success?
           @transaction.xml_payload = result.value!
           @transaction.save

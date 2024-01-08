@@ -11,7 +11,6 @@ module Fdsh
 
           PublishEventStruct = Struct.new(:name, :payload, :headers)
 
-          # this should be a new event for REST XML
           PUBLISH_EVENT = "vlp_close_case_requested"
           # @param params [String] the json payload of the person
           # @return [Dry::Monads::Result]
@@ -47,8 +46,7 @@ module Fdsh
             result = update_status(params[:transmittable_objects])
             return Failure("Could not publish payload #{result.failure}") if result.failure?
 
-            # change this to a new publisher for REST XML
-            Success(::Publishers::Fdsh::CloseCaseRestPublisher.publish(event))
+            Success(::Publishers::Fdsh::Vlp::CloseCaseRestXmlServicePublisher.publish(event))
           end
 
           def update_status(transmittable_hash)

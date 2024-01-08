@@ -9,7 +9,7 @@ RSpec.describe Fdsh::Jobs::GenerateTransmittableVlpCloseCasePayload, dbclean: :a
   subject { described_class.new }
   let(:key) { :vlp_close_case_request}
   let(:title) { 'VLP Close Case Request'}
-  let(:description) { 'Request for VLP Close Case to CMS'}
+  let(:description) { 'Request VLP Close Case from CMS'}
   let(:payload) { person_params.to_json }
 
   let(:all_params) do

@@ -16,15 +16,12 @@ module Fdsh
             jwt = yield generate_jwt(values)
 
             response = yield publish_vlp_close_case_request(params[:correlation_id], jwt)
-            ## Request testing
-            # _response_transmission = yield create_response_transmission(values, params[:correlation_id])
-            # _response_transaction = yield create_response_transaction(values, response)
-            # initial_verification_outcome = yield process_response(response)
-            # result  = yield build_and_publish_event(params[:correlation_id], initial_verification_outcome)
+            _response_transmission = yield create_response_transmission(values, params[:correlation_id])
+            _response_transaction = yield create_response_transaction(values, response)
+            initial_verification_outcome = yield process_response(response)
+            result = yield update_job(params[:correlation_id], initial_verification_outcome)
 
-            # Success(result)
-            # TODO: remove below line when testing entirety of close_case flow
-            Success(response)
+            Success(result)
           end
 
           protected
@@ -37,9 +34,9 @@ module Fdsh
           end
 
           def transmittable_payload(params)
-            result = ::Fdsh::Jobs::GenerateTransmittableVlpCloseCasePayload.new.call({ key: :close_case_request,
-                                                                                       title: 'Close Case Request',
-                                                                                       description: 'Request Close Case to CMS',
+            result = ::Fdsh::Jobs::GenerateTransmittableVlpCloseCasePayload.new.call({ key: :vlp_close_case_request,
+                                                                                       title: 'VLP Close Case Request',
+                                                                                       description: 'Request VLP Close Case from CMS',
                                                                                        payload: params[:payload],
                                                                                        correlation_id: params[:correlation_id],
                                                                                        started_at: DateTime.now,
@@ -66,23 +63,23 @@ module Fdsh
           end
 
           def publish_vlp_close_case_request(correlation_id, jwt)
-            Fdsh::Vlp::Rx142::CloseCase::RequestCloseCase.new.call(
+            result = Fdsh::Vlp::Rx142::CloseCase::RequestCloseCase.new.call(
               { correlation_id: correlation_id, token: jwt,
                 transmittable_objects: { transaction: @request_transaction,
                                          transmission: @request_transmission, job: @job } }
             )
-            ## The below is commented out for the purpose of testing the request portion of the close_case flow
-            # if result.success?
-            #   status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :acked, "acked from cms")
-            # else
-            #   add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
-            #              "Failed to receive response from cms due to #{result.failure}",
-            #              :publish_vlp_close_case_request)
-            #   status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission, job: @job }, :failed,
-            #                                 "Failed to receive response from cms")
-            # end
-            # return status_result if status_result.failure?
-            # result
+
+            if result.success?
+              status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :acked, "acked from cms")
+            else
+              add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
+                         "Failed to receive response from cms due to #{result.failure}",
+                         :publish_vlp_close_case_request)
+              status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission, job: @job }, :failed,
+                                            "Failed to receive response from cms")
+            end
+            return status_result if status_result.failure?
+            result
           end
 
           def create_response_transmission(values, correlation_id)
@@ -150,13 +147,11 @@ module Fdsh
             result
           end
 
-          def build_and_publish_event(correlation_id, _close_case_outcome)
-            event = event('events.fdsh.close_case_complete', attributes: payload, headers: { correlation_id: correlation_id })
-            event.publish
-            status_result = update_status({ job: @job }, :succeeded, "successfully sent response to EA")
+          def update_job(correlation_id, _close_case_outcome)
+            status_result = update_status({ job: @job }, :succeeded, "successfully handled Close Case response from CMS")
             return status_result if status_result.failure?
 
-            Success('Close Case REST XML response published successfully')
+            Success('Close Case REST XML response handled successfully')
           end
 
           def add_errors(transmittable_objects, message, error_key)
