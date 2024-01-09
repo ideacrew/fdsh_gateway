@@ -12,7 +12,7 @@ RSpec.shared_context 'family response', :shared_context => :metadata do
   end
 
   let(:insurance_agreement_year) do
-    current_date.year
+    Date.today.year
   end
 
   let(:enrollment_aasm_state) do
