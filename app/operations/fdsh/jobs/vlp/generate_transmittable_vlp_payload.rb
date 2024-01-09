@@ -89,10 +89,8 @@ module Fdsh
 
         def generate_transmittable_payload(payload)
           # result = Fdsh::Vlp::Rx142::InitialVerification::TransformPersonToXmlRequest.new.call(payload)
-          binding.irb
           
           if @result.success?
-            binding.irb
             @transaction.xml_payload = @result.value!
             @transaction.save
 

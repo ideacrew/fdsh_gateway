@@ -18,7 +18,8 @@ module Fdsh
 
           # @param [Hash] opts The options to process
           # @return [Dry::Monads::Result]
-          def call(xml_response)
+          def call(raw_xml)
+            xml_response       = yield parse_xml_response(raw_xml)
             parsed_xml         = yield process_xml(xml_response)
             # TODO: we should move all the construction into aca_entities rather than having it in FDSH
             params             = yield construct_params(parsed_xml)
@@ -31,7 +32,19 @@ module Fdsh
 
           private
 
+          def parse_xml_response(xml_string)
+            parse_result = Try do
+              Nokogiri::XML(xml_string)
+            end
+            parse_result.or do |e|
+              Failure(e)
+            end
+            return Failure(:invalid_xml) if parse_result.success? && parse_result.value!.blank?
+            parse_result
+          end
+
           def process_xml(xml_body)
+            binding.irb
             # TODO: switch this out for the new operation when ready
             result = AcaEntities::Serializers::Xml::Fdsh::Vlp::H92::InitialVerificationResponse.parse(xml_body, :single => true)
             Success(result)
