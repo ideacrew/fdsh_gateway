@@ -31,6 +31,7 @@ module Fdsh
 
         def create_job(values)
           result = Fdsh::Jobs::FindOrCreateJob.new.call(values)
+          binding.irb
 
           if result.success?
             @job = result.value!
@@ -43,7 +44,7 @@ module Fdsh
 
         def create_transmission(values)
           result = Fdsh::Jobs::CreateTransmission.new.call(values.merge({ job: @job, event: 'initial', state_key: :initial }))
-
+          binding.irb
           return result if result.success?
           add_errors({ job: @job }, "Failed to create transmission due to #{result.failure}", :create_request_transmission)
           status_result = update_status({ job: @job }, :failed, result.failure)
@@ -80,6 +81,7 @@ module Fdsh
                                                                         subject: subject,
                                                                         event: 'initial',
                                                                         state_key: :initial }))
+                                                                      binding.irb
           return result if result.success?
           add_errors({ job: @job, transmission: @transmission }, "Failed to create transaction due to #{result.failure}", :create_transaction)
           status_result = update_status({ job: @job, transmission: @transmission }, :failed, result.failure)

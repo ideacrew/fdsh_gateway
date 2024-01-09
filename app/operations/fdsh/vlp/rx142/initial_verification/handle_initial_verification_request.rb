@@ -12,7 +12,6 @@ module Fdsh
           # @return [Dry::Monads::Result]
           def call(params)
             validate_params = yield validate_params(params)
-            binding.irb
             values = yield transmittable_payload(validate_params)
             jwt = yield generate_jwt(values)
             response = yield publish_vlp_request(params[:correlation_id], jwt)
@@ -32,7 +31,6 @@ module Fdsh
           def validate_params(params)
             return Failure('Cannot process VLP request without correlation id') unless params[:correlation_id].is_a?(String)
             return Failure('Cannot process VLP request without payload') if params[:payload].blank?
-            binding.irb
 
             Success(params)
           end
