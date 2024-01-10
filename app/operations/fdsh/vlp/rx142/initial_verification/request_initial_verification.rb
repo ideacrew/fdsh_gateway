@@ -46,7 +46,6 @@ module Fdsh
                                              partnerid: ENV.fetch('CMS_PARTNER_ID', nil) })
             result = update_status(params[:transmittable_objects])
             return Failure("Could not publish payload #{result.failure}") if result.failure?
-            binding.irb
 
             Success(::Publishers::Fdsh::Vlp::VerifyVlpServiceRestPublisher.publish(event))
           end
