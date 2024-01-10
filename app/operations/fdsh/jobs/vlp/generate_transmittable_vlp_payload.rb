@@ -31,7 +31,6 @@ module Fdsh
 
         def create_job(values)
           result = Fdsh::Jobs::FindOrCreateJob.new.call(values)
-          binding.irb
 
           if result.success?
             @job = result.value!
@@ -44,7 +43,7 @@ module Fdsh
 
         def create_transmission(values)
           result = Fdsh::Jobs::CreateTransmission.new.call(values.merge({ job: @job, event: 'initial', state_key: :initial }))
-          binding.irb
+
           return result if result.success?
           add_errors({ job: @job }, "Failed to create transmission due to #{result.failure}", :create_request_transmission)
           status_result = update_status({ job: @job }, :failed, result.failure)
@@ -81,7 +80,7 @@ module Fdsh
                                                                         subject: subject,
                                                                         event: 'initial',
                                                                         state_key: :initial }))
-                                                                      binding.irb
+
           return result if result.success?
           add_errors({ job: @job, transmission: @transmission }, "Failed to create transaction due to #{result.failure}", :create_transaction)
           status_result = update_status({ job: @job, transmission: @transmission }, :failed, result.failure)
@@ -90,8 +89,6 @@ module Fdsh
         end
 
         def generate_transmittable_payload(payload)
-          # result = Fdsh::Vlp::Rx142::InitialVerification::TransformPersonToXmlRequest.new.call(payload)
-          
           if @result.success?
             @transaction.xml_payload = @result.value!
             @transaction.save
@@ -105,7 +102,6 @@ module Fdsh
             return status_result if status_result.failure?
             @result
           else
-            binding.irb
             add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
                       "Unable to transform payload",
                       :generate_transmittable_payload)

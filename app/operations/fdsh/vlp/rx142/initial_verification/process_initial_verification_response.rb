@@ -12,18 +12,12 @@ module Fdsh
           include Dry::Monads[:result, :do, :try]
           include AcaEntities::AppHelper
 
-          XMLNS = {
-            soap: "http://www.w3.org/2003/05/soap-envelope"
-          }.freeze
-
           # @param [Hash] opts The options to process
           # @return [Dry::Monads::Result]
           def call(raw_xml)
-            xml_response       = yield parse_xml_response(raw_xml)
+            xml_response       = yield parse_xml_response(raw_xml.body)
             parsed_xml         = yield process_xml(xml_response)
-            # TODO: we should move all the construction into aca_entities rather than having it in FDSH
             params             = yield construct_params(parsed_xml)
-            # TODO: we should move all the validation into aca_entities rather than having it in FDSH
             valid_response     = yield validate_initial_response(params)
             primary_response   = yield create_primary_response(valid_response)
 
@@ -44,18 +38,15 @@ module Fdsh
           end
 
           def process_xml(xml_body)
-            binding.irb
-            # TODO: switch this out for the new operation when ready
             result = AcaEntities::Serializers::Xml::Fdsh::Vlp::H92::InitialVerificationResponse.parse(xml_body, :single => true)
             Success(result)
           end
 
-          # we should move all the construction into aca_entities rather than having it in FDSH
           def construct_params(parsed_xml)
             result_hash = {
               ResponseMetadata: construct_response_metadata(parsed_xml&.ResponseMetadata),
               InitialVerificationResponseSet: get_individual_verification_response_set(parsed_xml.InitialVerificationResponseSet)
-            }
+            }.compact
 
             Success(result_hash)
           end
@@ -68,7 +59,7 @@ module Fdsh
                   ArrayOfErrorResponseMetadata: construct_error_response_metadata(individual_response.ArrayOfErrorResponseMetadata),
                   LawfulPresenceVerifiedCode: individual_response.LawfulPresenceVerifiedCode,
                   InitialVerificationIndividualResponseSet: get_individual_response_set(individual_response.InitialVerificationIndividualResponseSet)
-                }
+                }.compact
               end
             }
           end
@@ -104,7 +95,7 @@ module Fdsh
               QualifiedNonCitizenCode: individual_response_set&.QualifiedNonCitizenCode,
               FiveYearBarMetCode: individual_response_set&.FiveYearBarMetCode,
               USCitizenCode: individual_response_set&.USCitizenCode
-            }
+            }.compact
           end
           # rubocop:enable Metrics/MethodLength
 
@@ -124,7 +115,7 @@ module Fdsh
                 SSN: sponsorship_data.SSN,
                 CountryCode: sponsorship_data.CountryCode,
                 CountryName: sponsorship_data.CountryName
-              }
+              }.compact
             end
           end
 
@@ -133,24 +124,23 @@ module Fdsh
               ResponseCode: metadata&.ResponseCode,
               ResponseDescriptionText: metadata&.ResponseDescriptionText,
               TDSResponseDescriptionText: metadata&.TDSResponseDescriptionText
-            }
+            }.compact
           end
 
           def construct_error_response_metadata(error_metadata_array)
             return nil unless error_metadata_array
 
-            error_metadata_array.ErrorResponseMetadatas.collect do |error_metadata|
+            error_metadata_array.ErrorResponseMetadata.collect do |error_metadata|
               {
                 ErrorResponseCode: error_metadata&.ErrorResponseCode,
                 ErrorResponseDescriptionText: error_metadata&.ErrorResponseDescriptionText,
                 ErrorTDSResponseDescriptionText: error_metadata&.ErrorTDSResponseDescriptionText
-              }
+              }.compact
             end
           end
 
           # Validate input object
           def validate_initial_response(payload)
-            # TODO: switch this out to use the new operation when ready
             result = ::AcaEntities::Fdsh::Vlp::H92::InitialVerificationResponseContract.new.call(payload)
 
             if result.success?
@@ -161,7 +151,6 @@ module Fdsh
           end
 
           def create_primary_response(value)
-            # TODO: switch this out to use the new operation when ready
             Success(::AcaEntities::Fdsh::Vlp::H92::InitialVerificationResponse.new(value.to_h))
           end
         end

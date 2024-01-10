@@ -36,14 +36,13 @@ module Fdsh
           end
 
           def transmittable_payload(params)
-            result = ::Fdsh::Jobs::Vlp::GenerateTransmittableVlpPayload.new.call({ key: :vlp_verification_request,
-                                                                              title: 'VLP Verification Request',
-                                                                              description: 'Request for VLP verification to CMS',
-                                                                              payload: params[:payload],
-                                                                              correlation_id: params[:correlation_id],
-                                                                              started_at: DateTime.now,
-                                                                              publish_on: DateTime.now })
-            binding.irb
+            result = ::Fdsh::Jobs::Vlp::GenerateTransmittableInitialVerificationPayload.new.call({ key: :vlp_verification_request,
+                                                                                                    title: 'VLP Verification Request',
+                                                                                                    description: 'Request for VLP verification to CMS',
+                                                                                                    payload: params[:payload],
+                                                                                                    correlation_id: params[:correlation_id],
+                                                                                                    started_at: DateTime.now,
+                                                                                                    publish_on: DateTime.now })
 
             result.success? ? Success(result.value!) : result
           end
@@ -66,7 +65,7 @@ module Fdsh
           end
 
           def publish_vlp_request(correlation_id, jwt)
-            result = Fdsh::Vlp::Rx142::InitialVerification::RequestVlpVerification.new.call(
+            result = Fdsh::Vlp::Rx142::InitialVerification::RequestInitialVerification.new.call(
               { correlation_id: correlation_id, token: jwt,
                 transmittable_objects: { transaction: @request_transaction,
                                          transmission: @request_transmission, job: @job } }

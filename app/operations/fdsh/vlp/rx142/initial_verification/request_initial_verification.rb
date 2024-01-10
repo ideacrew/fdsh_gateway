@@ -5,7 +5,7 @@ module Fdsh
     module Rx142
       module InitialVerification
         # This class takes a json representing a person as input and invokes SSA.
-        class RequestVlpVerification
+        class RequestInitialVerification
           include Dry::Monads[:result, :do, :try]
           include EventSource::Command
 
@@ -46,9 +46,9 @@ module Fdsh
                                              partnerid: ENV.fetch('CMS_PARTNER_ID', nil) })
             result = update_status(params[:transmittable_objects])
             return Failure("Could not publish payload #{result.failure}") if result.failure?
+            binding.irb
 
-            # change this to a new publisher for REST XML
-            Success(::Publishers::Fdsh::VerifySsaCompositeServiceRestPublisher.publish(event))
+            Success(::Publishers::Fdsh::Vlp::VerifyVlpServiceRestPublisher.publish(event))
           end
 
           def update_status(transmittable_hash)

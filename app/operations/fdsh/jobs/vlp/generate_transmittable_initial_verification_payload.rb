@@ -8,9 +8,7 @@ module Fdsh
         include Dry::Monads[:result, :do, :try]
 
         def generate_transmittable_payload(payload)
-          binding.irb
           @result = Fdsh::Vlp::Rx142::InitialVerification::TransformPersonToXmlRequest.new.call(payload)
-          binding.irb
           super
         end
       end

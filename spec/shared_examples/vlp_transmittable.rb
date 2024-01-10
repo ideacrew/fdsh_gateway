@@ -5,6 +5,12 @@ require 'shared_examples/person_cv3'
 RSpec.shared_context 'vlp transmittable job transmission transaction', shared_context: :metadata do
   include_context "person hash for cv3"
   let(:payload) { person_params.to_json }
+  let(:correlation_id) { "SOME GENERATED CORRELATION ID" }
+  let(:file) do
+    loc = File.join(Rails.root, "spec", "reference", "xml", "vlp", "initial_verification", "InitialVerificationResponse.xml")
+    File.expand_path(loc)
+  end
+  let(:xml_content) { File.open(file) }
 
   let!(:job) do
     job = FactoryBot.create(:transmittable_job, key: :vlp_verification_request, started_at: DateTime.now)
@@ -30,7 +36,7 @@ RSpec.shared_context 'vlp transmittable job transmission transaction', shared_co
                                  dob: "2020-01-01")
   end
   let!(:transaction) do
-    transaction = person_subject.transactions.create(key: :vlp_verification_request, started_at: DateTime.now, xml_payload: "A REQUEST PAYLOAD")
+    transaction = person_subject.transactions.create(key: :vlp_verification_request, started_at: DateTime.now, xml_payload: xml_content)
     transaction.process_status = FactoryBot.create(:transmittable_process_status, statusable: transaction)
     transaction.process_status.process_states << FactoryBot.create(:transmittable_process_state, process_status: transaction.process_status)
     transaction.save
