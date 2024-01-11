@@ -132,6 +132,15 @@ module Fdsh
         end
 
         def update_response_transmission(ridp_response)
+          unless json?(ridp_response.env&.response_body)
+            error_message = "Could not update response transmission as response was not json"
+            add_errors({ transaction: @response_transaction, transmission: @response_transmission, job: @job },
+                       error_message,
+                       :update_response_transmission)
+            update_status({ transaction: @response_transaction, transmission: @response_transmission, job: @job }, :failed,
+                          error_message)
+            return Failure(error_message)
+          end
           parsed_payload = JSON.parse(ridp_response.env.response_body)
           @response_transaction.json_payload = parsed_payload
           @final_decision = parsed_payload.dig("ridpResponse", "finalDecisionCode")
@@ -140,6 +149,12 @@ module Fdsh
             @job.title = "RIDP Primary Request for #{parsed_payload['ridpResponse']['sessionIdentification']}"
           end
           @response_transaction.save
+        end
+
+        def json?(response)
+          !JSON.parse(response).nil?
+        rescue StandardError
+          false
         end
 
         def transform_response
