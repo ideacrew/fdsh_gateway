@@ -68,7 +68,7 @@ module Fdsh
 
             return Success(person) if person.persisted?
             add_errors({ job: @job, transmission: @transmission }, "Unable to save person subject due to #{person.errors&.full_messages}",
-                      :create_person_subject)
+                       :create_person_subject)
             status_result = update_status({ job: @job, transmission: @transmission }, :failed, "Unable to save person subject")
             return status_result if status_result.failure?
             Failure("Unable to save person subject")
@@ -77,9 +77,9 @@ module Fdsh
 
         def create_transaction(values, subject)
           result = Fdsh::Jobs::CreateTransaction.new.call(values.merge({ transmission: @transmission,
-                                                                        subject: subject,
-                                                                        event: 'initial',
-                                                                        state_key: :initial }))
+                                                                         subject: subject,
+                                                                         event: 'initial',
+                                                                         state_key: :initial }))
 
           return result if result.success?
           add_errors({ job: @job, transmission: @transmission }, "Failed to create transaction due to #{result.failure}", :create_transaction)
@@ -88,27 +88,26 @@ module Fdsh
           result
         end
 
-        def generate_transmittable_payload(payload)
+        def generate_transmittable_payload(_payload)
           if @result.success?
             @transaction.xml_payload = @result.value!
             @transaction.save
 
             return Success(@transaction) if @transaction.xml_payload
             add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
-                      "Unable to save transaction with payload",
-                      :generate_transmittable_payload)
+                       "Unable to save transaction with payload",
+                       :generate_transmittable_payload)
             status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed,
                                           "Unable to save transaction with payload")
-            return status_result if status_result.failure?
-            @result
           else
             add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
-                      "Unable to transform payload",
-                      :generate_transmittable_payload)
-            status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed, "Unable to transform payload")
-            return status_result if status_result.failure?
-            @result
+                       "Unable to transform payload",
+                       :generate_transmittable_payload)
+            status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed,
+                                          "Unable to transform payload")
           end
+          return status_result if status_result.failure?
+          @result
         end
 
         def transmittable
@@ -119,8 +118,8 @@ module Fdsh
                       message_id: message_id })
           else
             add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
-                      "Transaction do not consists of a payload or no message id found",
-                      :transmittable)
+                       "Transaction do not consists of a payload or no message id found",
+                       :transmittable)
             status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed,
                                           "Transaction do not consists of a payload or no message id found")
             return status_result if status_result.failure?

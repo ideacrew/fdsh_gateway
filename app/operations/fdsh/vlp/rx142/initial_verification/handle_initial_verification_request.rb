@@ -37,12 +37,12 @@ module Fdsh
 
           def transmittable_payload(params)
             result = ::Fdsh::Jobs::Vlp::GenerateTransmittableInitialVerificationPayload.new.call({ key: :vlp_verification_request,
-                                                                                                    title: 'VLP Verification Request',
-                                                                                                    description: 'Request for VLP verification to CMS',
-                                                                                                    payload: params[:payload],
-                                                                                                    correlation_id: params[:correlation_id],
-                                                                                                    started_at: DateTime.now,
-                                                                                                    publish_on: DateTime.now })
+                                                                                                   title: 'VLP Verification Request',
+                                                                                                   description: 'Request for VLP verification to CMS',
+                                                                                                   payload: params[:payload],
+                                                                                                   correlation_id: params[:correlation_id],
+                                                                                                   started_at: DateTime.now,
+                                                                                                   publish_on: DateTime.now })
 
             result.success? ? Success(result.value!) : result
           end

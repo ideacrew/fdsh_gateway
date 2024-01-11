@@ -43,13 +43,13 @@ RSpec.describe Fdsh::Vlp::Rx142::InitialVerification::HandleInitialVerificationR
                                                                                            job: job }
                                                                 }).and_return(mock_vlp_response)
 
-                                                              end
+  end
 
   subject do
     described_class.new.call({
-      correlation_id: correlation_id,
-      payload: payload
-    })
+                               correlation_id: correlation_id,
+                               payload: payload
+                             })
   end
 
   it "is successful" do
