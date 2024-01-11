@@ -52,8 +52,9 @@ module Subscribers
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
           correlation_id = properties.correlation_id
-          session_id = properties.session_id
-          transmission_id = properties.transmission_id
+          session_id = properties[:headers]['session_id']
+          transmission_id = properties[:headers]['transmission_id']
+          primary_payload_format = properties[:headers]['payload_format']
 
           determination_result = if primary_payload_format == 'json'
                                    ::Fdsh::Ridp::Rj139::HandleSecondaryDeterminationRequest.new.call({
