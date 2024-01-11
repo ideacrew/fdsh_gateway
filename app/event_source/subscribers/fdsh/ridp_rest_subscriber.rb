@@ -8,12 +8,12 @@ module Subscribers
 
       subscribe(:on_RIDPCrossCoreService) do |body, status, _headers|
         if status.to_s == "200"
-          logger.info "Subscribers::Fdsh::RidpServiceSubscribe: on_RIDPService OK #{status}, #{body}"
+          logger.info "Subscribers::Fdsh::RidpRestSubscriber: on_RIDPCrossCoreService OK #{status}, #{body}"
         else
-          logger.error "Subscribers::Fdsh::RidpServiceSubscribe: on_RIDPService error #{status}, #{body}"
+          logger.error "Subscribers::Fdsh::RidpRestSubscriber: on_RIDPCrossCoreService error #{status}, #{body}"
         end
       rescue StandardError => e
-        logger.error "Subscribers::Fdsh::RidpServiceSubscribe: on_RIDPService error backtrace: #{e.inspect}, #{e.backtrace}"
+        logger.error "Subscribers::Fdsh::RidpRestSubscriber: on_RIDPCrossCoreService error backtrace: #{e.inspect}, #{e.backtrace}"
       end
     end
   end
