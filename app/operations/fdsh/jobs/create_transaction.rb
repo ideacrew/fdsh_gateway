@@ -37,7 +37,7 @@ module Fdsh
                   started_at: values[:started_at],
                   ended_at: values[:ended_at],
                   transmittable_errors: [],
-                  json_payload: nil
+                  json_payload: values[:json_payload]
                 })
       end
 
