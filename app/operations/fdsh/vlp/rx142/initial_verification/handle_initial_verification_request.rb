@@ -15,8 +15,7 @@ module Fdsh
             values = yield transmittable_payload(validate_params)
             jwt = yield generate_jwt(values)
             response = yield publish_vlp_request(params[:correlation_id], jwt)
-            # do we need to do anything with a rest envelop etc?
-            # initial_verification_result = yield ::Soap::RemoveSoapEnvelope.new.call(response.body)
+
             _response_transmission = yield create_response_transmission(values, params[:correlation_id])
             _response_transaction = yield create_response_transaction(values, response)
             initial_verification_outcome = yield process_response(response)
