@@ -34,6 +34,7 @@ module Transmittable
     field :description, type: String
     field :ended_at, type: DateTime
     field :json_payload, type: Hash
+    field :xml_payload, type: String
 
     # Scopes
     scope :blocked,          -> { where(status: :blocked) }
@@ -87,6 +88,13 @@ module Transmittable
       return [] unless errors
 
       transmittable_errors&.map {|error| "#{error.key}: #{error.message}"}&.join(";")
+    end
+
+    def formatted_xml_payload
+      return false unless xml_payload
+      doc = Nokogiri::XML(xml_payload)
+      return if doc.errors
+      doc&.to_xhtml(indent: 2)
     end
   end
 end
