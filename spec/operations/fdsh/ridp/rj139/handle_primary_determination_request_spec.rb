@@ -12,7 +12,7 @@ RSpec.describe Fdsh::Ridp::Rj139::HandlePrimaryDeterminationRequest, dbclean: :a
   let(:mock_transmittable_payload_response) { Dry::Monads::Result::Success.call(transmittable_hash) }
   let(:mock_jwt_request) { instance_double(Jwt::GetJwt) }
   let(:mock_jwt_response) { Dry::Monads::Result::Success.call("3487583567384567384568") }
-  let(:mock_primary_request_verification) { instance_double(Fdsh::Ridp::Rj139::RequestRidpPrimaryVerification) }
+  let(:mock_primary_request_verification) { instance_double(Fdsh::Ridp::Rj139::RequestRidpVerification) }
   let(:mock_primary_response) do
     Dry::Monads::Result::Success.call(Faraday::Response.new(status: 200, response_body: mock_primary_response_body.to_json))
   end
@@ -115,7 +115,7 @@ RSpec.describe Fdsh::Ridp::Rj139::HandlePrimaryDeterminationRequest, dbclean: :a
   before :each do
     allow(Fdsh::Jobs::GenerateTransmittableRidpPrimaryPayload).to receive(:new).and_return(mock_transmittable_payload_request)
     allow(mock_transmittable_payload_request).to receive(:call).with({
-                                                                       key: :ridp_primary_verification_request,
+                                                                       key: :ridp_verification_request,
                                                                        title: 'RIDP Primary Request',
                                                                        description: 'RIDP primary verification request to CMS',
                                                                        payload: payload,
@@ -125,7 +125,7 @@ RSpec.describe Fdsh::Ridp::Rj139::HandlePrimaryDeterminationRequest, dbclean: :a
                                                                      }).and_return(mock_transmittable_payload_response)
     allow(Jwt::GetJwt).to receive(:new).and_return(mock_jwt_request)
     allow(mock_jwt_request).to receive(:call).with({}).and_return(mock_jwt_response)
-    allow(Fdsh::Ridp::Rj139::RequestRidpPrimaryVerification).to receive(:new).and_return(mock_primary_request_verification)
+    allow(Fdsh::Ridp::Rj139::RequestRidpVerification).to receive(:new).and_return(mock_primary_request_verification)
     allow(mock_primary_request_verification).to receive(:call).with({
                                                                       correlation_id: correlation_id,
                                                                       token: "3487583567384567384568",
@@ -158,7 +158,7 @@ RSpec.describe Fdsh::Ridp::Rj139::HandlePrimaryDeterminationRequest, dbclean: :a
     before do
       mock_primary_response_body[:ridpResponse].delete(:finalDecisionCode)
       mock_primary_response = Dry::Monads::Result::Success.call(Faraday::Response.new(status: 200, response_body: mock_primary_response_body.to_json))
-      allow(Fdsh::Ridp::Rj139::RequestRidpPrimaryVerification).to receive(:new).and_return(mock_primary_request_verification)
+      allow(Fdsh::Ridp::Rj139::RequestRidpVerification).to receive(:new).and_return(mock_primary_request_verification)
       allow(mock_primary_request_verification).to receive(:call).with({
                                                                         correlation_id: correlation_id,
                                                                         token: "3487583567384567384568",

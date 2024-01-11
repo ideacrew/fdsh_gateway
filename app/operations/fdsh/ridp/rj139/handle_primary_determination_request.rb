@@ -14,7 +14,6 @@ module Fdsh
           values = yield transmittable_payload(validate_params)
           jwt = yield generate_jwt(values)
           ridp_response = yield publish_ridp_primary_request(params[:correlation_id], jwt)
-          ridp_response = yield verify_response(ridp_response)
           _response_transmission = yield create_response_transmission(values, params[:correlation_id])
           _response_transaction = yield create_response_transaction(values, ridp_response)
           transformed_response = yield transform_response
@@ -33,7 +32,7 @@ module Fdsh
         end
 
         def transmittable_payload(params)
-          result = ::Fdsh::Jobs::GenerateTransmittableRidpPrimaryPayload.new.call({ key: :ridp_primary_verification_request,
+          result = ::Fdsh::Jobs::GenerateTransmittableRidpPrimaryPayload.new.call({ key: :ridp_verification_request,
                                                                                     title: 'RIDP Primary Request',
                                                                                     description: 'RIDP primary verification request to CMS',
                                                                                     payload: params[:payload],
@@ -69,7 +68,8 @@ module Fdsh
                                                                            job: @job
                                                                          } })
           if result.success?
-            status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :acked, "acked from cms")
+            status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :succeeded,
+                                          "received response from cms")
             return status_result if status_result.failure?
             Success(result.value!)
           else
@@ -80,23 +80,6 @@ module Fdsh
                                           "Failed to receive response from cms")
             return status_result if status_result.failure?
             result
-          end
-        end
-
-        def verify_response(ridp_response)
-          if ridp_response.status == 200
-            status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :succeeded,
-                                          "Successfully recieved response from cms")
-            return status_result if status_result.failure?
-            Success(ridp_response)
-          else
-            add_errors({ transaction: @request_transaction, transmission: @request_transmission, job: @job },
-                       "Did not recieve a success response from cms, received status code #{ridp_response.status}",
-                       :verify_response)
-            status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission, job: @job }, :failed,
-                                          "Did not recieve a success response from cms")
-            return status_result if status_result.failure?
-            Failure(ridp_response)
           end
         end
 
@@ -191,16 +174,21 @@ module Fdsh
 
         def publish(event)
           event.publish
-          # I actually think we may need to create a new transmission/transaction going back to enroll,
-          # which is what we'll look for when we get the secondary response.
-          # we also might need to put in some time logic here as there is a time limit!
+          elapsed = check_elapsed_time
           status_result = if @final_decision
                             update_status({ job: @job }, :succeeded, "successfully sent response to EA")
+                          elsif elapsed
+                            update_status({ job: @job }, :expired, "primary response took 20 seconds or more")
                           else
                             update_status({ job: @job }, :transmitted, "transmitted response to EA, expecting response")
                           end
           return status_result if status_result.failure?
           Success('RIDP primary verificattion response published successfully')
+        end
+
+        def check_elapsed_time
+          time = Time.now
+          time - @job.created_at > 19.seconds
         end
       end
     end
