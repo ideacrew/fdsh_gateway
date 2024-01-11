@@ -29,7 +29,7 @@ module Fdsh
 
       def find_job(values)
         @job = Transmittable::Job.where(title: "RIDP Primary Request for #{values[:session_id]}")&.last
-        return Success(@job) if @job 
+        return Success(@job) if @job
 
         result = Fdsh::Jobs::FindOrCreateJob.new.call(values)
 
