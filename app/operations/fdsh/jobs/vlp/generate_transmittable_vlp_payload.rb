@@ -13,7 +13,7 @@ module Fdsh
           @transmission = yield create_transmission(values)
           person_subject = yield create_person_subject(values)
           @transaction = yield create_transaction(values, person_subject)
-          @transaction = yield generate_transmittable_payload(values[:payload])
+          @transaction = yield generate_transmittable_payload(values)
           transmittable
         end
 
@@ -88,8 +88,10 @@ module Fdsh
         end
 
         def generate_transmittable_payload(_payload)
-          if @result.success?
-            @transaction.xml_payload = @result.value!
+          # the @transformed_payload variable can either be passed from the
+          # GenerateTransmittableInitialVerificationPayload or GenerateTransmittableCloseCasePayload child classes
+          if @transformed_payload.success?
+            @transaction.xml_payload = @transformed_payload.value!
             @transaction.save
 
             return Success(@transaction) if @transaction.xml_payload
@@ -106,7 +108,7 @@ module Fdsh
                                           "Unable to transform payload")
           end
           return status_result if status_result.failure?
-          @result
+          @transformed_payload
         end
 
         def transmittable

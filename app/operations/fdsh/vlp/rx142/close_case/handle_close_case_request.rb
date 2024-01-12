@@ -35,14 +35,14 @@ module Fdsh
           end
 
           def transmittable_payload(params)
-            result = ::Fdsh::Jobs::GenerateTransmittableVlpCloseCasePayload.new.call({ key: :vlp_close_case_request,
-                                                                                       title: 'VLP Close Case Request',
-                                                                                       description: 'Request VLP Close Case from CMS',
-                                                                                       payload: params[:payload],
-                                                                                       correlation_id: params[:correlation_id],
-                                                                                       case_number: params[:case_number],
-                                                                                       started_at: DateTime.now,
-                                                                                       publish_on: DateTime.now })
+            result = ::Fdsh::Jobs::Vlp::GenerateTransmittableCloseCasePayload.new.call({ key: :vlp_close_case_request,
+                                                                                         title: 'VLP Close Case Request',
+                                                                                         description: 'Request VLP Close Case from CMS',
+                                                                                         payload: params[:payload],
+                                                                                         correlation_id: params[:correlation_id],
+                                                                                         case_number: params[:case_number],
+                                                                                         started_at: DateTime.now,
+                                                                                         publish_on: DateTime.now })
 
             result.success? ? Success(result.value!) : result
           end
