@@ -105,7 +105,8 @@ RSpec.shared_context 'family cv3 with secondary ridp attestation', shared_contex
                                             VerificationQuestionNumber: 3,
                                             VerificatonAnswer: 2
                                           }]
-                  }
+                  },
+                  DSHReferenceNumber: 'test'
                 }
               }] }
             }
