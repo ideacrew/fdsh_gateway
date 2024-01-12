@@ -15,8 +15,6 @@ module Subscribers
           correlation_id = properties.correlation_id
           payload_type = properties.payload_type
 
-          # need to add feature switch, checking for a payload type of rest_xml
-          # if it is rest xml go to the new handleverificationrequest
           verification_result = if payload_type == "rest_xml"
                                   Fdsh::Vlp::Rx142::InitialVerification::HandleInitialVerificationRequest.new.call({ payload: payload,
                                                                                                                      correlation_id: correlation_id })
