@@ -5,7 +5,7 @@ module Subscribers
     module Vlp
       # Publish events for FDSH VLP close case requests
       class CloseCaseRequestedSubscriber
-        include ::EventSource::Subscriber[amqp: 'fdsh.close_case_request']
+        include ::EventSource::Subscriber[amqp: 'fdsh.close_case_requests']
         subscribe(:on_close_case_requested) do |delivery_info, properties, payload|
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"

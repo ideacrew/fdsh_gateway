@@ -9,9 +9,12 @@ RSpec.describe Fdsh::Vlp::Rx142::CloseCase::HandleCloseCaseRequest do
   include_context 'person hash for cv3'
   include_context 'vlp close case transmittable job transmission transaction'
 
+  WebMock.allow_net_connect!
+
   let(:correlation_id) { 'a7619992755141bea940230b3a0a97d4' }
-  let(:case_number) { 'jas15he4k1Du1HD' }
-  let(:payload) { person_params }
+  # let(:case_number) { '0000000000000AA' }
+  let(:case_number) { '0024012180322QQ' }
+  let(:payload) { person_params.to_json }
   let(:file) do
     loc = File.join(Rails.root, "spec", "reference", "xml", "vlp", "VLPCloseCaseResponse.xml")
     File.expand_path(loc)
@@ -29,25 +32,25 @@ RSpec.describe Fdsh::Vlp::Rx142::CloseCase::HandleCloseCaseRequest do
   end
 
   before do
-    allow(::Fdsh::Jobs::GenerateTransmittableVlpCloseCasePayload).to receive(:new).and_return(mock_transmittable_payload_request)
-    allow(mock_transmittable_payload_request).to receive(:call).with({
-                                                                       key: :vlp_close_case_request,
-                                                                       title: 'VLP Close Case Request',
-                                                                       description: 'Request VLP Close Case from CMS',
-                                                                       payload: payload,
-                                                                       correlation_id: correlation_id,
-                                                                       started_at: DateTime.now,
-                                                                       publish_on: DateTime.now
-                                                                     }).and_return(mock_transmittable_payload_response)
-    allow(Jwt::GetJwt).to receive(:new).and_return(mock_jwt_request)
-    allow(mock_jwt_request).to receive(:call).with({}).and_return(mock_jwt_response)
-    allow(Fdsh::Vlp::Rx142::CloseCase::RequestCloseCase).to receive(:new).and_return(mock_vlp_request_close_case)
-    allow(mock_vlp_request_close_case).to receive(:call).with({
-                                                                correlation_id: correlation_id,
-                                                                token: "3487583567384567384568",
-                                                                transmittable_objects: { transaction: transaction, transmission: transmission,
-                                                                                         job: job }
-                                                              }).and_return(mock_close_case_response)
+    # allow(::Fdsh::Jobs::GenerateTransmittableVlpCloseCasePayload).to receive(:new).and_return(mock_transmittable_payload_request)
+    # allow(mock_transmittable_payload_request).to receive(:call).with({
+    #                                                                    key: :vlp_close_case_request,
+    #                                                                    title: 'VLP Close Case Request',
+    #                                                                    description: 'Request VLP Close Case from CMS',
+    #                                                                    payload: payload,
+    #                                                                    correlation_id: correlation_id,
+    #                                                                    started_at: DateTime.now,
+    #                                                                    publish_on: DateTime.now
+    #                                                                  }).and_return(mock_transmittable_payload_response)
+    # allow(Jwt::GetJwt).to receive(:new).and_return(mock_jwt_request)
+    # allow(mock_jwt_request).to receive(:call).with({}).and_return(mock_jwt_response)
+    # allow(Fdsh::Vlp::Rx142::CloseCase::RequestCloseCase).to receive(:new).and_return(mock_vlp_request_close_case)
+    # allow(mock_vlp_request_close_case).to receive(:call).with({
+    #                                                             correlation_id: correlation_id,
+    #                                                             token: "3487583567384567384568",
+    #                                                             transmittable_objects: { transaction: transaction, transmission: transmission,
+    #                                                                                      job: job }
+    #                                                           }).and_return(mock_close_case_response)
   end
 
   subject do

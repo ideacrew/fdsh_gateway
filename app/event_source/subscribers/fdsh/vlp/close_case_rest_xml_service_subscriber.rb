@@ -5,7 +5,7 @@ module Subscribers
     module Vlp
       # Receive response from FDSH requests
       class CloseCaseRestXmlServiceSubscriber
-        include ::EventSource::Subscriber[http: '/CloseCaseServiceV37Rest']
+        include ::EventSource::Subscriber[http: '/CloseCaseServiceV37.1Rest']
 
         subscribe(:on_CloseCaseServiceV37Rest) do |body, status, _headers|
           if status.to_s == "200"
