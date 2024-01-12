@@ -59,7 +59,6 @@ module Fdsh
           else
             person_hash = JSON.parse(values[:payload], symbolize_names: true)
             person = ::Transmittable::Person.create(hbx_id: person_hash[:hbx_id],
-                                                    # correlation_id: values[:correlation_id],
                                                     encrypted_ssn: person_hash[:person_demographics][:encrypted_ssn],
                                                     surname: person_hash[:person_name][:last_name],
                                                     given_name: person_hash[:person_name][:first_name],
