@@ -1,17 +1,12 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'open3'
-require "#{Rails.root}/spec/shared_examples/vlp_close_case_transmittable"
-require "#{Rails.root}/spec/shared_examples/person_cv3"
+require 'shared_examples/vlp_transmittable'
 
 RSpec.describe Fdsh::Vlp::Rx142::CloseCase::HandleCloseCaseRequest do
-  include_context 'person hash for cv3'
-  include_context 'vlp close case transmittable job transmission transaction'
+  include_context 'vlp transmittable job transmission transaction'
 
-  let(:correlation_id) { 'a7619992755141bea940230b3a0a97d4' }
   let(:case_number) { '0024012180322QQ' }
-  let(:payload) { person_params.to_json }
   let(:file) do
     loc = File.join(Rails.root, "spec", "reference", "xml", "vlp", "VLPCloseCaseResponse.xml")
     File.expand_path(loc)

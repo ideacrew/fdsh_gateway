@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pry'
 require 'shared_examples/vlp_transmittable'
 
 RSpec.describe Fdsh::Vlp::Rx142::InitialVerification::HandleInitialVerificationRequest, "given:
