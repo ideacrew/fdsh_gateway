@@ -26,7 +26,6 @@ module Fdsh
       private
 
       def validate(params)
-        # binding.irb
         return Failure('transactions collection required') unless params[:transactions]
         return Failure('outbound folder name missing') unless params[:outbound_folder_name]
         return Failure('transmission_builder missing') unless params[:transmission_builder]
