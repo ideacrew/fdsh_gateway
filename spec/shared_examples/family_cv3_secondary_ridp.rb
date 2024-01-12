@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_context 'family response with one policy', shared_context: :metadata do
+RSpec.shared_context 'family cv3 with secondary ridp attestation', shared_context: :metadata do
   let(:verification_types) do
     [
       {
@@ -84,7 +84,34 @@ RSpec.shared_context 'family response with one policy', shared_context: :metadat
         is_disabled: false,
         addresses: [{ kind: 'mailing', address_1: '742 Washington Ave, 1', state: 'ME', city: city, zip: '67662' }],
         phones: [],
-        verification_types: verification_types
+        verification_types: verification_types,
+        user: {
+          attestations: [
+            attestations: {
+              ridp_attestation: { evidences: [{
+                secondary_request:
+                {
+                  SessionIdentification: "347567asghfjgshfg",
+                  VerificationAnswerSet: {
+                    VerificationAnswers: [{
+                      VerificationQuestionNumber: 1,
+                      VerificatonAnswer: 1
+                    },
+                                          {
+                                            VerificationQuestionNumber: 2,
+                                            VerificatonAnswer: 1
+                                          },
+                                          {
+                                            VerificationQuestionNumber: 3,
+                                            VerificatonAnswer: 2
+                                          }]
+                  },
+                  DSHReferenceNumber: 'test'
+                }
+              }] }
+            }
+          ]
+        }
       }
     }
   end
