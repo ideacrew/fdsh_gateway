@@ -65,13 +65,11 @@ module Fdsh
           end
 
           def publish_vlp_close_case_request(correlation_id, jwt)
-            binding.irb
             result = Fdsh::Vlp::Rx142::CloseCase::RequestCloseCase.new.call(
               { correlation_id: correlation_id, token: jwt,
                 transmittable_objects: { transaction: @request_transaction,
                                          transmission: @request_transmission, job: @job } }
             )
-            binding.irb
 
             if result.success?
               status_result = update_status({ transaction: @request_transaction, transmission: @request_transmission }, :acked, "acked from cms")

@@ -113,7 +113,6 @@ module Fdsh
       end
 
       def transmittable
-        binding.irb
         message_id = @job.message_id
 
         if @transaction.xml_payload && message_id
