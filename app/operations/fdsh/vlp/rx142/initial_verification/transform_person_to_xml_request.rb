@@ -32,7 +32,6 @@ module Fdsh
           end
 
           def encode_xml_and_schema_validate(initial_verification_request)
-            # this one will have to be swapped when new transform is available
             AcaEntities::Serializers::Xml::Fdsh::Vlp::H92::Operations::InitialRequestToXml.new.call(initial_verification_request)
           end
 

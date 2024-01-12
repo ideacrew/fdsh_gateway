@@ -34,7 +34,6 @@ module Fdsh
 
           # Transform Person params To PrimaryRequest Contract params
           def build_request_entity(person)
-            # swap this operation when new one available in aca_entities for 37.1
             ::AcaEntities::Fdsh::Vlp::H92::Operations::PersonToInitialRequest.new.call(person)
           end
         end
