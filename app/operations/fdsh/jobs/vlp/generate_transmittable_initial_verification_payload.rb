@@ -5,10 +5,9 @@ module Fdsh
     module Vlp
       # create job operation that takes params of key (required), started_at(required), publish_on(required), payload (required)
       class GenerateTransmittableInitialVerificationPayload < GenerateTransmittableVlpPayload
-        include Dry::Monads[:result, :do, :try]
 
-        def generate_transmittable_payload(payload)
-          @result = Fdsh::Vlp::Rx142::InitialVerification::TransformPersonToXmlRequest.new.call(payload)
+        def generate_transmittable_payload(values)
+          @transformed_payload = Fdsh::Vlp::Rx142::InitialVerification::TransformPersonToXmlRequest.new.call(values[:payload])
           super
         end
       end

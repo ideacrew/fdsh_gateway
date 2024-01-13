@@ -12,7 +12,7 @@ RSpec.shared_context 'family response', :shared_context => :metadata do
   end
 
   let(:insurance_agreement_year) do
-    Date.today.year
+    current_date.year
   end
 
   let(:enrollment_aasm_state) do
@@ -341,7 +341,7 @@ RSpec.shared_context 'family response', :shared_context => :metadata do
     {
       name: "ABC plan",
       hios_plan_id: "123456",
-      plan_year: 2023,
+      plan_year: current_date.year,
       coverage_type: "health",
       metal_level: "silver",
       market_type: "individual",

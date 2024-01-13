@@ -3,7 +3,7 @@
 module Publishers
   module Fdsh
     module Vlp
-      # Publish SSA json payload for response from CMS
+      # Publish VLP json payload for response from CMS
       class VerifyVlpServiceRestPublisher
         include ::EventSource::Publisher[http: '/VerifyLawfulPresenceServiceV37.1Rest']
 

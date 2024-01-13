@@ -179,6 +179,6 @@ COPY --chown=nonroot:nonroot ./.docker/config/credentials.yml.enc $HOME/config
 COPY --chown=nonroot:nonroot ./.docker/config/master.key $HOME/config
 COPY --chown=nonroot:nonroot ./.docker/config/production.rb $HOME/config/environments
 
-USER nonroot 
+USER nonroot
 
 ENV RAILS_ENV=production

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CloseCaseResponse 
+  xmlns="http://vclpcc.ee.sim.dsh.cms.hhs.gov" 
+  xsi:schemaLocation="http://vclpcc.ee.sim.dsh.cms.hhs.gov schema.xsd" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
+  <ResponseMetadata>
+    <ResponseCode>HS000000</ResponseCode>
+    <ResponseDescriptionText>Successful.</ResponseDescriptionText>
+    <TDSResponseDescriptionText>Successful.</TDSResponseDescriptionText>
+  </ResponseMetadata>
+  <CloseCaseResponseSet>
+    <WebServSftwrVer>1.0</WebServSftwrVer>
+  </CloseCaseResponseSet>
+</CloseCaseResponse>
