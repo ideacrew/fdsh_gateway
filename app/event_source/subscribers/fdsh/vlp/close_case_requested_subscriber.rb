@@ -10,7 +10,7 @@ module Subscribers
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
           correlation_id = properties.correlation_id
-          case_number = properties.case_number
+          case_number = properties[:headers]["case_number"]
 
           verification_result = ::Fdsh::Vlp::Rx142::CloseCase::HandleCloseCaseRequest.new.call({
                                                                                                  payload: payload,

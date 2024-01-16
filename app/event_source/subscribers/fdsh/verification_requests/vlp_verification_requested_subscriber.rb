@@ -16,12 +16,11 @@ module Subscribers
           payload_type = properties[:headers]["payload_type"]
 
           verification_result = if payload_type == "rest_xml"
-                                  Fdsh::Vlp::Rx142::InitialVerification::HandleInitialVerificationRequest.new.call({ payload: payload,
-                                                                                                                     correlation_id: correlation_id })
-
+                                  ::Fdsh::Vlp::Rx142::InitialVerification::HandleInitialVerificationRequest
+                                    .new.call({ payload: payload, correlation_id: correlation_id })
                                 else
-                                  ::Fdsh::Vlp::H92::HandleInitialVerificationRequest.new.call({ payload: payload,
-                                                                                                correlation_id: correlation_id })
+                                  ::Fdsh::Vlp::H92::HandleInitialVerificationRequest
+                                    .new.call({ payload: payload, correlation_id: correlation_id })
                                 end
 
           if verification_result.success?
