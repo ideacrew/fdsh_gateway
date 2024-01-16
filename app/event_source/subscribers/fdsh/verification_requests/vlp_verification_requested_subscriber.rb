@@ -20,10 +20,8 @@ module Subscribers
                                                                                                                      correlation_id: correlation_id })
 
                                 else
-                                  ::Fdsh::Vlp::H92::HandleInitialVerificationRequest.new.call({
-                                                                                                payload: payload,
-                                                                                                correlation_id: correlation_id
-                                                                                              })
+                                  ::Fdsh::Vlp::H92::HandleInitialVerificationRequest.new.call({ payload: payload,
+                                                                                                correlation_id: correlation_id })
                                 end
 
           if verification_result.success?
@@ -35,6 +33,7 @@ module Subscribers
         rescue Exception => e
           logger.error(
             "Exception: :on_fdsh_verification_requests_vlp_initial_verification_requested\n Exception: #{e.inspect}" +
+            "request properties: #{properties}" +
             "\n Backtrace:\n" + e.backtrace.join("\n")
           )
           ack(delivery_info.delivery_tag)
