@@ -4,7 +4,7 @@ module Subscribers
   module Fdsh
     module Vlp
       # Receive response from cms requests for VLP json payload
-      class VerifyVlpCompositeServiceRestSubscriber
+      class VerifyVlpServiceRestSubscriber
         include ::EventSource::Subscriber[http: '/VerifyLawfulPresenceServiceV37.1Rest']
 
         subscribe(:'on_VerifyLawfulPresenceServiceV37.1Rest') do |body, status, _headers|
