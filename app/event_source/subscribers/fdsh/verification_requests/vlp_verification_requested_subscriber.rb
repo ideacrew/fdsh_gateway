@@ -13,7 +13,7 @@ module Subscribers
           # Sequence of steps that are executed as single operation
           # puts "triggered --> on_primary_request block -- #{delivery_info} --  #{metadata} -- #{payload}"
           correlation_id = properties.correlation_id
-          payload_type = properties.payload_type
+          payload_type = properties[:headers]["payload_type"]
 
           verification_result = if payload_type == "rest_xml"
                                   Fdsh::Vlp::Rx142::InitialVerification::HandleInitialVerificationRequest.new.call({ payload: payload,
