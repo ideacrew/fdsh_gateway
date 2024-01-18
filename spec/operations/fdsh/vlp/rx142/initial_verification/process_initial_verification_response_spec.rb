@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'open3'
 
 RSpec.describe Fdsh::Vlp::Rx142::InitialVerification::ProcessInitialVerificationResponse do
   context 'with a valid response from CMS' do
