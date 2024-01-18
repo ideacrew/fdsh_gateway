@@ -104,15 +104,28 @@
                 <vlp:GrantDate>2006-05-04</vlp:GrantDate>
                 <vlp:GrantDateReasonCd>GrantDateReasonCd1</vlp:GrantDateReasonCd>
                 <vlp:SponsorDataFoundIndicator>false</vlp:SponsorDataFoundIndicator>
-                <vlpsda:ArrayOfSponsorshipData>
-                    <vlpsda:SponsorshipData>
-                        <vlpsda:LastName>LastName2</vlpsda:LastName>
-                        <vlpsda:FirstName>FirstName2</vlpsda:FirstName>
-                    </vlpsda:SponsorshipData>
-                    <vlpsda:SponsorshipData>
-                        <vlpsda:LastName>LastName3</vlpsda:LastName>
-                        <vlpsda:FirstName>FirstName3</vlpsda:FirstName>
-                    </vlpsda:SponsorshipData>
+                <vlpsda:ArrayOfSponsorshipData xmlns="http://vlpsda.ee.sim.dsh.cms.hhs.gov" xsi:schemaLocation="http://vlpsda.ee.sim.dsh.cms.hhs.gov schema.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                  <vlpsda:SponsorshipData>
+                    <vlpsda:LastName>string</vlpsda:LastName>
+                    <vlpsda:FirstName>string</vlpsda:FirstName>
+                    <vlpsda:Addr2>string</vlpsda:Addr2>
+                    <vlpsda:City>string</vlpsda:City>
+                    <vlpsda:CountryCode>ABCD</vlpsda:CountryCode>
+                  </vlpsda:SponsorshipData>
+                  <vlpsda:SponsorshipData>
+                    <vlpsda:LastName>string</vlpsda:LastName>
+                    <vlpsda:FirstName>string</vlpsda:FirstName>
+                    <vlpsda:Addr2>string</vlpsda:Addr2>
+                    <vlpsda:City>string</vlpsda:City>
+                    <vlpsda:CountryCode>ABCD</vlpsda:CountryCode>
+                  </vlpsda:SponsorshipData>
+                  <vlpsda:SponsorshipData>
+                    <vlpsda:LastName>string</vlpsda:LastName>
+                    <vlpsda:FirstName>string</vlpsda:FirstName>
+                    <vlpsda:Addr2>string</vlpsda:Addr2>
+                    <vlpsda:City>string</vlpsda:City>
+                    <vlpsda:CountryCode>ABCD</vlpsda:CountryCode>
+                  </vlpsda:SponsorshipData>
                 </vlpsda:ArrayOfSponsorshipData>
                 <vlp:SponsorshipReasonCd>SponsorshipReasonCd1</vlp:SponsorshipReasonCd>
                 <vlp:AgencyAction>AgencyAction1</vlp:AgencyAction>

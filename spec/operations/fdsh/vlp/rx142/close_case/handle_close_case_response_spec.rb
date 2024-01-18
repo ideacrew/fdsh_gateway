@@ -8,7 +8,7 @@ RSpec.describe Fdsh::Vlp::Rx142::CloseCase::HandleCloseCaseRequest do
 
   let(:case_number) { '0024012180322QQ' }
   let(:file) do
-    loc = File.join(Rails.root, "spec", "reference", "xml", "vlp", "VLPCloseCaseResponse.xml")
+    loc = File.join(Rails.root, "spec", "reference", "xml", "vlp", "rx142", "close_case", "CloseCaseResponse.xml")
     File.expand_path(loc)
   end
   let(:xml_content) { File.open(file) }
