@@ -11,6 +11,12 @@ RSpec.describe Fdsh::Vlp::Rx142::InitialVerification::HandleInitialVerificationR
   - the response can be processed" do
   include_context "vlp transmittable job transmission transaction"
 
+  let(:file) do
+    loc = File.join(Rails.root, "spec", "reference", "xml", "vlp", "rx142", "initial_verification", "InitialVerificationResponse.xml")
+    File.expand_path(loc)
+  end
+  let(:xml_content) { File.open(file) }
+
   let!(:transmittable_hash)  { { message_id: job.message_id, transaction: transaction }}
   let(:mock_transmittable_payload_request) { instance_double(::Fdsh::Jobs::Vlp::GenerateTransmittableInitialVerificationPayload) }
   let(:mock_transmittable_payload_response) { Dry::Monads::Result::Success.call(transmittable_hash) }

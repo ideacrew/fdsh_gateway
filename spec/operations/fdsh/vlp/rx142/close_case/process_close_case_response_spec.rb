@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'open3'
 
 RSpec.describe Fdsh::Vlp::Rx142::CloseCase::ProcessCloseCaseResponse do
 
   context 'without errors' do
     let(:file) do
-      loc = File.join(Rails.root, "spec", "reference", "xml", "vlp", "VLPCloseCaseResponse.xml")
+      loc = File.join(Rails.root, "spec", "reference", "xml", "vlp", "rx142", "close_case", "CloseCaseResponse.xml")
       File.expand_path(loc)
     end
 
@@ -31,7 +30,7 @@ RSpec.describe Fdsh::Vlp::Rx142::CloseCase::ProcessCloseCaseResponse do
 
   context 'with errors' do
     let(:file) do
-      loc = File.join(Rails.root, "spec", "reference", "xml", "vlp", "VLPCloseCaseErrorResponse.xml")
+      loc = File.join(Rails.root, "spec", "reference", "xml", "vlp", "rx142", "close_case", "CloseCaseErrorResponse.xml")
       File.expand_path(loc)
     end
 

@@ -1,0 +1,12 @@
+<vlp:InitialVerificationResponse xmlns:vlp="http://vlp.ee.sim.dsh.cms.hhs.gov">
+   <vlp:InitialVerificationResponseSet>
+      <vlp:InitialVerificationIndividualResponse>
+         <vlp:ResponseMetadata>
+            <vlp:ResponseCode>HE004000</vlp:ResponseCode>
+            <vlp:ResponseDescriptionText>This is a duplicate case, see 0024017172229YQ at Exchange One v32</vlp:ResponseDescriptionText>
+            <vlp:TDSResponseDescriptionText>This is a duplicate case, see 0024017172229YQ at Exchange One v32</vlp:TDSResponseDescriptionText>
+         </vlp:ResponseMetadata>
+         <vlp:LawfulPresenceVerifiedCode>P</vlp:LawfulPresenceVerifiedCode>
+      </vlp:InitialVerificationIndividualResponse>
+   </vlp:InitialVerificationResponseSet>
+</vlp:InitialVerificationResponse>
