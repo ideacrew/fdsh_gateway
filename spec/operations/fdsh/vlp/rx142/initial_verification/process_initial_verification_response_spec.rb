@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'open3'
 
 RSpec.describe Fdsh::Vlp::Rx142::InitialVerification::ProcessInitialVerificationResponse do
-  context 'valid response' do
+  context 'with a valid response from CMS' do
     let(:file) do
       loc = File.join(Rails.root, "spec", "reference", "xml", "vlp", "rx142", "initial_verification", "InitialVerificationResponse.xml")
       File.expand_path(loc)
@@ -28,7 +28,7 @@ RSpec.describe Fdsh::Vlp::Rx142::InitialVerification::ProcessInitialVerification
     end
   end
 
-  context 'valid response' do
+  context 'with an invalid response from CMS' do
     let(:file) do
       loc = File.join(Rails.root, "spec", "reference", "xml", "vlp", "rx142", "initial_verification", "InitialVerificationErrorResponse.xml")
       File.expand_path(loc)

@@ -40,7 +40,7 @@ module Fdsh
 
         # Validate input object
         def validate_initial_response(payload)
-          result = ::AcaEntities::Fdsh::Vlp::H92::InitialVerificationResponseContract.new.call(payload)
+          result = AcaEntities::Fdsh::Vlp::H92::InitialVerificationResponseContract.new.call(payload)
 
           if result.success?
             Success(result)
@@ -50,7 +50,7 @@ module Fdsh
         end
 
         def create_primary_response(value)
-          Success(::AcaEntities::Fdsh::Vlp::H92::InitialVerificationResponse.new(value.to_h))
+          Success(AcaEntities::Fdsh::Vlp::H92::InitialVerificationResponse.new(value.to_h))
         end
       end
     end
