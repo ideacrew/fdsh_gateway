@@ -14,16 +14,14 @@ RSpec.describe Fdsh::Vlp::Rx142::InitialVerification::ProcessInitialVerification
       Faraday::Response.new(status: 200, response_body: xml_content)
     end
 
-    before do
-      @result = described_class.new.call(xml_response)
-    end
+    let(:result) { described_class.new.call(xml_response) }
 
     it "is successful" do
-      expect(@result.success?).to be_truthy
+      expect(result.success?).to be_truthy
     end
 
     it "result to be an Attestation object" do
-      expect(@result.value!).to be_a AcaEntities::Fdsh::Vlp::H92::InitialVerificationResponse
+      expect(result.value!).to be_a AcaEntities::Fdsh::Vlp::H92::InitialVerificationResponse
     end
   end
 
@@ -38,16 +36,14 @@ RSpec.describe Fdsh::Vlp::Rx142::InitialVerification::ProcessInitialVerification
       Faraday::Response.new(status: 200, response_body: xml_content)
     end
 
-    before do
-      @result = described_class.new.call(xml_response)
-    end
+    let(:result) { described_class.new.call(xml_response) }
 
     it "is successful" do
-      expect(@result.success?).to be_truthy
+      expect(result.success?).to be_truthy
     end
 
     it "result to be an Attestation object" do
-      expect(@result.value!).to be_a AcaEntities::Fdsh::Vlp::H92::InitialVerificationResponse
+      expect(result.value!).to be_a AcaEntities::Fdsh::Vlp::H92::InitialVerificationResponse
     end
   end
 end
