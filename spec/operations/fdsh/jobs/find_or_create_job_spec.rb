@@ -70,9 +70,10 @@ RSpec.describe Fdsh::Jobs::FindOrCreateJob, dbclean: :after_each do
       expect(result.value!).to eq job
     end
 
-    it 'should return failure when sending invalid job_id' do
+    it 'should return create a job with given job_id' do
       result = subject.call(required_params.merge(job_id: "random"))
-      expect(result.failure).to eq "No job exists with the given job_id"
+      expect(result.value!.class).to eq Transmittable::Job
+      expect(result.value!.job_id).to eq "random"
     end
 
     it 'should return the existing job when message_id is provided' do

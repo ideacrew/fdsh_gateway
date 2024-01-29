@@ -26,7 +26,7 @@ module Fdsh
 
       def create_job_hash(values)
         Success({
-                  job_id: generate_job_id(values[:key]),
+                  job_id: generate_job_id(values[:key], values[:job_id]),
                   saga_id: values[:saga_id],
                   key: values[:key],
                   title: values[:title],
@@ -49,7 +49,8 @@ module Fdsh
         validation_result.success? ? Success(validation_result.value!) : Failure("Unable to create job due to invalid params")
       end
 
-      def generate_job_id(key)
+      def generate_job_id(key, job_id)
+        return job_id if job_id
         "#{key}_#{Time.now.to_i}"
       end
 

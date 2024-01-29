@@ -39,7 +39,8 @@ module Fdsh
                                                                             payload: params[:payload],
                                                                             correlation_id: params[:correlation_id],
                                                                             started_at: DateTime.now,
-                                                                            publish_on: DateTime.now })
+                                                                            publish_on: DateTime.now,
+                                                                            job_id: params[:job_id] })
 
           result.success? ? Success(result.value!) : result
         end
@@ -173,7 +174,8 @@ module Fdsh
         def build_event(correlation_id, response)
           payload = response.to_h
 
-          event('events.fdsh.ssa_verification_complete', attributes: payload, headers: { correlation_id: correlation_id })
+          event('events.fdsh.ssa_verification_complete', attributes: payload,
+                                                         headers: { correlation_id: correlation_id, job_id: @job.job_id, status: "success" })
         end
 
         def publish(event)
