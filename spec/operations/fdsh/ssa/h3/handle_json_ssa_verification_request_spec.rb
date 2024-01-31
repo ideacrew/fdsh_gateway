@@ -12,7 +12,7 @@ RSpec.describe Fdsh::Ssa::H3::HandleJsonSsaVerificationRequest, dbclean: :after_
   let(:mock_transmittable_payload_response) { Dry::Monads::Result::Success.call(transmittable_hash) }
   let(:mock_jwt_request) { instance_double(Jwt::GetJwt) }
   let(:mock_jwt_response) { Dry::Monads::Result::Success.call("3487583567384567384568") }
-  let(:mock_ssa_request_verification) { instance_double(::Fdsh::Ssa::H3::RequestJsonSsaVerification) }
+  let(:mock_ssa_request_verification) { instance_double(Fdsh::Ssa::H3::RequestJsonSsaVerification) }
   let(:mock_ssa_response) { Dry::Monads::Result::Success.call(Faraday::Response.new(status: 200, response_body: mock_ssa_response_body.to_json)) }
   let!(:mock_ssa_response_body) do
     { "ssaCompositeResponse" =>
@@ -35,7 +35,8 @@ RSpec.describe Fdsh::Ssa::H3::HandleJsonSsaVerificationRequest, dbclean: :after_
                                                                        payload: payload,
                                                                        correlation_id: correlation_id,
                                                                        started_at: DateTime.now,
-                                                                       publish_on: DateTime.now
+                                                                       publish_on: DateTime.now,
+                                                                       job_id: nil
                                                                      }).and_return(mock_transmittable_payload_response)
     allow(Jwt::GetJwt).to receive(:new).and_return(mock_jwt_request)
     allow(mock_jwt_request).to receive(:call).with({}).and_return(mock_jwt_response)
