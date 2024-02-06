@@ -14,19 +14,19 @@ RSpec.describe Fdsh::Ridp::H139::HandleSecondaryDeterminationRequest, "given:
 
   let(:mock_request_operation) do
     instance_double(
-      ::Fdsh::Ridp::H139::RequestSecondaryDetermination
+      Fdsh::Ridp::H139::RequestSecondaryDetermination
     )
   end
 
   let(:mock_response_operation) do
     instance_double(
-      ::Fdsh::Ridp::H139::ProcessSecondaryResponse
+      Fdsh::Ridp::H139::ProcessSecondaryResponse
     )
   end
 
   let(:mock_soap_operation) do
     instance_double(
-      ::Soap::RemoveSoapEnvelope
+      Soap::RemoveSoapEnvelope
     )
   end
 
@@ -52,13 +52,13 @@ RSpec.describe Fdsh::Ridp::H139::HandleSecondaryDeterminationRequest, "given:
   end
 
   before :each do
-    allow(::Fdsh::Ridp::H139::RequestSecondaryDetermination).to receive(:new).and_return(
+    allow(Fdsh::Ridp::H139::RequestSecondaryDetermination).to receive(:new).and_return(
       mock_request_operation
     )
-    allow(::Fdsh::Ridp::H139::ProcessSecondaryResponse).to receive(:new).and_return(
+    allow(Fdsh::Ridp::H139::ProcessSecondaryResponse).to receive(:new).and_return(
       mock_response_operation
     )
-    allow(::Soap::RemoveSoapEnvelope).to receive(:new).and_return(
+    allow(Soap::RemoveSoapEnvelope).to receive(:new).and_return(
       mock_soap_operation
     )
     allow(mock_request_operation).to receive(:call).with(

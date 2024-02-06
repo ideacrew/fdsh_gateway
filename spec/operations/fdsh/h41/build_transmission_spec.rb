@@ -57,7 +57,7 @@ RSpec.describe Fdsh::H41::BuildTransmission do
     end
 
     let(:publish_service) do
-      ::Fdsh::H41::Transmissions::Publish.new
+      Fdsh::H41::Transmissions::Publish.new
     end
 
     before do

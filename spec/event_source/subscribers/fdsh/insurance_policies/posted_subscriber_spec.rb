@@ -20,8 +20,8 @@ RSpec.describe Subscribers::Fdsh::InsurancePolicies::PostedSubscriber, dbclean: 
                                  { family: family_hash },
                                  headers: { 'assistance_year' => Date.today.year + 1 },
                                  correlation_id: '1234')
-        expect(::H36::IrsGroups::IrsGroup.all.count).to eq 1
-        expect(::H36::IrsGroups::IrsGroup.all.last.assistance_year).to eq Date.today.year + 1
+        expect(H36::IrsGroups::IrsGroup.all.count).to eq 1
+        expect(H36::IrsGroups::IrsGroup.all.last.assistance_year).to eq Date.today.year + 1
         month_of_year_transmission.reload
         expect(month_of_year_transmission.transactions.all.count).to eq 1
       end
@@ -37,7 +37,7 @@ RSpec.describe Subscribers::Fdsh::InsurancePolicies::PostedSubscriber, dbclean: 
                                  { family: family_hash },
                                  headers: { 'assistance_year' => Date.today.year },
                                  correlation_id: '1234')
-        expect(::H36::IrsGroups::IrsGroup.all.last.assistance_year).to eq Date.today.year
+        expect(H36::IrsGroups::IrsGroup.all.last.assistance_year).to eq Date.today.year
         month_of_year_transmission.reload
         expect(month_of_year_transmission.transactions.all.count).to eq 1
       end
@@ -58,7 +58,7 @@ RSpec.describe Subscribers::Fdsh::InsurancePolicies::PostedSubscriber, dbclean: 
                                  { family: family_hash },
                                  headers: { 'assistance_year' => Date.today.year - 1 },
                                  correlation_id: '1234')
-        expect(::H36::IrsGroups::IrsGroup.all.last.assistance_year).to eq Date.today.year - 1
+        expect(H36::IrsGroups::IrsGroup.all.last.assistance_year).to eq Date.today.year - 1
         month_of_year_transmission.reload
         expect(month_of_year_transmission.transactions.all.count).to eq 1
       end

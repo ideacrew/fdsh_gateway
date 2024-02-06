@@ -24,7 +24,7 @@ RSpec.describe Fdsh::Ssa::H3::RequestXmlSsaVerification, "given:
 
   let(:person_contract_mock) do
     instance_double(
-      ::AcaEntities::Contracts::People::PersonContract
+      AcaEntities::Contracts::People::PersonContract
     )
   end
 
@@ -40,7 +40,7 @@ RSpec.describe Fdsh::Ssa::H3::RequestXmlSsaVerification, "given:
   end
 
   before :each do
-    allow(::AcaEntities::Contracts::People::PersonContract).to receive(:new)
+    allow(AcaEntities::Contracts::People::PersonContract).to receive(:new)
       .and_return(person_contract_mock)
     allow(person_contract_mock).to receive(:call).with({})
                                                  .and_return(person_contract_validation_result)
@@ -61,7 +61,7 @@ RSpec.describe Fdsh::Ssa::H3::RequestXmlSsaVerification, "given:
 
   let(:person_contract_mock) do
     instance_double(
-      ::AcaEntities::Contracts::People::PersonContract
+      AcaEntities::Contracts::People::PersonContract
     )
   end
 
@@ -89,7 +89,7 @@ RSpec.describe Fdsh::Ssa::H3::RequestXmlSsaVerification, "given:
   end
 
   before :each do
-    allow(::AcaEntities::Contracts::People::PersonContract).to receive(:new)
+    allow(AcaEntities::Contracts::People::PersonContract).to receive(:new)
       .and_return(person_contract_mock)
     allow(person_contract_mock).to receive(:call).with({})
                                                  .and_return(person_contract_validation_result)
@@ -116,7 +116,7 @@ RSpec.describe Fdsh::Ssa::H3::RequestXmlSsaVerification, "given:
 
   let(:person_contract_mock) do
     instance_double(
-      ::AcaEntities::Contracts::People::PersonContract
+      AcaEntities::Contracts::People::PersonContract
     )
   end
 
@@ -141,7 +141,7 @@ RSpec.describe Fdsh::Ssa::H3::RequestXmlSsaVerification, "given:
 
   let(:validation_request_mock) do
     instance_double(
-      ::AcaEntities::Fdsh::Ssa::H3::SSACompositeRequest
+      AcaEntities::Fdsh::Ssa::H3::SSACompositeRequest
     )
   end
 
@@ -158,7 +158,7 @@ RSpec.describe Fdsh::Ssa::H3::RequestXmlSsaVerification, "given:
   let(:expected_xml) { "<xml xmlns=\"uri:whatever\"></xml>" }
 
   before :each do
-    allow(::AcaEntities::Contracts::People::PersonContract).to receive(:new)
+    allow(AcaEntities::Contracts::People::PersonContract).to receive(:new)
       .and_return(person_contract_mock)
     allow(person_contract_mock).to receive(:call).with({})
                                                  .and_return(person_contract_validation_result)

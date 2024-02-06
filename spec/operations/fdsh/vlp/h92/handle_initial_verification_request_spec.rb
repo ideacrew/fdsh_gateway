@@ -15,19 +15,19 @@ RSpec.describe Fdsh::Vlp::H92::HandleInitialVerificationRequest, "given:
 
   let(:mock_request_operation) do
     instance_double(
-      ::Fdsh::Vlp::H92::RequestInitialVerification
+      Fdsh::Vlp::H92::RequestInitialVerification
     )
   end
 
   let(:mock_response_operation) do
     instance_double(
-      ::Fdsh::Vlp::H92::ProcessInitialVerificationResponse
+      Fdsh::Vlp::H92::ProcessInitialVerificationResponse
     )
   end
 
   let(:mock_soap_operation) do
     instance_double(
-      ::Soap::RemoveSoapEnvelope
+      Soap::RemoveSoapEnvelope
     )
   end
 
@@ -53,13 +53,13 @@ RSpec.describe Fdsh::Vlp::H92::HandleInitialVerificationRequest, "given:
   end
 
   before :each do
-    allow(::Fdsh::Vlp::H92::RequestInitialVerification).to receive(:new).and_return(
+    allow(Fdsh::Vlp::H92::RequestInitialVerification).to receive(:new).and_return(
       mock_request_operation
     )
-    allow(::Fdsh::Vlp::H92::ProcessInitialVerificationResponse).to receive(:new).and_return(
+    allow(Fdsh::Vlp::H92::ProcessInitialVerificationResponse).to receive(:new).and_return(
       mock_response_operation
     )
-    allow(::Soap::RemoveSoapEnvelope).to receive(:new).and_return(
+    allow(Soap::RemoveSoapEnvelope).to receive(:new).and_return(
       mock_soap_operation
     )
     allow(mock_request_operation).to receive(:call).with(

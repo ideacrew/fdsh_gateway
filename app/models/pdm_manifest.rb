@@ -1,5 +1,32 @@
 # frozen_string_literal: true
 
+# The PdmManifest class represents a manifest in the system.
+# It includes Mongoid::Document to map the class to the MongoDB document.
+# It also includes Mongoid::Timestamps to automatically handle created_at and updated_at timestamps.
+# The class defines fields for batch_ids, file_names, name, timestamp, response,
+# type, assistance_year, initial_count, generated_count, and file_generated.
+# It embeds many PdmRequest objects and accepts nested attributes for them.
+#
+# @!attribute batch_ids
+#   @return [Array] the batch_ids of the manifest
+# @!attribute file_names
+#   @return [Array] the file_names of the manifest
+# @!attribute name
+#   @return [String] the name of the manifest
+# @!attribute timestamp
+#   @return [Date] the timestamp of the manifest
+# @!attribute response
+#   @return [String] the response of the manifest
+# @!attribute type
+#   @return [String] the type of the manifest
+# @!attribute assistance_year
+#   @return [Integer] the assistance_year of the manifest
+# @!attribute initial_count
+#   @return [Integer] the initial_count of the manifest
+# @!attribute generated_count
+#   @return [Integer] the generated_count of the manifest
+# @!attribute file_generated
+#   @return [Boolean] the file_generated status
 class PdmManifest
   include Mongoid::Document
   include Mongoid::Timestamps

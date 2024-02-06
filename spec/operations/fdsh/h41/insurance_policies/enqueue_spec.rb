@@ -45,14 +45,14 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
     end
 
     let(:transactions_for_first_subject) do
-      ::H41::InsurancePolicies::AptcCsrTaxHousehold.all.first.transactions
+      H41::InsurancePolicies::AptcCsrTaxHousehold.all.first.transactions
     end
 
     let(:transactions_for_second_subject) do
-      ::H41::InsurancePolicies::AptcCsrTaxHousehold.all.second.transactions
+      H41::InsurancePolicies::AptcCsrTaxHousehold.all.second.transactions
     end
 
-    let(:posted_family) { ::H41::InsurancePolicies::PostedFamily.all.first }
+    let(:posted_family) { H41::InsurancePolicies::PostedFamily.all.first }
     let(:insurance_policy) { posted_family.insurance_policies.first }
     let(:aptc_csr_tax_household) { insurance_policy.aptc_csr_tax_households.first }
 
@@ -102,7 +102,7 @@ RSpec.describe Fdsh::H41::InsurancePolicies::Enqueue do
           end
 
           let(:all_subject_transactions) do
-            ::H41::InsurancePolicies::AptcCsrTaxHousehold.all.flat_map(&:transactions)
+            H41::InsurancePolicies::AptcCsrTaxHousehold.all.flat_map(&:transactions)
           end
 
           it 'updates transmit_pending transactions to no_transmit' do

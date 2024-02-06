@@ -49,11 +49,11 @@ EventSource.configure do |config|
   end
 
   async_api_resources =
-    ::AcaEntities.async_api_config_find_by_service_name(
+    AcaEntities.async_api_config_find_by_service_name(
       { protocol: :amqp, service_name: nil }
     ).success
   async_api_resources +=
-    ::AcaEntities.async_api_config_find_by_service_name(
+    AcaEntities.async_api_config_find_by_service_name(
       { protocol: :http, service_name: :fdsh_gateway }
     ).success
 

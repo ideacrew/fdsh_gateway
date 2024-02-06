@@ -3,7 +3,7 @@
 require 'spec_helper'
 require_relative 'shared_setup'
 
-RSpec.describe ::Journal::ActivityContract do
+RSpec.describe Journal::ActivityContract do
   context 'Calling contract with Valid params' do
     let(:correlation_id) { '00998877' }
 

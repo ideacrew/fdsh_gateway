@@ -12,7 +12,7 @@ RSpec.describe Fdsh::NonEsi::Rj31::HandleJsonEligibilityDeterminationRequest, db
   let(:mock_transmittable_payload_response) { Dry::Monads::Result::Success.call(transmittable_hash) }
   let(:mock_jwt_request) { instance_double(Jwt::GetJwt) }
   let(:mock_jwt_response) { Dry::Monads::Result::Success.call("3487583567384567384568") }
-  let(:mock_non_esi_request_verification) { instance_double(::Fdsh::NonEsi::Rj31::RequestJsonNonEsiDetermination) }
+  let(:mock_non_esi_request_verification) { instance_double(Fdsh::NonEsi::Rj31::RequestJsonNonEsiDetermination) }
   let(:mock_non_esi_response) do
     Dry::Monads::Result::Success.call(Faraday::Response.new(status: 200, response_body: mock_non_esi_response_body.to_json))
   end

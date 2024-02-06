@@ -22,7 +22,7 @@ RSpec.describe Fdsh::H36::Request::BuildH36InsurancePoliciesPayload do
 
   context "invalid_params" do
     it "should return failure if params are empty" do
-      result = ::Fdsh::H36::Request::BuildH36InsurancePoliciesPayload.new.call({})
+      result = Fdsh::H36::Request::BuildH36InsurancePoliciesPayload.new.call({})
       expect(result.failure?).to be_truthy
       expect(result.failure).to eq(["Please pass in policies", "Please pass in max_month"])
     end
@@ -36,7 +36,7 @@ RSpec.describe Fdsh::H36::Request::BuildH36InsurancePoliciesPayload do
         insurance_policies: insurance_policies,
         max_month: max_month
       }
-      result = ::Fdsh::H36::Request::BuildH36InsurancePoliciesPayload.new.call(params)
+      result = Fdsh::H36::Request::BuildH36InsurancePoliciesPayload.new.call(params)
       expect(result.success?).to be_truthy
       expect(result.success.first.keys).to include(:InsuranceCoverages)
     end
@@ -53,7 +53,7 @@ RSpec.describe Fdsh::H36::Request::BuildH36InsurancePoliciesPayload do
             max_month: max_month
           }
 
-          result = ::Fdsh::H36::Request::BuildH36InsurancePoliciesPayload.new.call(params)
+          result = Fdsh::H36::Request::BuildH36InsurancePoliciesPayload.new.call(params)
           issuer_name = result.success[0][:InsuranceCoverages][0][:IssuerNm]
           expect(issuer_name).to eq("Taro Health Plan of Maine Inc")
         end
@@ -70,7 +70,7 @@ RSpec.describe Fdsh::H36::Request::BuildH36InsurancePoliciesPayload do
             max_month: max_month
           }
 
-          result = ::Fdsh::H36::Request::BuildH36InsurancePoliciesPayload.new.call(params)
+          result = Fdsh::H36::Request::BuildH36InsurancePoliciesPayload.new.call(params)
           issuer_name = result.success[0][:InsuranceCoverages][0][:IssuerNm]
           expect(issuer_name).to eq(provider_title)
         end

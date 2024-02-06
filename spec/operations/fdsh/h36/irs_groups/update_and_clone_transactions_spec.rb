@@ -61,15 +61,15 @@ RSpec.describe Fdsh::H36::IrsGroups::UpdateAndCloneTransactions do
       end
 
       it "should create a new open transmission and should not update prior transmission to pending state" do
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 1
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 1
         result = Fdsh::H36::IrsGroups::UpdateAndCloneTransactions.new.call(assistance_year: Date.today.year,
                                                                            month_of_year: 1)
         expect(result.success?).to be_truthy
         transmission.reload
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 2
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 2
         expect(transmission.status).to eq :open
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.status).to eq :open
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.transactions.count).to eq 5
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.status).to eq :open
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.transactions.count).to eq 5
       end
     end
 
@@ -90,15 +90,15 @@ RSpec.describe Fdsh::H36::IrsGroups::UpdateAndCloneTransactions do
       end
 
       it "should create a new open transmission and should not update prior transmission to pending state" do
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 1
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 1
         result = Fdsh::H36::IrsGroups::UpdateAndCloneTransactions.new.call(assistance_year: Date.today.year - 1,
                                                                            month_of_year: 13)
         expect(result.success?).to be_truthy
         transmission.reload
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 2
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 2
         expect(transmission.status).to eq :pending
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.status).to eq :open
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.transactions.count).to eq 5
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.status).to eq :open
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.transactions.count).to eq 5
       end
     end
 
@@ -119,16 +119,16 @@ RSpec.describe Fdsh::H36::IrsGroups::UpdateAndCloneTransactions do
       end
 
       it "should create a new open transmission and should update prior transmission to pending state" do
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 1
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 1
         result = Fdsh::H36::IrsGroups::UpdateAndCloneTransactions.new.call(assistance_year: Date.today.year,
                                                                            month_of_year: 2)
         expect(result.success?).to be_truthy
         transmission.reload
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 2
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 2
         expect(transmission.status).to eq :pending
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.status).to eq :open
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.month_of_year).to eq 2
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.transactions.count).to eq 5
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.status).to eq :open
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.month_of_year).to eq 2
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.transactions.count).to eq 5
       end
     end
 
@@ -149,16 +149,16 @@ RSpec.describe Fdsh::H36::IrsGroups::UpdateAndCloneTransactions do
       end
 
       it "should create a new open transmission and should update prior transmission to pending state" do
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 1
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 1
         result = Fdsh::H36::IrsGroups::UpdateAndCloneTransactions.new.call(assistance_year: Date.today.year - 1,
                                                                            month_of_year: 15)
         expect(result.success?).to be_truthy
         transmission.reload
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 2
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 2
         expect(transmission.status).to eq :pending
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.status).to eq :open
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.month_of_year).to eq 15
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.transactions.count).to eq 5
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.status).to eq :open
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.month_of_year).to eq 15
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.last.transactions.count).to eq 5
       end
     end
   end

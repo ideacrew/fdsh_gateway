@@ -1,5 +1,37 @@
 # frozen_string_literal: true
 
+# The User class represents a user in the system.
+# It includes Mongoid::Document to map the class to the MongoDB document.
+# It uses the Devise gem for user authentication, including modules for database authentication,
+# password recovery, remember me functionality, tracking sign-in count and IP, session limiting, and account expiry.
+# The class defines fields for each of these functionalities.
+#
+# @!attribute email
+#   @return [String] the user's email address
+# @!attribute encrypted_password
+#   @return [String] the user's encrypted password
+# @!attribute reset_password_token
+#   @return [String] the token for resetting the user's password
+# @!attribute reset_password_sent_at
+#   @return [Time] the time the reset password email was sent
+# @!attribute remember_created_at
+#   @return [Time] the time the remember me cookie was created
+# @!attribute sign_in_count
+#   @return [Integer] the number of times the user has signed in
+# @!attribute current_sign_in_at
+#   @return [Time] the time of the current sign in
+# @!attribute last_sign_in_at
+#   @return [Time] the time of the last sign in
+# @!attribute current_sign_in_ip
+#   @return [String] the IP of the current sign in
+# @!attribute last_sign_in_ip
+#   @return [String] the IP of the last sign in
+# @!attribute last_activity_at
+#   @return [Time] the time of the last activity
+# @!attribute expired_at
+#   @return [Time] the time the account expired
+# @!attribute unique_session_id
+#   @return [String] the unique session ID
 class User
   include Mongoid::Document
   # Include default devise modules. Others available are:

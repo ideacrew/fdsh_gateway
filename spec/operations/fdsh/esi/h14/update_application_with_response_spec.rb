@@ -320,8 +320,8 @@ RSpec.describe Fdsh::Esi::H14::UpdateApplicationWithResponse do
   end
 
   let(:application) { AcaEntities::MagiMedicaid::Operations::InitializeApplication.new.call(application_params).value! }
-  let(:esi_response) {::AcaEntities::Fdsh::Esi::H14::ESIMECResponse.new(response_params)}
-  let(:esi_response_2) {::AcaEntities::Fdsh::Esi::H14::ESIMECResponse.new(response_params_2)}
+  let(:esi_response) {AcaEntities::Fdsh::Esi::H14::ESIMECResponse.new(response_params)}
+  let(:esi_response_2) {AcaEntities::Fdsh::Esi::H14::ESIMECResponse.new(response_params_2)}
 
   before do
     @result = described_class.new.call(application, esi_response, application.hbx_id)

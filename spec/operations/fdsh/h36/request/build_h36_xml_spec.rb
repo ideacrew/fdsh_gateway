@@ -45,22 +45,22 @@ RSpec.describe Fdsh::H36::Request::BuildH36Xml do
 
   context "invalid_params" do
     it "should return failure if irs_group_correlation_id is blank" do
-      result = ::Fdsh::H36::Request::BuildH36Xml.new.call({})
+      result = Fdsh::H36::Request::BuildH36Xml.new.call({})
       expect(result.failure?).to be_truthy
       expect(result.failure).to eq(["transaction_id required", "transmission_id required",
                                     "assistance_year required", "month_of_year required"])
     end
 
     it "should return failure if assistance_year is blank" do
-      result = ::Fdsh::H36::Request::BuildH36Xml.new.call({ transaction_id: transaction._id })
+      result = Fdsh::H36::Request::BuildH36Xml.new.call({ transaction_id: transaction._id })
       expect(result.failure?).to be_truthy
       expect(result.failure).to eq(["transmission_id required", "assistance_year required", "month_of_year required"])
     end
 
     it "should return failure if month_of_year is blank" do
-      result = ::Fdsh::H36::Request::BuildH36Xml.new.call({ transaction_id: transaction._id,
-                                                            transmission_id: transmission.id,
-                                                            assistance_year: assistance_year })
+      result = Fdsh::H36::Request::BuildH36Xml.new.call({ transaction_id: transaction._id,
+                                                          transmission_id: transmission.id,
+                                                          assistance_year: assistance_year })
       expect(result.failure?).to be_truthy
       expect(result.failure).to eq(["month_of_year required"])
     end

@@ -24,7 +24,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestSecondaryDetermination, "given:
 
   let(:family_contract_mock) do
     instance_double(
-      ::AcaEntities::Contracts::Families::FamilyContract
+      AcaEntities::Contracts::Families::FamilyContract
     )
   end
 
@@ -40,7 +40,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestSecondaryDetermination, "given:
   end
 
   before :each do
-    allow(::AcaEntities::Contracts::Families::FamilyContract).to receive(:new)
+    allow(AcaEntities::Contracts::Families::FamilyContract).to receive(:new)
       .and_return(family_contract_mock)
     allow(family_contract_mock).to receive(:call).with({})
                                                  .and_return(family_contract_validation_result)
@@ -61,7 +61,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestSecondaryDetermination, "given:
 
   let(:family_contract_mock) do
     instance_double(
-      ::AcaEntities::Contracts::Families::FamilyContract
+      AcaEntities::Contracts::Families::FamilyContract
     )
   end
 
@@ -89,7 +89,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestSecondaryDetermination, "given:
   end
 
   before :each do
-    allow(::AcaEntities::Contracts::Families::FamilyContract).to receive(:new)
+    allow(AcaEntities::Contracts::Families::FamilyContract).to receive(:new)
       .and_return(family_contract_mock)
     allow(family_contract_mock).to receive(:call).with({})
                                                  .and_return(family_contract_validation_result)
@@ -116,7 +116,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestSecondaryDetermination, "given:
 
   let(:family_contract_mock) do
     instance_double(
-      ::AcaEntities::Contracts::Families::FamilyContract
+      AcaEntities::Contracts::Families::FamilyContract
     )
   end
 
@@ -145,7 +145,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestSecondaryDetermination, "given:
 
   let(:validation_request_mock) do
     instance_double(
-      ::AcaEntities::Fdsh::Ridp::H139::PrimaryRequest
+      AcaEntities::Fdsh::Ridp::H139::PrimaryRequest
     )
   end
 
@@ -162,7 +162,7 @@ RSpec.describe Fdsh::Ridp::H139::RequestSecondaryDetermination, "given:
   let(:expected_xml) { "<xml></xml>" }
 
   before :each do
-    allow(::AcaEntities::Contracts::Families::FamilyContract).to receive(:new)
+    allow(AcaEntities::Contracts::Families::FamilyContract).to receive(:new)
       .and_return(family_contract_mock)
     allow(family_contract_mock).to receive(:call).with({})
                                                  .and_return(family_contract_validation_result)

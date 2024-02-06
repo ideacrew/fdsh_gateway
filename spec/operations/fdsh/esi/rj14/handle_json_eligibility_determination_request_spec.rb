@@ -12,7 +12,7 @@ RSpec.describe Fdsh::Esi::Rj14::HandleJsonEligibilityDeterminationRequest, dbcle
   let(:mock_transmittable_payload_response) { Dry::Monads::Result::Success.call(transmittable_hash) }
   let(:mock_jwt_request) { instance_double(Jwt::GetJwt) }
   let(:mock_jwt_response) { Dry::Monads::Result::Success.call("3487583567384567384568") }
-  let(:mock_esi_request_verification) { instance_double(::Fdsh::Esi::Rj14::RequestJsonEsiDetermination) }
+  let(:mock_esi_request_verification) { instance_double(Fdsh::Esi::Rj14::RequestJsonEsiDetermination) }
   let(:mock_esi_response) do
     Dry::Monads::Result::Success.call(Faraday::Response.new(status: 200, response_body: mock_esi_response_body.to_json))
   end
@@ -52,7 +52,7 @@ RSpec.describe Fdsh::Esi::Rj14::HandleJsonEligibilityDeterminationRequest, dbcle
                                                                      }).and_return(mock_transmittable_payload_response)
     allow(Jwt::GetJwt).to receive(:new).and_return(mock_jwt_request)
     allow(mock_jwt_request).to receive(:call).with({}).and_return(mock_jwt_response)
-    allow(::Fdsh::Esi::Rj14::RequestJsonEsiDetermination).to receive(:new).and_return(mock_esi_request_verification)
+    allow(Fdsh::Esi::Rj14::RequestJsonEsiDetermination).to receive(:new).and_return(mock_esi_request_verification)
     allow(mock_esi_request_verification).to receive(:call).with({
                                                                   correlation_id: correlation_id,
                                                                   token: "3487583567384567384568",

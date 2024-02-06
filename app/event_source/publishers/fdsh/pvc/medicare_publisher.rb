@@ -3,6 +3,9 @@
 module Publishers
   module Fdsh
     module Pvc
+      # The MedicarePublisher class is responsible for publishing events related to Medicare in the Periodic Verification Confirmation (PVC) context.
+      # It includes the EventSource::Publisher module to enable event publishing.
+      # It registers an event: 'periodic_verification_confirmation_determined'.
       class MedicarePublisher
         include ::EventSource::Publisher[amqp: 'fdsh.pvc.medicare']
 

@@ -48,7 +48,7 @@ RSpec.describe Fdsh::H36::Transmissions::BuildTransmission do
     end
 
     let(:transaction_xml) do
-      xml = File.open(Rails.root.join("spec/test_payloads/h36/sanitizer_input.xml").to_s).read
+      xml = File.read(Rails.root.join("spec/test_payloads/h36/sanitizer_input.xml").to_s)
       result = Fdsh::H36::Transmissions::XmlSanitizer.new.call({ xml_string: xml })
       result.success
     end

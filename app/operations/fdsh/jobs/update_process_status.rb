@@ -23,7 +23,7 @@ module Fdsh
       end
 
       def update_status(values, process_state)
-        values[:transmittable_objects].each do |_key, transmittable_object|
+        values[:transmittable_objects].each_value do |transmittable_object|
           transmittable_object.process_status.latest_state = values[:state]
           last_process_state = transmittable_object&.process_status&.process_states&.last
           last_process_state.ended_at = DateTime.now if last_process_state

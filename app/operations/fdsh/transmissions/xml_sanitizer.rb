@@ -78,7 +78,6 @@ module Fdsh
         end
       end
 
-      # rubocop:disable Style/CaseLikeIf
       def sanitize_zipcode(node)
         node.xpath("//irs:USZIPCd", NAMESPACES).each do |xml_tag|
 
@@ -89,7 +88,6 @@ module Fdsh
           end
         end
       end
-      # rubocop:enable Style/CaseLikeIf
     end
   end
 end

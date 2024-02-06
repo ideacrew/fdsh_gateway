@@ -14,17 +14,17 @@ RSpec.describe Fdsh::Vlp::Rx142::CloseCase::HandleCloseCaseRequest do
   let(:xml_content) { File.open(file) }
 
   let!(:transmittable_hash)  { { message_id: job.message_id, transaction: transaction }}
-  let(:mock_transmittable_payload_request) { instance_double(::Fdsh::Jobs::Vlp::GenerateTransmittableCloseCasePayload) }
+  let(:mock_transmittable_payload_request) { instance_double(Fdsh::Jobs::Vlp::GenerateTransmittableCloseCasePayload) }
   let(:mock_transmittable_payload_response) { Dry::Monads::Result::Success.call(transmittable_hash) }
   let(:mock_jwt_request) { instance_double(Jwt::GetJwt) }
   let(:mock_jwt_response) { Dry::Monads::Result::Success.call("3487583567384567384568") }
-  let(:mock_vlp_request_close_case) { instance_double(::Fdsh::Vlp::Rx142::CloseCase::RequestCloseCase) }
+  let(:mock_vlp_request_close_case) { instance_double(Fdsh::Vlp::Rx142::CloseCase::RequestCloseCase) }
   let(:mock_close_case_response) do
     Dry::Monads::Result::Success.call(Faraday::Response.new(status: 200, response_body: xml_content))
   end
 
   before do
-    allow(::Fdsh::Jobs::Vlp::GenerateTransmittableCloseCasePayload).to receive(:new).and_return(mock_transmittable_payload_request)
+    allow(Fdsh::Jobs::Vlp::GenerateTransmittableCloseCasePayload).to receive(:new).and_return(mock_transmittable_payload_request)
     allow(mock_transmittable_payload_request).to receive(:call).with({
                                                                        key: :vlp_close_case_request,
                                                                        title: 'VLP Close Case Request',

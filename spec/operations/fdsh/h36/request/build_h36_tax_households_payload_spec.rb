@@ -22,22 +22,22 @@ RSpec.describe Fdsh::H36::Request::BuildH36TaxHouseholdsPayload do
 
   context "invalid_params" do
     it "should return failure if params are empty" do
-      result = ::Fdsh::H36::Request::BuildH36TaxHouseholdsPayload.new.call({})
+      result = Fdsh::H36::Request::BuildH36TaxHouseholdsPayload.new.call({})
       expect(result.failure?).to be_truthy
       expect(result.failure).to eq(["Please pass in family_entity", "Please pass in other_relevant_adult",
                                     "Please pass in policies", "Please pass in max_month"])
     end
 
     it "should return failure if other_relevant_adult is blank" do
-      result = ::Fdsh::H36::Request::BuildH36TaxHouseholdsPayload.new.call({ family: family })
+      result = Fdsh::H36::Request::BuildH36TaxHouseholdsPayload.new.call({ family: family })
       expect(result.failure?).to be_truthy
       expect(result.failure).to eq(["Please pass in other_relevant_adult", "Please pass in policies", "Please pass in max_month"])
     end
 
     it "should return failure if max_month is blank" do
-      result = ::Fdsh::H36::Request::BuildH36TaxHouseholdsPayload.new.call({ family: family,
-                                                                             other_relevant_adult: "test",
-                                                                             insurance_policies: "policies" })
+      result = Fdsh::H36::Request::BuildH36TaxHouseholdsPayload.new.call({ family: family,
+                                                                           other_relevant_adult: "test",
+                                                                           insurance_policies: "policies" })
       expect(result.failure?).to be_truthy
       expect(result.failure).to eq(["Please pass in max_month"])
     end
@@ -60,7 +60,7 @@ RSpec.describe Fdsh::H36::Request::BuildH36TaxHouseholdsPayload do
         insurance_policies: insurance_policies,
         max_month: max_month
       }
-      result = ::Fdsh::H36::Request::BuildH36TaxHouseholdsPayload.new.call(params)
+      result = Fdsh::H36::Request::BuildH36TaxHouseholdsPayload.new.call(params)
       expect(result.success?).to be_truthy
       expect(result.success.first.keys).to include(:TaxHouseholdCoverages)
     end

@@ -29,9 +29,9 @@ RSpec.describe Fdsh::H41::Transmissions::Find do
         let!(:h41_original_transmission) { FactoryBot.create(:h41_original_transmission) }
 
         it 'returns the existing open H41 transmission' do
-          expect(::H41::Transmissions::Outbound::OriginalTransmission.open.count).to eq(1)
+          expect(H41::Transmissions::Outbound::OriginalTransmission.open.count).to eq(1)
           subject
-          expect(::H41::Transmissions::Outbound::OriginalTransmission.open.count).to eq(1)
+          expect(H41::Transmissions::Outbound::OriginalTransmission.open.count).to eq(1)
         end
       end
 
@@ -69,9 +69,9 @@ RSpec.describe Fdsh::H41::Transmissions::Find do
         let!(:h41_corrected_transmission) { FactoryBot.create(:h41_corrected_transmission) }
 
         it 'returns the existing open H41 transmission' do
-          expect(::H41::Transmissions::Outbound::CorrectedTransmission.open.count).to eq(1)
+          expect(H41::Transmissions::Outbound::CorrectedTransmission.open.count).to eq(1)
           subject
-          expect(::H41::Transmissions::Outbound::CorrectedTransmission.open.count).to eq(1)
+          expect(H41::Transmissions::Outbound::CorrectedTransmission.open.count).to eq(1)
         end
       end
 
@@ -81,9 +81,9 @@ RSpec.describe Fdsh::H41::Transmissions::Find do
         let!(:h41_void_transmission) { FactoryBot.create(:h41_void_transmission, status: :transmitted) }
 
         it 'returns the existing open H41 transmission' do
-          expect(::H41::Transmissions::Outbound::VoidTransmission.transmitted.count).to eq(1)
+          expect(H41::Transmissions::Outbound::VoidTransmission.transmitted.count).to eq(1)
           subject
-          expect(::H41::Transmissions::Outbound::VoidTransmission.transmitted.count).to eq(1)
+          expect(H41::Transmissions::Outbound::VoidTransmission.transmitted.count).to eq(1)
         end
       end
     end

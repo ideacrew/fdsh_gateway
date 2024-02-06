@@ -29,25 +29,25 @@ RSpec.describe Fdsh::NonEsi::H31::HandleEligibilityDeterminationRequest, "given:
 
   let(:mock_request_operation) do
     instance_double(
-      ::Fdsh::NonEsi::H31::RequestNonEsiDetermination
+      Fdsh::NonEsi::H31::RequestNonEsiDetermination
     )
   end
 
   let(:mock_response_operation) do
     instance_double(
-      ::Fdsh::NonEsi::H31::ProcessNonEsiDeterminationResponse
+      Fdsh::NonEsi::H31::ProcessNonEsiDeterminationResponse
     )
   end
 
   let(:mock_update_application_response_operation) do
     instance_double(
-      ::Fdsh::NonEsi::H31::UpdateApplicationWithResponse
+      Fdsh::NonEsi::H31::UpdateApplicationWithResponse
     )
   end
 
   let(:mock_soap_operation) do
     instance_double(
-      ::Soap::RemoveSoapEnvelope
+      Soap::RemoveSoapEnvelope
     )
   end
 
@@ -79,16 +79,16 @@ RSpec.describe Fdsh::NonEsi::H31::HandleEligibilityDeterminationRequest, "given:
   end
 
   before :each do
-    allow(::Fdsh::NonEsi::H31::RequestNonEsiDetermination).to receive(:new).and_return(
+    allow(Fdsh::NonEsi::H31::RequestNonEsiDetermination).to receive(:new).and_return(
       mock_request_operation
     )
-    allow(::Fdsh::NonEsi::H31::ProcessNonEsiDeterminationResponse).to receive(:new).and_return(
+    allow(Fdsh::NonEsi::H31::ProcessNonEsiDeterminationResponse).to receive(:new).and_return(
       mock_response_operation
     )
-    allow(::Soap::RemoveSoapEnvelope).to receive(:new).and_return(
+    allow(Soap::RemoveSoapEnvelope).to receive(:new).and_return(
       mock_soap_operation
     )
-    allow(::Fdsh::NonEsi::H31::UpdateApplicationWithResponse).to receive(:new).and_return(
+    allow(Fdsh::NonEsi::H31::UpdateApplicationWithResponse).to receive(:new).and_return(
       mock_update_application_response_operation
     )
     allow(mock_request_operation).to receive(:call).with(

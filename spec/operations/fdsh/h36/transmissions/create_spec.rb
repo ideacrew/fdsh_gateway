@@ -18,9 +18,9 @@ RSpec.describe Fdsh::H36::Transmissions::Create do
       context 'without an open H36 transmission' do
         let(:input_params) { { assistance_year: Date.today.year, month_of_year: Date.today.month } }
         it 'creates an open H36 transmission' do
-          expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to be_zero
+          expect(H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to be_zero
           subject
-          expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to eq(1)
+          expect(H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to eq(1)
         end
       end
 
@@ -32,9 +32,9 @@ RSpec.describe Fdsh::H36::Transmissions::Create do
         end
 
         it 'returns the existing open H36 transmission' do
-          expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to eq(1)
+          expect(H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to eq(1)
           subject
-          expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to eq(1)
+          expect(H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to eq(1)
         end
       end
     end
