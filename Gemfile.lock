@@ -284,9 +284,9 @@ GEM
     method_source (1.0.0)
     mime-types (3.5.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2023.1205)
+    mime-types-data (3.2024.0206)
     mini_mime (1.1.5)
-    minitest (5.22.0)
+    minitest (5.22.1)
     monetize (1.13.0)
       money (~> 6.12)
     money (6.16.0)
@@ -314,7 +314,7 @@ GEM
       rspec-mocks (~> 3.3)
     msgpack (1.7.2)
     multi_json (1.15.0)
-    multipart-post (2.3.0)
+    multipart-post (2.4.0)
     net-imap (0.4.10)
       date
       net-protocol
