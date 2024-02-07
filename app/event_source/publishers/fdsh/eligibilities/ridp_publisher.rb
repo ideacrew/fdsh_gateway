@@ -5,7 +5,7 @@ module Publishers
     module Eligibilities
       # The RidpPublisher class is responsible for publishing events related to RIDP (Referral, Identity Proofing) eligibilities.
       # It includes the EventSource::Publisher module to enable event publishing.
-      # It registers an event: 'ridp_verification_complete'.
+      # It registers two events: 'primary_determination_complete' and 'secondary_determination_complete'
       class RidpPublisher
         include ::EventSource::Publisher[amqp: 'fdsh.eligibilities.ridp']
 

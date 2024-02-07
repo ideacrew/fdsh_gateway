@@ -5,7 +5,7 @@ module Publishers
     module Eligibilities
       # The HubConnectivityPublisher class is responsible for publishing events related to Hub connectivity.
       # It includes the EventSource::Publisher module to enable event publishing.
-      # It registers an event: 'hub_connectivity_check_complete'.
+      # It registers an event: 'acknowledged'.
       class HubConnectivityPublisher
         include ::EventSource::Publisher[
                   amqp: 'fdsh.eligibilities.hub_connectivity'
