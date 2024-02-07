@@ -47,7 +47,8 @@ module Fdsh
         return result if result.success?
         add_errors({ job: @job }, "Failed to create transmission due to #{result.failure}", :create_request_transmission)
         status_result = update_status({ job: @job }, :failed, result.failure)
-        status_result if status_result.failure?
+        return status_result if status_result.failure?
+        result
       end
 
       def create_person_subject(values)

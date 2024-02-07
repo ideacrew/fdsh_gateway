@@ -47,7 +47,8 @@ module Fdsh
         return result if result.success?
         add_errors({ job: @job }, "Failed to create transmission due to #{result.failure}", :create_request_transmission)
         status_result = update_status({ job: @job }, :failed, result.failure)
-        status_result if status_result.failure?
+        return status_result if status_result.failure?
+        result
       end
 
       def add_errors(transmittable_objects, message, error_key)
@@ -107,15 +108,15 @@ module Fdsh
                      :generate_transmittable_payload)
           status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed,
                                         "Unable to save transaction with payload")
-          status_result if status_result.failure?
+          return status_result if status_result.failure?
         else
           add_errors({ job: @job, transmission: @transmission, transaction: @transaction },
                      "Unable to transform payload",
                      :generate_transmittable_payload)
           status_result = update_status({ job: @job, transmission: @transmission, transaction: @transaction }, :failed, "Unable to transform payload")
           return status_result if status_result.failure?
-          result
         end
+        result
       end
 
       def transmittable
