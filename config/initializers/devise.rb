@@ -309,6 +309,9 @@ Devise.setup do |config|
   # When set to false, does not sign a user in automatically after their password is
   # changed. Defaults to true, so a user is signed in automatically after changing a password.
   # config.sign_in_after_change_password = true
+
+  # ==> Configuration for :expirable
+  # Time period for account expiry from last_activity_at
   user_account_lock_period = 60
   unless ENV['DEVISE_USER_INACTIVITY_LOCK_PERIOD_IN_DAYS'].blank?
     period_in_days_env = ENV['DEVISE_USER_INACTIVITY_LOCK_PERIOD_IN_DAYS']
