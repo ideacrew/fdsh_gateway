@@ -131,9 +131,9 @@ module Fdsh
           covered_individuals.flatten.compact.collect do |individual|
             {
               InsuredPerson: { CompletePersonName: {
-                PersonFirstName: sanitize_name(individual.person.person_name.first_name),
-                PersonLastName: sanitize_name(individual.person.person_name.last_name)
-              },
+                                 PersonFirstName: sanitize_name(individual.person.person_name.first_name),
+                                 PersonLastName: sanitize_name(individual.person.person_name.last_name)
+                               },
                                SSN: decrypt_ssn(individual.person.person_demographics&.encrypted_ssn),
                                BirthDt: individual.person.person_demographics.dob },
               CoverageStartDt: individual.coverage_start_on,

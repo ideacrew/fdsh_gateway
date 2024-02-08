@@ -9,7 +9,7 @@ module Fdsh
         include Dry::Monads[:result, :do, :try]
         include EventSource::Command
 
-        PublishEventStruct = Struct.new(:name, :payload, :headers)
+        PublishEventStruct = Struct.new(:name, :payload, :headers, :message)
 
         PUBLISH_EVENT = "fdsh_secondary_determination_requested"
 

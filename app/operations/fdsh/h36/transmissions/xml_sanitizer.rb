@@ -53,7 +53,7 @@ module Fdsh
                 xml_tag.content = content
               end
 
-              xml_tag.content = xml_tag.content.gsub(/\s{2}/, ' ').gsub(/-/, ' ') if ele == "CityNm"
+              xml_tag.content = xml_tag.content.gsub(/\s{2}/, ' ').gsub("-", ' ') if ele == "CityNm"
 
               sanitize_zipcode(xml_tag) if ele == "USZIPCd"
 

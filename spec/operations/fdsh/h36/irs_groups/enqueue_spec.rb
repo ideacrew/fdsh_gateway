@@ -49,8 +49,8 @@ RSpec.describe Fdsh::H36::IrsGroups::Enqueue do
                                             assistance_year: assistance_year,
                                             month_of_year: Date.today.month })
         expect(result.success?).to be_truthy
-        expect(::H36::IrsGroups::IrsGroup.all.count).to eq 1
-        expect(::H36::IrsGroups::IrsGroup.all.last.transactions.first.status).to eq(:created)
+        expect(H36::IrsGroups::IrsGroup.all.count).to eq 1
+        expect(H36::IrsGroups::IrsGroup.all.last.transactions.first.status).to eq(:created)
       end
     end
 
@@ -68,8 +68,8 @@ RSpec.describe Fdsh::H36::IrsGroups::Enqueue do
         expect(result.success?).to be_truthy
         expect(irs_group.reload.transactions.first.status).to eq(:superseded)
         expect(month_of_year_transmission.reload.transactions.count).to eq 2
-        expect(::H36::IrsGroups::IrsGroup.all.count).to eq 2
-        expect(::H36::IrsGroups::IrsGroup.all.last.transactions.first.status).to eq(:created)
+        expect(H36::IrsGroups::IrsGroup.all.count).to eq 2
+        expect(H36::IrsGroups::IrsGroup.all.last.transactions.first.status).to eq(:created)
       end
     end
 
@@ -81,11 +81,11 @@ RSpec.describe Fdsh::H36::IrsGroups::Enqueue do
                                             family: family_hash, assistance_year: assistance_year,
                                             month_of_year: Date.today.month })
         expect(result.success?).to be_truthy
-        expect(::H36::IrsGroups::IrsGroup.all.count).to eq 1
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 1
-        expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.all.first.reporting_year).to eq assistance_year
-        expect(::H36::IrsGroups::IrsGroup.all.last.transactions.first.status).to eq(:excluded)
-        expect(::H36::IrsGroups::IrsGroup.all.last.transactions.first.transmit_action).to eq(:no_transmit)
+        expect(H36::IrsGroups::IrsGroup.all.count).to eq 1
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.count).to eq 1
+        expect(H36::Transmissions::Outbound::MonthOfYearTransmission.all.first.reporting_year).to eq assistance_year
+        expect(H36::IrsGroups::IrsGroup.all.last.transactions.first.status).to eq(:excluded)
+        expect(H36::IrsGroups::IrsGroup.all.last.transactions.first.transmit_action).to eq(:no_transmit)
       end
     end
   end

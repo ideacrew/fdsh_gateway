@@ -24,9 +24,9 @@ RSpec.describe Fdsh::H36::Transmissions::Find do
 
         it 'returns the existing open H36 transmission' do
           expect(subject.success?).to be_truthy
-          expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to eq(1)
+          expect(H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to eq(1)
           subject
-          expect(::H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to eq(1)
+          expect(H36::Transmissions::Outbound::MonthOfYearTransmission.open.count).to eq(1)
         end
       end
     end

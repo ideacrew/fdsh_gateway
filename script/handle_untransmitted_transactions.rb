@@ -6,7 +6,7 @@
 
 # Finds the latest 2022 Original Transmission of given 'status' if there are more than 1 in the same status for the same year
 def find_h41_transmission(status)
-  ::Fdsh::H41::Transmissions::Find.new.call(
+  Fdsh::H41::Transmissions::Find.new.call(
     {
       latest: true,
       reporting_year: 2022,
@@ -32,7 +32,7 @@ def process_untransmitted_transactions
     old_insurance_policy = old_aptc_csr_thh.insurance_policy
     old_posted_family = old_insurance_policy.posted_family
 
-    posted_family = ::H41::InsurancePolicies::PostedFamily.create(
+    posted_family = H41::InsurancePolicies::PostedFamily.create(
       contract_holder_id: old_posted_family.contract_holder_id,
       correlation_id: old_posted_family.correlation_id,
       family_cv: old_posted_family.family_cv,
@@ -59,7 +59,7 @@ def process_untransmitted_transactions
       started_at: old_transaction.started_at
     )
 
-    ::Transmittable::TransactionsTransmissions.create!(
+    Transmittable::TransactionsTransmissions.create!(
       transmission: open_2022_transission,
       transaction: transaction
     )

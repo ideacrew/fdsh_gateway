@@ -74,7 +74,7 @@ RSpec.describe H41::InsurancePolicies::PostedFamily, type: :model do
 
       it 'returns parsed hash' do
         expect(posted_family.family_entity).to be_a(
-          ::AcaEntities::Families::Family
+          AcaEntities::Families::Family
         )
       end
     end

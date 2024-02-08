@@ -75,7 +75,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
 
       let!(:open_transmission) { FactoryBot.create(:h41_original_transmission) }
       let(:transaction_xml) do
-        File.open(Rails.root.join("spec/test_payloads/h41/original.xml").to_s).read
+        File.read(Rails.root.join("spec/test_payloads/h41/original.xml").to_s)
       end
 
       before do
@@ -143,7 +143,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       end
 
       let!(:open_transmission) { FactoryBot.create(:h41_corrected_transmission) }
-      let(:transaction_xml) { File.open(Rails.root.join("spec/test_payloads/h41/corrected.xml").to_s).read }
+      let(:transaction_xml) { File.read(Rails.root.join("spec/test_payloads/h41/corrected.xml").to_s) }
 
       before do
         @result = subject.call(input_params)
@@ -210,7 +210,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       end
 
       let!(:open_transmission) { FactoryBot.create(:h41_void_transmission) }
-      let(:transaction_xml) { File.open(Rails.root.join("spec/test_payloads/h41/void.xml").to_s).read }
+      let(:transaction_xml) { File.read(Rails.root.join("spec/test_payloads/h41/void.xml").to_s) }
 
       before do
         @result = subject.call(input_params)
@@ -291,7 +291,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       end
 
       let!(:open_transmission) { FactoryBot.create(:h41_corrected_transmission) }
-      let(:transaction_xml) { File.open(Rails.root.join("spec/test_payloads/h41/corrected.xml").to_s).read }
+      let(:transaction_xml) { File.read(Rails.root.join("spec/test_payloads/h41/corrected.xml").to_s) }
 
       before do
 
@@ -321,7 +321,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       end
 
       let!(:open_transmission) { FactoryBot.create(:h41_corrected_transmission) }
-      let(:transaction_xml) { File.open(Rails.root.join("spec/test_payloads/h41/corrected.xml").to_s).read }
+      let(:transaction_xml) { File.read(Rails.root.join("spec/test_payloads/h41/corrected.xml").to_s) }
 
       context 'when no previous reference stored' do
         let(:batch_time) { Time.now + 1.hours }
@@ -366,7 +366,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
 
       let!(:open_transmission) { FactoryBot.create(:h41_original_transmission) }
       let(:transaction_xml) do
-        File.open(Rails.root.join("spec/test_payloads/h41/original.xml").to_s).read
+        File.read(Rails.root.join("spec/test_payloads/h41/original.xml").to_s)
       end
 
       let(:exclusion_contract_holder_hbx_ids) do

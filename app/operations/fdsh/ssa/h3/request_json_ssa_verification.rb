@@ -8,7 +8,7 @@ module Fdsh
         include Dry::Monads[:result, :do, :try]
         include EventSource::Command
 
-        PublishEventStruct = Struct.new(:name, :payload, :headers)
+        PublishEventStruct = Struct.new(:name, :payload, :headers, :message)
 
         PUBLISH_EVENT = "verify_ssa_composite_service_rest_request"
         # @param params [String] the json payload of the person
@@ -41,7 +41,7 @@ module Fdsh
           event = PublishEventStruct.new(PUBLISH_EVENT, params[:transmittable_objects][:transaction].json_payload,
                                          { authorization: "Bearer #{params[:token]}",
                                            messageid: params[:transmittable_objects][:job].message_id,
-                                           partnerid: ENV['CMS_PARTNER_ID'] })
+                                           partnerid: ENV.fetch('CMS_PARTNER_ID', nil) })
           result = update_status(params[:transmittable_objects])
           return Failure("Could not publish payload #{result.failure}") if result.failure?
 

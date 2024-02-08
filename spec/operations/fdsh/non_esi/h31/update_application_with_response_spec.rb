@@ -331,7 +331,7 @@ RSpec.describe Fdsh::NonEsi::H31::UpdateApplicationWithResponse do
       }
     end
 
-    let(:non_esi_response) {::AcaEntities::Fdsh::NonEsi::H31::VerifyNonESIMECResponse.new(mini_response_params)}
+    let(:non_esi_response) {AcaEntities::Fdsh::NonEsi::H31::VerifyNonESIMECResponse.new(mini_response_params)}
 
     before do
       @result1 = described_class.new.call(application, non_esi_response, application.hbx_id)
@@ -413,7 +413,7 @@ RSpec.describe Fdsh::NonEsi::H31::UpdateApplicationWithResponse do
       }
     end
 
-    let(:non_esi_response) {::AcaEntities::Fdsh::NonEsi::H31::VerifyNonESIMECResponse.new(max_response_params)}
+    let(:non_esi_response) {AcaEntities::Fdsh::NonEsi::H31::VerifyNonESIMECResponse.new(max_response_params)}
 
     before do
       @result2 = described_class.new.call(application, non_esi_response, application.hbx_id)

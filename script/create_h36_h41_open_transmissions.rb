@@ -4,7 +4,7 @@
 # bundle exec rails runner script/create_h36_h41_open_transmissions.rb
 
 def create_h36_transmission(month_of_year, assistance_year)
-  find_result = ::Fdsh::H36::Transmissions::Find.new.call(
+  find_result = Fdsh::H36::Transmissions::Find.new.call(
     {
       assistance_year: assistance_year,
       month_of_year: month_of_year
@@ -12,7 +12,7 @@ def create_h36_transmission(month_of_year, assistance_year)
   )
   return find_result.success if find_result.success?
 
-  ::Fdsh::H36::Transmissions::Create.new.call(
+  Fdsh::H36::Transmissions::Create.new.call(
     {
       assistance_year: assistance_year,
       month_of_year: month_of_year
@@ -21,7 +21,7 @@ def create_h36_transmission(month_of_year, assistance_year)
 end
 
 def create_h41_transmission(transmission_type, reporting_year)
-  ::Fdsh::H41::Transmissions::FindOrCreate.new.call(
+  Fdsh::H41::Transmissions::FindOrCreate.new.call(
     {
       reporting_year: reporting_year,
       status: :open,

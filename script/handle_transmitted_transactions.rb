@@ -7,7 +7,7 @@
 # Before we run this script, we need to upload CMS folder named "SBE00ME.DSH.EOYIN.D230210.T214339000.P.IN.SUBMIT.20230210" at the root
 
 def create_h41_open_transmission(transmission_type, reporting_year)
-  ::Fdsh::H41::Transmissions::FindOrCreate.new.call(
+  Fdsh::H41::Transmissions::FindOrCreate.new.call(
     {
       reporting_year: reporting_year,
       status: :open,
@@ -28,7 +28,7 @@ def find_h41_original_transmissions
 end
 
 def find_h41_transmission(transmission_type, reporting_year, status)
-  ::Fdsh::H41::Transmissions::Find.new.call(
+  Fdsh::H41::Transmissions::Find.new.call(
     {
       reporting_year: reporting_year,
       status: status,
@@ -147,7 +147,7 @@ def update_transmitted_transactions(eligible_h41_transactions, offset_count, h41
     next old_transaction if old_transaction.is_migrated?
 
     @logger.info "----- Processing H41Transaction FamilyHbxID: #{old_transaction.family_hbx_id}"
-    policy = ::H41::InsurancePolicies::InsurancePolicy.where(policy_hbx_id: old_transaction.policy_hbx_id).first
+    policy = H41::InsurancePolicies::InsurancePolicy.where(policy_hbx_id: old_transaction.policy_hbx_id).first
     if policy.blank?
       @logger.info "Could not find InsurancePolicy with policy_hbx_id: #{
         old_transaction.policy_hbx_id}, primary_hbx_id: #{old_transaction.primary_hbx_id}, family_hbx_id: #{old_transaction.family_hbx_id}"
@@ -164,7 +164,7 @@ def update_transmitted_transactions(eligible_h41_transactions, offset_count, h41
 
       aptc_csr_tax_household.transactions.each do |transaction|
         transaction.update_attributes!({ status: :transmitted, transmit_action: :no_transmit })
-        ::H41::Transmissions::TransmissionPath.create(
+        H41::Transmissions::TransmissionPath.create(
           batch_reference: "2023-02-10T21:43:39Z",
           content_file_id: file_id,
           record_sequence_number: record_sequence_num,

@@ -9,7 +9,7 @@ module Fdsh
           include Dry::Monads[:result, :do, :try]
           include EventSource::Command
 
-          PublishEventStruct = Struct.new(:name, :payload, :headers)
+          PublishEventStruct = Struct.new(:name, :payload, :headers, :message)
 
           # this should be a new event for REST XML
           PUBLISH_EVENT = "vlp_initial_verification_requested"

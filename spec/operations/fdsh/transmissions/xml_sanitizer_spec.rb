@@ -36,7 +36,7 @@ RSpec.describe Fdsh::Transmissions::XmlSanitizer do
       end
 
       let(:transaction_xml) do
-        File.open(Rails.root.join("spec/test_payloads/h41/sanitizer_input.xml").to_s).read
+        File.read(Rails.root.join("spec/test_payloads/h41/sanitizer_input.xml").to_s)
       end
 
       before do

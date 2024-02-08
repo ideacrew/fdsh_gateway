@@ -4,7 +4,7 @@
 # bundle exec rails runner script/create_transactions_for_missing_transmission.rb
 
 def fetch_transmission(assistance_year, month)
-  find_result = ::Fdsh::H36::Transmissions::Find.new.call(
+  find_result = Fdsh::H36::Transmissions::Find.new.call(
     {
       assistance_year: assistance_year,
       month_of_year: month
@@ -29,16 +29,16 @@ end
 
 def clone_subject_and_create_transaction(transaction)
   subject = transaction.transactable
-  irs_group = ::H36::IrsGroups::IrsGroup.create!(
+  irs_group = H36::IrsGroups::IrsGroup.create!(
     correlation_id: subject.correlation_id,
     family_cv: subject.family_cv,
     family_hbx_id: subject.family_hbx_id,
     contract_holder_hbx_id: subject.contract_holder_hbx_id,
     assistance_year: subject.assistance_year
   )
-  ::Transmittable::Transaction.create!(transmit_action: :transmit,
-                                       status: :created, started_at: Time.now,
-                                       transactable: irs_group)
+  Transmittable::Transaction.create!(transmit_action: :transmit,
+                                     status: :created, started_at: Time.now,
+                                     transactable: irs_group)
 end
 
 # clone transmit_pending 2022/15 transactions to 2022/14

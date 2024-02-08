@@ -66,7 +66,7 @@ RSpec.describe Journal::Transactions::FindOrCreate do
         described_class.new.call(
           correlation_id: transaction.value![:correlation_id]
         )
-      expect(::Transaction.count).to be > 0
+      expect(Transaction.count).to be > 0
       expect(result.success?).to be_truthy
       expect(result.value!.to_h[:correlation_id]).to eq correlation_id
     end

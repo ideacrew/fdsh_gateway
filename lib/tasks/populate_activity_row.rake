@@ -25,7 +25,7 @@ namespace :update do
         }
         next if ActivityRow.where(row_params).first
 
-        activity_row = ::ActivityRow.new do |ar|
+        activity_row = ActivityRow.new do |ar|
           ar.transaction_id = t._id
           ar.application_id = t.application_id
           ar.primary_hbx_id = t.primary_hbx_id

@@ -18,17 +18,17 @@ RSpec.describe Fdsh::Vlp::Rx142::InitialVerification::HandleInitialVerificationR
   let(:xml_content) { File.open(file) }
 
   let!(:transmittable_hash)  { { message_id: job.message_id, transaction: transaction }}
-  let(:mock_transmittable_payload_request) { instance_double(::Fdsh::Jobs::Vlp::GenerateTransmittableInitialVerificationPayload) }
+  let(:mock_transmittable_payload_request) { instance_double(Fdsh::Jobs::Vlp::GenerateTransmittableInitialVerificationPayload) }
   let(:mock_transmittable_payload_response) { Dry::Monads::Result::Success.call(transmittable_hash) }
   let(:mock_jwt_request) { instance_double(Jwt::GetJwt) }
   let(:mock_jwt_response) { Dry::Monads::Result::Success.call("3487583567384567384568") }
-  let(:mock_vlp_request_verification) { instance_double(::Fdsh::Vlp::Rx142::InitialVerification::RequestInitialVerification) }
+  let(:mock_vlp_request_verification) { instance_double(Fdsh::Vlp::Rx142::InitialVerification::RequestInitialVerification) }
 
   let(:mock_vlp_response) do
     Dry::Monads::Result::Success.call(Faraday::Response.new(status: 200, response_body: xml_content))
   end
   before :each do
-    allow(::Fdsh::Jobs::Vlp::GenerateTransmittableInitialVerificationPayload).to receive(:new).and_return(mock_transmittable_payload_request)
+    allow(Fdsh::Jobs::Vlp::GenerateTransmittableInitialVerificationPayload).to receive(:new).and_return(mock_transmittable_payload_request)
     allow(mock_transmittable_payload_request).to receive(:call).with({
                                                                        key: :vlp_verification_request,
                                                                        title: 'VLP Verification Request',

@@ -61,7 +61,7 @@ module Fdsh
         end
 
         def build_h36_family_payload(values, family)
-          @max_month = values[:month_of_year] > TOTAL_CALENDAR_MONTHS ? TOTAL_CALENDAR_MONTHS : values[:month_of_year]
+          @max_month = [values[:month_of_year], TOTAL_CALENDAR_MONTHS].min
           @assistance_year = values[:assistance_year]
           insurance_agreements = family.households.flat_map(&:insurance_agreements)
           valid_agreements = insurance_agreements.select do |agreement|

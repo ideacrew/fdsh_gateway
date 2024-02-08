@@ -18,7 +18,7 @@ def find_or_create_h41_transaction(posted_family, insurance_policy)
 end
 
 def process_second_transmission
-  transmission = ::H41::Transmissions::Outbound::OriginalTransmission.find('63fac333a559070162647e48')
+  transmission = H41::Transmissions::Outbound::OriginalTransmission.find('63fac333a559070162647e48')
 
   transmission.transactions.transmitted.each do |transaction|
     aptc_csr_thh = transaction.transactable

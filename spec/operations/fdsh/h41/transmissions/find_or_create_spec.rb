@@ -25,9 +25,9 @@ RSpec.describe Fdsh::H41::Transmissions::FindOrCreate do
 
       context 'without an open H41 transmission' do
         it 'creates an open H41 transmission' do
-          expect(::H41::Transmissions::Outbound::OriginalTransmission.open.count).to be_zero
+          expect(H41::Transmissions::Outbound::OriginalTransmission.open.count).to be_zero
           subject
-          expect(::H41::Transmissions::Outbound::OriginalTransmission.open.count).to eq(1)
+          expect(H41::Transmissions::Outbound::OriginalTransmission.open.count).to eq(1)
         end
       end
 
@@ -42,10 +42,10 @@ RSpec.describe Fdsh::H41::Transmissions::FindOrCreate do
         end
 
         it 'creates an H41 transmission' do
-          expect(::H41::Transmissions::Outbound::VoidTransmission.transmitted.count).to be_zero
+          expect(H41::Transmissions::Outbound::VoidTransmission.transmitted.count).to be_zero
           subject
           expect(
-            ::H41::Transmissions::Outbound::VoidTransmission.transmitted.by_year(previous_year).count
+            H41::Transmissions::Outbound::VoidTransmission.transmitted.by_year(previous_year).count
           ).to eq(1)
         end
       end
@@ -54,9 +54,9 @@ RSpec.describe Fdsh::H41::Transmissions::FindOrCreate do
         let!(:h41_original_transmission) { FactoryBot.create(:h41_original_transmission) }
 
         it 'returns the existing open H41 transmission' do
-          expect(::H41::Transmissions::Outbound::OriginalTransmission.open.count).to eq(1)
+          expect(H41::Transmissions::Outbound::OriginalTransmission.open.count).to eq(1)
           subject
-          expect(::H41::Transmissions::Outbound::OriginalTransmission.open.count).to eq(1)
+          expect(H41::Transmissions::Outbound::OriginalTransmission.open.count).to eq(1)
         end
       end
     end

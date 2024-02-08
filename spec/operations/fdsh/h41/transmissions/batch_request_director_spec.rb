@@ -76,7 +76,7 @@ RSpec.describe Fdsh::Transmissions::BatchRequestDirector do
 
     let!(:open_transmission) { FactoryBot.create(:h41_original_transmission) }
     let(:transaction_xml) do
-      File.open(Rails.root.join("spec/test_payloads/h41/original.xml").to_s).read
+      File.read(Rails.root.join("spec/test_payloads/h41/original.xml").to_s)
     end
 
     let(:input_params) do

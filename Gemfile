@@ -52,6 +52,7 @@ gem 'rubyzip'
 
 # For user accounts
 gem 'devise'
+gem 'devise-security'
 
 # To prettify json payloads
 gem 'awesome_print'

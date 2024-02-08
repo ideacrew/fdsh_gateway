@@ -208,7 +208,7 @@ void_transmissions = @status == "all" ? void_transmission : void_transmission.by
   @transmission_type = fetch_transmission_type
   transactions = transmission.transactions
   transactions_count = transactions.count
-  transactions_per_iteration = transactions_count > 20_000.0 ? 20_000.0 : transactions_count
+  transactions_per_iteration = [transactions_count, 20_000.0].min
   @logger = Logger.new("#{Rails.root}/log/1095A-FormData_errors_#{@transmission._id}_#{Date.today.strftime('%Y_%m_%d_%H_%M')}.log")
 
   if transactions_count == 0
