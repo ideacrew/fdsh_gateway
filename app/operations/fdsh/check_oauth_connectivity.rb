@@ -8,25 +8,29 @@ module Fdsh
   class CheckOauthConnectivity
     include Dry::Monads[:result, :do, :try]
     include AcaEntities::AppHelper
-
-    PublishEventStruct = Struct.new(:name, :payload, :headers, :message)
-
-    PUBLISH_EVENT = "fdsh_oauth_connectivity_check_requested"
+    include EventSource::Command
 
     # @param [Hash] opts The options to process
     # @return [Dry::Monads::Result]
     def call(_response)
       token = yield ::Jwt::GetJwt.new.call({})
-      publish(token)
+      event = yield build_event(token)
+      publish(event)
     end
 
-    CONNECTIVITY_TEST_PAYLOAD = { hubConnectivityRequest: {} }.to_json
+    CONNECTIVITY_TEST_PAYLOAD = { hubConnectivityRequest: {} }.freeze
 
     private
 
-    def publish(token)
-      event = PublishEventStruct.new(PUBLISH_EVENT, CONNECTIVITY_TEST_PAYLOAD, { authorization: "Bearer #{token}", messageid: SecureRandom.uuid })
+    def build_event(token)
+      headers = { authorization: "Bearer #{token}", messageid: SecureRandom.uuid }
+      event('events.fdsh.oauth_connectivity_checked', attributes: CONNECTIVITY_TEST_PAYLOAD, headers: headers)
+    end
+
+    def publish(event)
       Success(::Publishers::Fdsh::OauthConnectivityPublisher.publish(event))
+    rescue StandardError
+      Failure("failed to publish event")
     end
   end
 end

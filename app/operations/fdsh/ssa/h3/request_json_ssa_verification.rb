@@ -8,14 +8,14 @@ module Fdsh
         include Dry::Monads[:result, :do, :try]
         include EventSource::Command
 
-        PublishEventStruct = Struct.new(:name, :payload, :headers, :message)
-
-        PUBLISH_EVENT = "verify_ssa_composite_service_rest_request"
-        # @param params [String] the json payload of the person
+        # @param token [Sting] the jwt token for CMS auth
+        # @param transmittable_objects [Hash] the transmittable objects that need to be updated w/ successes/failures
+        # @param correlation_id [Sting] the correlation id of the subject
         # @return [Dry::Monads::Result]
         def call(params)
-          validated_params = yield validate_params(params)
-          publish_event(validated_params)
+          yield validate_params(params)
+          event = yield build_event(params)
+          publish_event(event, params[:transmittable_objects])
         end
 
         protected
@@ -37,15 +37,33 @@ module Fdsh
           Success(params)
         end
 
-        def publish_event(params)
-          event = PublishEventStruct.new(PUBLISH_EVENT, params[:transmittable_objects][:transaction].json_payload,
-                                         { authorization: "Bearer #{params[:token]}",
-                                           messageid: params[:transmittable_objects][:job].message_id,
-                                           partnerid: ENV.fetch('CMS_PARTNER_ID', nil) })
-          result = update_status(params[:transmittable_objects])
-          return Failure("Could not publish payload #{result.failure}") if result.failure?
+        def build_event(params)
+          headers = { authorization: "Bearer #{params[:token]}",
+                      messageid: params[:transmittable_objects][:job].message_id,
+                      partnerid: ENV.fetch('CMS_PARTNER_ID', nil) }
+          event = event('events.fdsh.ssa_verification_requested', attributes: params[:transmittable_objects][:transaction].json_payload.to_h,
+                                                                  headers: headers)
 
-          Success(::Publishers::Fdsh::VerifySsaCompositeServiceRestPublisher.publish(event))
+          return event if event.success?
+
+          add_errors(params[:transmittable_objects],
+                     "Failed to build event due to #{event.failure}",
+                     :build_ssa_request)
+          status_result = Fdsh::Jobs::UpdateProcessStatus.new.call(params[:transmittable_objects], :failed,
+                                                                   "Failed to build event")
+          return status_result if status_result.failure?
+          event
+        end
+
+        def publish_event(event, transmittable_hash)
+          Success(event.publish)
+        rescue StandardError => e
+          add_errors(transmittable_hash,
+                     "Failed to publish event to CMS due to #{e.message}",
+                     :publish_ssa_request)
+          Fdsh::Jobs::UpdateProcessStatus.new.call(transmittable_hash, :failed,
+                                                   "Failed to publish event to CMS")
+          Failure("failed to publish event")
         end
 
         def update_status(transmittable_hash)
