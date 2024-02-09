@@ -29,6 +29,8 @@ module Fdsh
 
     def publish(event)
       Success(::Publishers::Fdsh::OauthConnectivityPublisher.publish(event))
+    rescue StandardError
+      Failure("failed to publish event")
     end
   end
 end

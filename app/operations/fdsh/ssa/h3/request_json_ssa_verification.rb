@@ -47,7 +47,7 @@ module Fdsh
           return event if event.success?
 
           add_errors(params[:transmittable_objects],
-                     "Failed to build event due to #{result.failure}",
+                     "Failed to build event due to #{event.failure}",
                      :build_ssa_request)
           status_result = Fdsh::Jobs::UpdateProcessStatus.new.call(params[:transmittable_objects], :failed,
                                                                    "Failed to build event")
@@ -57,12 +57,13 @@ module Fdsh
 
         def publish_event(event, transmittable_hash)
           Success(event.publish)
-        rescue StandardError
+        rescue StandardError => e
           add_errors(transmittable_hash,
-                     "Failed to publish event to CMS due to #{result.failure}",
+                     "Failed to publish event to CMS due to #{e.message}",
                      :publish_ssa_request)
-          Fdsh::Jobs::UpdateProcessStatus.new.call(params[:transmittable_objects], :failed,
+          Fdsh::Jobs::UpdateProcessStatus.new.call(transmittable_hash, :failed,
                                                    "Failed to publish event to CMS")
+          Failure("failed to publish event")
         end
 
         def update_status(transmittable_hash)
