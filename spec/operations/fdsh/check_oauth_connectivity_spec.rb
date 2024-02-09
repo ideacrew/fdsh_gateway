@@ -26,7 +26,7 @@ RSpec.describe Fdsh::CheckOauthConnectivity, "given invalid JSON" do
 
       stub_request(:post, "https://impl.hub.cms.gov/Imp1/HubConnectivityServiceRest")
         .with(
-          body: "\"{\\\"hubConnectivityRequest\\\":{}}\"",
+          body: "{\"hubConnectivityRequest\":{}}",
           headers: {
             'Accept' => 'application/json',
             'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
