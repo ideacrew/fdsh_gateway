@@ -5,6 +5,7 @@ module Subscribers
     module VerificationRequests
       # Publish events for FDSH SSA requests
       class SsaVerificationRequestedSubscriber
+        include EventSource::Command
         include ::EventSource::Subscriber[amqp: 'fdsh.verification_requests.ssa']
         subscribe(:on_ssa_verification_requested) do |delivery_info, properties, payload|
           # Sequence of steps that are executed as single operation
