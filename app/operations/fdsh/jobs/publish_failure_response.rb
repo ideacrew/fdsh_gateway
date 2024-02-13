@@ -20,7 +20,7 @@ module Fdsh
       private
 
       def validate_params(params)
-        return Failure('needs job_id for matching jobs in EA') unless params[:job_id]
+        return Failure('needs job_id for matching jobs in EA') unless params[:job_id].is_a?(String)
         return Failure('needs event name to trigger proper event') unless params[:event_name].is_a?(String)
         return Failure('needs correlation_id for matching in EA') unless params[:correlation_id].is_a?(String)
         Success(params)
@@ -31,7 +31,7 @@ module Fdsh
       end
 
       def publish_event(event)
-        Success(event.publish)
+        Try() { event.publish }.to_result
       end
     end
   end
