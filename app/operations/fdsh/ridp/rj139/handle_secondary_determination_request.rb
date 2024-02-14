@@ -177,7 +177,7 @@ module Fdsh
 
         def check_elapsed_time
           time = Time.now
-          time - @job.created_at > 19.seconds
+          time - @request_transmission.created_at > 19.seconds
         end
       end
     end

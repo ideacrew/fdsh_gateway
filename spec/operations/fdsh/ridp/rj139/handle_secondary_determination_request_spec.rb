@@ -99,6 +99,19 @@ RSpec.describe Fdsh::Ridp::Rj139::HandleSecondaryDeterminationRequest, dbclean: 
       expect(job.transmissions.last.transactions_transmissions.last.transaction.key).to eq :ridp_secondary_verification_response
       expect(job.transmissions.last.transactions_transmissions.last.transaction.metadata).to eq nil
     end
+
+    it 'should not be marked as expired' do
+      expect(job.process_status.latest_state).not_to eq :expired
+    end
+  end
+
+  context 'if the process takes more than 19 seconds' do
+    it 'should be marked as expired' do
+      transmission.created_at = 1.day.ago
+      described_class.new.call({ correlation_id: correlation_id, payload: payload, session_id: session_id,
+                                 transmission_id: transmission_id })
+      expect(job.process_status.latest_state).to eq :expired
+    end
   end
 
   context 'with a failure response' do
