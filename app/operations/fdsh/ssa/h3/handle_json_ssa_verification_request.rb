@@ -33,7 +33,7 @@ module Fdsh
         end
 
         def transmittable_payload(params)
-          result = ::Fdsh::Jobs::GenerateTransmittableSsaPayload.new.call({ key: :ssa_verification_request,
+          result = ::Fdsh::Jobs::GenerateTransmittableSsaPayload.new.call({ key: :ssa_verification,
                                                                             title: 'SSA Verification Request',
                                                                             description: 'Request for SSA verification to CMS',
                                                                             payload: params[:payload],
