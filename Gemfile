@@ -38,6 +38,7 @@ gem 'rails', '~> 6.1.4'
 
 # Use Redis for caching
 gem 'redis', '~> 4.0'
+gem 'resource_registry',  git:  'https://github.com/ideacrew/resource_registry.git', branch: 'trunk'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '>= 6'
