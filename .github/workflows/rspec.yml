@@ -29,10 +29,27 @@ jobs:
           key: v2-${{ runner.os }}-gems-fdsh_gateway-${{ hashFiles('**/Gemfile.lock') }}-${{ hashFiles('**/Gemfile' ) }}
           restore-keys: |
             v2-${{ runner.os }}-gems-fdsh_gateway-${{ hashFiles('**/Gemfile.lock') }}-${{ hashFiles('**/Gemfile' ) }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '14.x'
+      - name: Restore Node Modules
+        id: npm-cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_v14_modules-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node_v14_modules-${{ hashFiles('yarn.lock') }}
+      - name: Install node dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: yarn install
       - name: bundle install
         run: |
           bundle config path vendor/bundle
           bundle install
+      - name: Compile assets
+        if: steps.assets-cache.outputs.cache-hit != 'true'
+        run: bundle exec rails assets:precompile
       - name: run rubocop
         run: |
           bundle exec rubocop

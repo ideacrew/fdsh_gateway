@@ -64,5 +64,10 @@ RSpec.configure do |config|
   # devise spec helpers
   config.include Devise::Test::ControllerHelpers, type: :view
   config.include Devise::Test::ControllerHelpers, type: :controller
+  config.include Devise::Test::IntegrationHelpers, type: :system
   config.include Warden::Test::Helpers
+
+  config.before(:each, type: :system) do
+    driven_by :rack_test
+  end
 end

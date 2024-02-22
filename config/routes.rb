@@ -17,6 +17,7 @@ Rails.application.routes.draw do
     resources :transactions, only: [:index, :show]
   end
 
+  resources :registries, only: [:index]
   get '/connectivity_tests/oauth', to: 'connectivity_tests#oauth'
 
 end

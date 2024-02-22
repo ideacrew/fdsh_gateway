@@ -1,0 +1,8 @@
+---
+registry:
+  - namespace:
+      - :fdsh_gateway
+      - :aca_individual_market
+    features:
+      - key: :cms_eft_serverless
+        is_enabled: <%= ENV['CMS_EFT_SERVERLESS_ENABLED'] || false %>
