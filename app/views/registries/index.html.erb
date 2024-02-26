@@ -1,0 +1,18 @@
+<div class="container" id="registry">
+  <h1>FDSH Gateway Registry Settings</h1>
+  Updated At: <%= FdshGatewayRegistry.configurations[:created_at] %>
+  <% FdshGatewayRegistry.features.each do |f| %>
+    <% feature = FdshGatewayRegistry[f] %>
+    <div class="<%= 'enabled-feature' if feature.enabled? %>">
+      <%= feature.namespace %>
+      <p class="mb-0"><span class="registry-feature"><%= f %></p>
+      <%= raw("<p class='mb-0'>Item: #{feature.item}</p>") if feature.item && feature.item != f %>
+      <%= raw("<p class='mb-0'>Settings:</p>") if feature.settings.any? %>
+      <ul>
+        <% feature.settings.each do |setting| %>
+          <li><b><%= setting.key %></b>: <%= setting.item %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>

@@ -45,7 +45,7 @@ GIT
 
 GIT
   remote: https://github.com/ideacrew/gateway-styles.git
-  revision: 2658060c99a7d381e2a43baaa33b2a3220629d0e
+  revision: fed0557351007ee0c451e65112b5b0404f6e4caf
   branch: trunk
   specs:
     gateway_styles (0.1.0)
