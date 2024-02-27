@@ -73,31 +73,67 @@ RSpec.describe Fdsh::H36::Transmissions::BuildTransmission do
         }
       end
 
-      before do
-        @result = subject.call(input_params)
-        transmission.reload
-      end
-
-      it 'should generate h36 successfully' do
-        expect(@result.success?).to be_truthy
-      end
-
-      it 'should change pending transmission to transmitted' do
-        expect(transmission.status).to eq :transmitted
-      end
-
-      it 'should transmission batch file' do
-        file_names = Dir.glob("#{outbound_folder}/*").collect do |file|
-          File.basename(file)
+      context "when cms_eft_serverless feature is turned off" do
+        before do
+          allow(FdshGatewayRegistry).to receive(:feature_enabled?).with(:cms_eft_serverless).and_return(false)
         end
-        expect(file_names.count).to eq 1
-        expect(file_names.first).to match(/SBE00ME\.DSH\.EOMIN\.D\d{6}\.T\d{9}\.P\.IN/)
+
+        it 'should generate h36 successfully' do
+          result = subject.call(input_params)
+          expect(result.success?).to be_truthy
+        end
+
+        it 'should change pending transmission to transmitted' do
+          subject.call(input_params)
+          transmission.reload
+          expect(transmission.status).to eq :transmitted
+        end
+
+        it 'should transmission batch file' do
+          subject.call(input_params)
+          file_names = Dir.glob("#{outbound_folder}/*").collect do |file|
+            File.basename(file)
+          end
+          expect(file_names.count).to eq 1
+          expect(file_names.first).to match(/SBE00ME\.DSH\.EOMIN\.D\d{6}\.T\d{9}\.P\.IN/)
+        end
+
+        it 'should update transmission to transmitted state' do
+          subject.call(input_params)
+          transmission.transactions.each do |transaction|
+            expect(transaction.status).to eq :transmitted
+          end
+        end
       end
 
-      it 'should update transmission to transmitted state' do
-        transmission.transactions.each do |transaction|
-          expect(transaction.status).to eq :transmitted
-          expect(transaction.transmit_action).to eq :no_transmit
+      context "when cms_eft_serverless feature is turned on" do
+        before do
+          allow(FdshGatewayRegistry).to receive(:feature_enabled?).with(:cms_eft_serverless).and_return(true)
+          @result = subject.call(input_params)
+          transmission.reload
+        end
+
+        it 'should generate h36 successfully' do
+          expect(@result.success?).to be_truthy
+        end
+
+        it 'should change pending transmission to transmitted' do
+          expect(transmission.status).to eq :transmitted
+        end
+
+        it 'should transmission batch file' do
+          file_names = Dir.glob("#{outbound_folder}/*").collect do |file|
+            File.basename(file)
+          end
+          expect(file_names.count).to eq 1
+          expect(file_names.first).to match(/SBE00ME\.DSH\.EOMIN\.D\d{6}\.T\d{9}\.P/)
+        end
+
+        it 'should update transmission to transmitted state' do
+          transmission.transactions.each do |transaction|
+            expect(transaction.status).to eq :transmitted
+            expect(transaction.transmit_action).to eq :no_transmit
+          end
         end
       end
     end
