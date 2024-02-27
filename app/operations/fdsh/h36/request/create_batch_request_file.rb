@@ -39,7 +39,7 @@ module Fdsh
             File.basename(file)
           end
 
-          batch_timestamp = DateTime.strptime(values[:batch_reference]).strftime("%y%m%d.T%H%M%S%L.P.IN")
+          batch_timestamp = fetch_batch_timestamp(values[:batch_reference])
           @zip_name = values[:outbound_folder] + "/SBE00ME.DSH.EOMIN.D#{batch_timestamp}"
 
           Zip::File.open(@zip_name, create: true) do |zipfile|
@@ -50,6 +50,23 @@ module Fdsh
 
           xml_files.each do |file_name|
             FileUtils.rm_rf(File.join(values[:outbound_folder], file_name))
+          end
+        end
+
+        # Fetches the timestamp for a given batch reference.
+        #
+        # If the feature `:cms_eft_serverless` is enabled in `FdshGatewayRegistry`, the timestamp is formatted as:
+        # YYMMDD.THHMMSSMMM.P
+        # Otherwise, the timestamp is formatted as:
+        # YYMMDD.THHMMSSMMM.P.IN
+        #
+        # @param batch_reference [String] The reference for the batch.
+        # @return [String] The formatted timestamp.
+        def fetch_batch_timestamp(batch_reference)
+          if FdshGatewayRegistry.feature_enabled?(:cms_eft_serverless)
+            DateTime.strptime(batch_reference).strftime("%y%m%d.T%H%M%S%L.P")
+          else
+            DateTime.strptime(batch_reference).strftime("%y%m%d.T%H%M%S%L.P.IN")
           end
         end
       end
