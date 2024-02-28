@@ -54,6 +54,55 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
     end
   end
 
+  describe 'cms_eft_serverless feature' do
+    let!(:insurance_polices) do
+      create_list(:h41_insurance_policy, 20, :with_aptc_csr_tax_households, transaction_xml: transaction_xml,
+                                                                            transmission: open_transmission)
+    end
+
+    let(:outbound_folder) do
+      Rails.root.join("h41_transmissions").to_s
+    end
+    let(:input_params) do
+      {
+        reporting_year: Date.today.year,
+        report_kind: report_kind,
+        report_type: :original
+      }
+    end
+
+    let!(:open_transmission) { FactoryBot.create(:h41_original_transmission) }
+    let(:transaction_xml) do
+      File.read(Rails.root.join("spec/test_payloads/h41/original.xml").to_s)
+    end
+
+    context 'when feature is enabled' do
+      before do
+        allow(FdshGatewayRegistry).to receive(:feature_enabled?).with(:cms_eft_serverless).and_return(true)
+        @result = subject.call(input_params)
+        open_transmission.reload
+      end
+
+      it 'validates file name format without .IN' do
+        file_names = Dir.glob("#{outbound_folder}/*").collect{|file| File.basename(file) }
+        expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P/)
+      end
+    end
+
+    context 'when feature is disabled' do
+      before do
+        allow(FdshGatewayRegistry).to receive(:feature_enabled?).with(:cms_eft_serverless).and_return(false)
+        @result = subject.call(input_params)
+        open_transmission.reload
+      end
+
+      it 'validates file name format with .IN' do
+        file_names = Dir.glob("#{outbound_folder}/*").collect{|file| File.basename(file) }
+        expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P\.IN/)
+      end
+    end
+  end
+
   describe '.publish' do
     let!(:insurance_polices) do
       create_list(:h41_insurance_policy, 20, :with_aptc_csr_tax_households, transaction_xml: transaction_xml,
