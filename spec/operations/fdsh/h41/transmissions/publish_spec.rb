@@ -84,7 +84,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       end
 
       it 'validates file name format without .IN' do
-        file_names = Dir.glob("#{outbound_folder}/*").collect{|file| File.basename(file) }
+        file_names = Dir.glob("#{outbound_folder}/*").collect {|file| File.basename(file) }
         expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P/)
       end
     end
@@ -97,7 +97,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
       end
 
       it 'validates file name format with .IN' do
-        file_names = Dir.glob("#{outbound_folder}/*").collect{|file| File.basename(file) }
+        file_names = Dir.glob("#{outbound_folder}/*").collect {|file| File.basename(file) }
         expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P\.IN/)
       end
     end
