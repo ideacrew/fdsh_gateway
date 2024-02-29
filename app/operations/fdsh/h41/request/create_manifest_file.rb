@@ -107,7 +107,7 @@ module Fdsh
           if values[:transmission_kind] == :original
             service_data
           else
-            service_data.merge(OriginalBatchId: values[:old_batch_reference])
+            service_data.merge(OriginalBatchID: values[:old_batch_reference])
           end
         end
 
