@@ -13,10 +13,12 @@ module Fdsh
           include Dry::Monads[:result, :do, :try]
           include EventSource::Command
 
+          BASE_FORMAT = "/SBE00ME.DSH.RRVIN.D".freeze
+
           def call(params)
             values = yield validate(params)
             manifest_file = yield create_manifest_file(values)
-            generate_batch_zip(values, manifest_file)
+            create_batch_zip(values, manifest_file)
 
             Success(values[:outbound_folder])
           end
@@ -44,15 +46,15 @@ module Fdsh
           #
           # @param outbound_folder [String] The base folder where the zip file will be created.
           # @return [String] The full path of the zip file.
-          def fetch_zip_folder_name(outbound_folder)
-            base_format = "/SBE00ME.DSH.RRVIN.D#{Time.now.strftime('%y%m%d.T%H%M%S%L.P')}"
+          def generate_zip_folder_name(outbound_folder)
+            timestamp = Time.now.strftime('%y%m%d.T%H%M%S%L.P')
             extension = FdshGatewayRegistry.feature_enabled?(:cms_eft_serverless) ? ".zip" : ".IN.zip"
-            "#{outbound_folder}#{base_format}#{extension}"
+            "#{outbound_folder}#{BASE_FORMAT}#{timestamp}#{extension}"
           end
 
-          def generate_batch_zip(values, manifest_file)
+          def create_batch_zip(values, manifest_file)
             input_files = [File.basename(values[:transaction_file]), File.basename(manifest_file)]
-            @zip_name = fetch_zip_folder_name(values[:outbound_folder])
+            @zip_name = generate_zip_folder_name(values[:outbound_folder])
 
             Zip::File.open(@zip_name, create: true) do |zipfile|
               input_files.each do |filename|
