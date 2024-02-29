@@ -13,7 +13,7 @@ module Fdsh
           include Dry::Monads[:result, :do, :try]
           include EventSource::Command
 
-          BASE_FORMAT = "/SBE00ME.DSH.RRVIN.D".freeze
+          BASE_FOLDER_NAME_FORMAT = "/SBE00ME.DSH.RRVIN.D".freeze
 
           def call(params)
             values = yield validate(params)
@@ -49,7 +49,7 @@ module Fdsh
           def generate_zip_folder_name(outbound_folder)
             timestamp = Time.now.strftime('%y%m%d.T%H%M%S%L.P')
             extension = FdshGatewayRegistry.feature_enabled?(:cms_eft_serverless) ? ".zip" : ".IN.zip"
-            "#{outbound_folder}#{BASE_FORMAT}#{timestamp}#{extension}"
+            "#{outbound_folder}#{BASE_FOLDER_NAME_FORMAT}#{timestamp}#{extension}"
           end
 
           def create_batch_zip(values, manifest_file)
