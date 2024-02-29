@@ -13,7 +13,7 @@ module Fdsh
           include Dry::Monads[:result, :do, :try]
           include EventSource::Command
 
-          BASE_FOLDER_NAME_FORMAT = "/SBE00ME.DSH.RRVIN.D".freeze
+          BASE_FOLDER_NAME_FORMAT = "/SBE00ME.DSH.RRVIN.D"
 
           def call(params)
             values = yield validate(params)
