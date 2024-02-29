@@ -7,10 +7,12 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
 
   before :each do
     FileUtils.rm_rf(Rails.root.join("h41_transmissions").to_s)
+    FileUtils.rm_rf(Rails.root.join("h41_files").to_s)
   end
 
   after :all do
     FileUtils.rm_rf(Rails.root.join("h41_transmissions").to_s)
+    FileUtils.rm_rf(Rails.root.join("h41_files").to_s)
   end
 
   after :each do
@@ -172,6 +174,33 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         end
         expect(file_names.count).to eq 1
         expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P\.IN/)
+      end
+
+      it 'should have valid original batch id tag in manifest file' do
+        destination_directory = "#{Rails.root}/h41_files"
+        FileUtils.mkdir_p(destination_directory) unless File.directory?(destination_directory)
+        file_names = Dir.glob("#{outbound_folder}/*").collect do |file|
+          File.basename(file)
+        end
+
+        Zip::File.open("#{Rails.root}/h41_transmissions/#{file_names.first}") do |zip_file|
+          zip_file.each do |entry|
+            # Construct the destination path for each file in the zip
+            destination_path = File.join(destination_directory, entry.name)
+
+            # Extract the file
+            entry.extract(destination_path)
+          end
+        end
+
+        file = File.open("#{Rails.root}/h41_files/manifest.xml", "r")
+        begin
+          file_contents = file.read
+          text_to_check = "OriginalBatchID"
+          expect(file_contents).to include(text_to_check)
+        ensure
+          file.close
+        end
       end
 
       it 'should update transmission to transmitted state' do
