@@ -60,7 +60,7 @@ module Fdsh
       end
 
       def create_job(job_entity)
-        job = Transmittable::Job.create(job_entity.to_h)
+        job = ::Transmittable::Job.create(job_entity.to_h)
         job.save ? Success(job) : Failure("Unable to save job due to invalid params")
       end
     end
