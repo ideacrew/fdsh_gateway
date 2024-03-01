@@ -117,9 +117,16 @@ module Fdsh
         end
 
         def publish_h41_transmisson(transmission, values)
+          pending_transactions = transmission.transactions.transmit_pending
+          if pending_transactions.blank?
+            return Success(
+              "No pending transactions for : #{values[:report_type]}"
+            )
+          end
+
           if values[:report_type] == :original
             new_batch_reference = construct_new_batch_reference(:original, 0)
-            create_transmission_with(transmission.transactions.transmit_pending, values, new_batch_reference)
+            create_transmission_with(pending_transactions, values, new_batch_reference)
           else
             find_transactions_by_original_batch(transmission, values).each_with_index do |(batch_reference, transactions), index|
               new_batch_reference = construct_new_batch_reference(values[:report_type], index)
