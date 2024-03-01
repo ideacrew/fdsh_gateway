@@ -20,6 +20,39 @@ module Subscribers
       def process_date_change_event(subscriber_logger, system_date)
         subscriber_logger.info "system_date: #{system_date}"
 
+        process_date_advanced_for_h41(subscriber_logger, system_date)
+        process_date_advanced_for_h36(subscriber_logger, system_date)
+      end
+
+      def subscriber_logger_for(event)
+        Logger.new("#{Rails.root}/log/#{event}_#{Date.today.in_time_zone('Eastern Time (US & Canada)').strftime('%Y_%m_%d')}.log")
+      end
+
+      # TODO: Eligible Date for Renewal H41 Transmissions is hard coded to September 15th.
+      #       This should be changed to a configurable value using Resource Registry.
+      def date_eligible_for_renewal_h41_transmissions?(system_date)
+        Date.new(system_date.year, 9, 15) == system_date
+      end
+
+      def process_date_advanced_for_h41(subscriber_logger, system_date)
+        date_eligible = date_eligible_for_renewal_h41_transmissions?(system_date)
+        subscriber_logger.info(
+          "System Date: #{system_date} is #{date_eligible ? 'ELIGIBLE' : 'NOT ELIGIBLE'} for creation of H41 Renewal Transmissions."
+        )
+
+        return unless date_eligible
+
+        result = ::Fdsh::H41::OpenTransmissions::FindOrCreate.new.call({ reporting_year: system_date.year })
+        if result.success?
+          subscriber_logger.info "H41 Transmission create: Successfully created H41 transmissions for the year: #{system_date.year}"
+        else
+          subscriber_logger.info "H41 Transmission create: Failed to created H41 transmissions for the year: #{result.failure}"
+        end
+      rescue StandardError => e
+        subscriber_logger.error "H41 Transmission create: for system_date: #{system_date} error: #{e} backtrace: #{e.backtrace}"
+      end
+
+      def process_date_advanced_for_h36(subscriber_logger, system_date)
         return if system_date != Date.today.beginning_of_month
 
         year = system_date.year
@@ -36,10 +69,6 @@ module Subscribers
       rescue StandardError => e
         subscriber_logger.error "on_system_date_changed H36 Transmission create: error: #{e} backtrace: #{e.backtrace}"
         subscriber_logger.error "on_system_date_changed H36 Transmission create: ------- end"
-      end
-
-      def subscriber_logger_for(event)
-        Logger.new("#{Rails.root}/log/#{event}_#{Date.today.in_time_zone('Eastern Time (US & Canada)').strftime('%Y_%m_%d')}.log")
       end
     end
   end
