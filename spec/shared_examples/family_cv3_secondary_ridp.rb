@@ -102,18 +102,20 @@ RSpec.shared_context 'family cv3 with secondary ridp attestation', shared_contex
     {
       SessionIdentification: "347567asghfjgshfg",
       VerificationAnswerSet: {
-        VerificationAnswers: [{
-          VerificationQuestionNumber: 1,
-          VerificatonAnswer: 1
-        },
-                                {
-                                  VerificationQuestionNumber: 2,
-                                  VerificatonAnswer: 1
-                                },
-                                {
-                                  VerificationQuestionNumber: 3,
-                                  VerificatonAnswer: 2
-                                }]
+        VerificationAnswers: [
+          {
+            VerificationQuestionNumber: 1,
+            VerificatonAnswer: 1
+          },
+          {
+            VerificationQuestionNumber: 2,
+            VerificatonAnswer: 1
+          },
+          {
+            VerificationQuestionNumber: 3,
+            VerificatonAnswer: 2
+          }
+        ]
       },
       DSHReferenceNumber: 'test'
     }
