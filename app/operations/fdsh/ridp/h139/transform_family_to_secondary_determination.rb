@@ -18,7 +18,7 @@ module Fdsh
           primary_person               = yield fetch_primary_family_members_person(valid_family)
           secondary_request_evidence   = yield fetch_secondary_request_evidence(primary_person)
           secondary_request_values     = yield validate_secondary_request(secondary_request_evidence)
-          secondary_request_entity     = yield create_secondary_request(secondary_request_evidence)
+          secondary_request_entity     = yield create_secondary_request(secondary_request_values)
 
           Success(secondary_request_entity)
         end
@@ -53,6 +53,7 @@ module Fdsh
 
         def validate_secondary_request(evidence)
           result = AcaEntities::Fdsh::Ridp::H139::SecondaryRequestContract.new.call(evidence[:secondary_request])
+
           result.success? ? Success(result.to_h) : Failure(result.errors)
         end
 

@@ -89,30 +89,33 @@ RSpec.shared_context 'family cv3 with secondary ridp attestation', shared_contex
           attestations: [
             attestations: {
               ridp_attestation: { evidences: [{
-                secondary_request:
-                {
-                  SessionIdentification: "347567asghfjgshfg",
-                  VerificationAnswerSet: {
-                    VerificationAnswers: [{
-                      VerificationQuestionNumber: 1,
-                      VerificatonAnswer: 1
-                    },
-                                          {
-                                            VerificationQuestionNumber: 2,
-                                            VerificatonAnswer: 1
-                                          },
-                                          {
-                                            VerificationQuestionNumber: 3,
-                                            VerificatonAnswer: 2
-                                          }]
-                  },
-                  DSHReferenceNumber: 'test'
-                }
+                secondary_request: second_request
               }] }
             }
           ]
         }
       }
+    }
+  end
+
+  let(:second_request) do
+    {
+      SessionIdentification: "347567asghfjgshfg",
+      VerificationAnswerSet: {
+        VerificationAnswers: [{
+          VerificationQuestionNumber: 1,
+          VerificatonAnswer: 1
+        },
+                                {
+                                  VerificationQuestionNumber: 2,
+                                  VerificatonAnswer: 1
+                                },
+                                {
+                                  VerificationQuestionNumber: 3,
+                                  VerificatonAnswer: 2
+                                }]
+      },
+      DSHReferenceNumber: 'test'
     }
   end
 
