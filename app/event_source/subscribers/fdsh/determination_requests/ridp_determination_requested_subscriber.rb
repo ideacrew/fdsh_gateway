@@ -24,10 +24,10 @@ module Subscribers
                                                                                                      correlation_id: correlation_id
                                                                                                    })
                                  else
-                                   :Fdsh::Ridp::H139::HandlePrimaryDeterminationRequest.new.call({
-                                                                                                   payload: payload,
-                                                                                                   correlation_id: correlation_id
-                                                                                                 })
+                                   ::Fdsh::Ridp::H139::HandlePrimaryDeterminationRequest.new.call({
+                                                                                                    payload: payload,
+                                                                                                    correlation_id: correlation_id
+                                                                                                  })
                                  end
 
           if determination_result.success?
