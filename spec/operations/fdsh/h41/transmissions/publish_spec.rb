@@ -7,10 +7,12 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
 
   before :each do
     FileUtils.rm_rf(Rails.root.join("h41_transmissions").to_s)
+    FileUtils.rm_rf(Rails.root.join("h41_files").to_s)
   end
 
   after :all do
     FileUtils.rm_rf(Rails.root.join("h41_transmissions").to_s)
+    FileUtils.rm_rf(Rails.root.join("h41_files").to_s)
   end
 
   after :each do
@@ -50,6 +52,55 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         expect(result.failure).to eq(
           'report_kind must be one of [:h41_1095a, :h41]'
         )
+      end
+    end
+  end
+
+  describe 'cms_eft_serverless feature' do
+    let!(:insurance_polices) do
+      create_list(:h41_insurance_policy, 20, :with_aptc_csr_tax_households, transaction_xml: transaction_xml,
+                                                                            transmission: open_transmission)
+    end
+
+    let(:outbound_folder) do
+      Rails.root.join("h41_transmissions").to_s
+    end
+    let(:input_params) do
+      {
+        reporting_year: Date.today.year,
+        report_kind: report_kind,
+        report_type: :original
+      }
+    end
+
+    let!(:open_transmission) { FactoryBot.create(:h41_original_transmission) }
+    let(:transaction_xml) do
+      File.read(Rails.root.join("spec/test_payloads/h41/original.xml").to_s)
+    end
+
+    context 'when feature is enabled' do
+      before do
+        allow(FdshGatewayRegistry).to receive(:feature_enabled?).with(:cms_eft_serverless).and_return(true)
+        @result = subject.call(input_params)
+        open_transmission.reload
+      end
+
+      it 'validates file name format without .IN' do
+        file_names = Dir.glob("#{outbound_folder}/*").collect {|file| File.basename(file) }
+        expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P/)
+      end
+    end
+
+    context 'when feature is disabled' do
+      before do
+        allow(FdshGatewayRegistry).to receive(:feature_enabled?).with(:cms_eft_serverless).and_return(false)
+        @result = subject.call(input_params)
+        open_transmission.reload
+      end
+
+      it 'validates file name format with .IN' do
+        file_names = Dir.glob("#{outbound_folder}/*").collect {|file| File.basename(file) }
+        expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P\.IN/)
       end
     end
   end
@@ -172,6 +223,33 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
         end
         expect(file_names.count).to eq 1
         expect(file_names.first).to match(/SBE00ME\.DSH\.EOYIN\.D\d{6}\.T\d{6}000\.P\.IN/)
+      end
+
+      it 'should have valid original batch id tag in manifest file' do
+        destination_directory = "#{Rails.root}/h41_files"
+        FileUtils.mkdir_p(destination_directory) unless File.directory?(destination_directory)
+        file_names = Dir.glob("#{outbound_folder}/*").collect do |file|
+          File.basename(file)
+        end
+
+        Zip::File.open("#{Rails.root}/h41_transmissions/#{file_names.first}") do |zip_file|
+          zip_file.each do |entry|
+            # Construct the destination path for each file in the zip
+            destination_path = File.join(destination_directory, entry.name)
+
+            # Extract the file
+            entry.extract(destination_path)
+          end
+        end
+
+        file = File.open("#{Rails.root}/h41_files/manifest.xml", "r")
+        begin
+          file_contents = file.read
+          text_to_check = "OriginalBatchID"
+          expect(file_contents).to include(text_to_check)
+        ensure
+          file.close
+        end
       end
 
       it 'should update transmission to transmitted state' do
