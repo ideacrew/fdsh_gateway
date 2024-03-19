@@ -56,6 +56,41 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
     end
   end
 
+  context "no pending transactions for transmission" do
+    let!(:insurance_polices) do
+      create_list(:h41_insurance_policy, 20, :with_aptc_csr_tax_households, transaction_xml: transaction_xml,
+                                                                            transmission: open_transmission)
+    end
+
+    let(:outbound_folder) do
+      Rails.root.join("h41_transmissions").to_s
+    end
+
+    let(:input_params) do
+      {
+        reporting_year: Date.today.year,
+        report_kind: :h41,
+        report_type: :original
+      }
+    end
+
+    let!(:open_transmission) { FactoryBot.create(:h41_original_transmission) }
+    let(:transaction_xml) do
+      File.read(Rails.root.join("spec/test_payloads/h41/original.xml").to_s)
+    end
+
+    it 'should leave transmission in processing state' do
+      open_transmission.transactions.update_all(status: :blocked, transmit_action: :no_transmit)
+      @result = subject.call(input_params)
+      open_transmission.reload
+      expect(open_transmission.status).to eq :processing
+    end
+
+    it 'should not create h41_transmissons directory' do
+      expect(Dir.exist?(Rails.root.join("h41_transmissions").to_s)).to be_falsey
+    end
+  end
+
   describe 'cms_eft_serverless feature' do
     let!(:insurance_polices) do
       create_list(:h41_insurance_policy, 20, :with_aptc_csr_tax_households, transaction_xml: transaction_xml,
@@ -65,6 +100,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
     let(:outbound_folder) do
       Rails.root.join("h41_transmissions").to_s
     end
+
     let(:input_params) do
       {
         reporting_year: Date.today.year,
