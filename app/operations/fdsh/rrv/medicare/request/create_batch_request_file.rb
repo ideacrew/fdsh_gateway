@@ -48,7 +48,7 @@ module Fdsh
           # @return [String] The full path of the zip file.
           def generate_zip_folder_name(outbound_folder)
             timestamp = Time.now.strftime('%y%m%d.T%H%M%S%L.P')
-            extension = FdshGatewayRegistry.feature_enabled?(:cms_eft_serverless) ? ".zip" : ".IN.zip"
+            extension = FdshGatewayRegistry.feature_enabled?(:cms_eft_serverless) ? "" : ".IN"
             "#{outbound_folder}#{BASE_FOLDER_NAME_FORMAT}#{timestamp}#{extension}"
           end
 
