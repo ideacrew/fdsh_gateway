@@ -46,39 +46,70 @@ RSpec.describe Fdsh::Rrv::Medicare::RrvBatchRequestDirector do
     }
   end
 
-  it "should create batch request zip file" do
-    result = described_class.new.call(params)
-    expect(Transaction.count).to eq 17
-    expect(result.success?).to be_truthy
-    expect(result.success).to eq "rrv_outbound_files_test"
-    expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN.zip")].count).to eq 5
+  describe 'when cms_eft_serverless feature is disabled' do
+    before do
+      allow(FdshGatewayRegistry).to receive(:feature_enabled?).with(:cms_eft_serverless).and_return(false)
+    end
+
+    it "should create batch request zip file" do
+      result = described_class.new.call(params)
+      expect(Transaction.count).to eq 17
+      expect(result.success?).to be_truthy
+      expect(result.success).to eq "rrv_outbound_files_test"
+      expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN")].count).to eq 5
+    end
+
+    it "should not pull activities before start_date param" do
+      result = described_class.new.call(params_2)
+      expect(Transaction.count).to eq 17
+      expect(result.success?).to be_truthy
+      expect(result.success).to eq "rrv_outbound_files_test"
+      expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN")].count).to eq 0
+    end
+
+    it "should pull activities equal to or greater than start_date param" do
+      Transaction.all.first.activities.first.update!(created_at: Date.today + 10.days)
+      result = described_class.new.call(params_2)
+      expect(Transaction.count).to eq 17
+      expect(result.success?).to be_truthy
+      expect(result.success).to eq "rrv_outbound_files_test"
+      expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN")].count).to eq 1
+    end
+
+    let(:logger_file_contents) do
+      File.read("#{Rails.root}/log/rrv_batch_request_director_#{DateTime.now.strftime('%Y_%m_%d')}.log")
+    end
+
+    context 'with valid params' do
+      before { subject.call(params) }
+
+      it 'logs information' do
+        expect(logger_file_contents).to include(
+          '----- Process Started with values:',
+          'Total transactions to process:',
+          'Created outbound folder:',
+          '----- Process Ended'
+        )
+      end
+    end
   end
 
-  it "should not pull activities before start_date param" do
-    result = described_class.new.call(params_2)
-    expect(Transaction.count).to eq 17
-    expect(result.success?).to be_truthy
-    expect(result.success).to eq "rrv_outbound_files_test"
-    expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN.zip")].count).to eq 0
-  end
+  describe 'when cms_eft_serverless feature is enabled' do
+    before do
+      allow(FdshGatewayRegistry).to receive(:feature_enabled?).with(:cms_eft_serverless).and_return(true)
+      described_class.new.call(params)
+    end
 
-  it "should pull activities equal to or greater than start_date param" do
-    Transaction.all.first.activities.first.update!(created_at: Date.today + 10.days)
-    result = described_class.new.call(params_2)
-    expect(Transaction.count).to eq 17
-    expect(result.success?).to be_truthy
-    expect(result.success).to eq "rrv_outbound_files_test"
-    expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN.zip")].count).to eq 1
-  end
+    it "validates file name format without .IN" do
+      expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*")].count).to eq 5
+    end
 
-  let(:logger_file_contents) do
-    File.read("#{Rails.root}/log/rrv_batch_request_director_#{DateTime.now.strftime('%Y_%m_%d')}.log")
-  end
+    it "removes the transaction and manifest files after zipping" do
+      expect(Dir[Rails.root.join("rrv_outbound_files_test/*.xml")].count).to eq 0
+    end
 
-  context 'with valid params' do
-    before { subject.call(params) }
-
-    it 'logs information' do
+    it "logs the successful creation of the zip file" do
+      logger_file_contents = File.read("#{Rails.root}/log/rrv_batch_request_director_#{DateTime.now.strftime('%Y_%m_%d')}.log")
       expect(logger_file_contents).to include(
         '----- Process Started with values:',
         'Total transactions to process:',
