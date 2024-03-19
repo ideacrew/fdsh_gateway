@@ -59,7 +59,7 @@ RSpec.describe Fdsh::H41::Transmissions::Publish do
   context "no pending transactions for transmission" do
     let!(:insurance_polices) do
       create_list(:h41_insurance_policy, 20, :with_aptc_csr_tax_households, transaction_xml: transaction_xml,
-                  transmission: open_transmission)
+                                                                            transmission: open_transmission)
     end
 
     let(:outbound_folder) do
