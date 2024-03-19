@@ -56,7 +56,7 @@ RSpec.describe Fdsh::Rrv::Medicare::RrvBatchRequestDirector do
       expect(Transaction.count).to eq 17
       expect(result.success?).to be_truthy
       expect(result.success).to eq "rrv_outbound_files_test"
-      expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN.zip")].count).to eq 5
+      expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN")].count).to eq 5
     end
 
     it "should not pull activities before start_date param" do
@@ -64,7 +64,7 @@ RSpec.describe Fdsh::Rrv::Medicare::RrvBatchRequestDirector do
       expect(Transaction.count).to eq 17
       expect(result.success?).to be_truthy
       expect(result.success).to eq "rrv_outbound_files_test"
-      expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN.zip")].count).to eq 0
+      expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN")].count).to eq 0
     end
 
     it "should pull activities equal to or greater than start_date param" do
@@ -73,7 +73,7 @@ RSpec.describe Fdsh::Rrv::Medicare::RrvBatchRequestDirector do
       expect(Transaction.count).to eq 17
       expect(result.success?).to be_truthy
       expect(result.success).to eq "rrv_outbound_files_test"
-      expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN.zip")].count).to eq 1
+      expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.IN")].count).to eq 1
     end
 
     let(:logger_file_contents) do
@@ -101,7 +101,7 @@ RSpec.describe Fdsh::Rrv::Medicare::RrvBatchRequestDirector do
     end
 
     it "validates file name format without .IN" do
-      expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*.zip")].count).to eq 5
+      expect(Dir[Rails.root.join("rrv_outbound_files_test/SBE00ME.DSH.RRVIN.D*")].count).to eq 5
     end
 
     it "removes the transaction and manifest files after zipping" do
