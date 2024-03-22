@@ -36,10 +36,29 @@ RSpec.describe Fdsh::Pvc::Medicare::PvcBatchRequestDirector do
     described_class.new.call(params)
   end
 
-  it "should create batch request zip file" do
-    expect(Transaction.count).to eq 17
-    expect(subject.success?).to be_truthy
-    expect(subject.success).to eq "#{Rails.root}/pvc_outbound_files_test"
-    expect(Dir[Rails.root.join("pvc_outbound_files_test/SBE00ME.DSH.PVC1.D*.IN")].count).to eq 5
+  describe 'when cms_eft_serverless feature is disabled' do
+    before do
+      allow(FdshGatewayRegistry).to receive(:feature_enabled?).with(:cms_eft_serverless).and_return(false)
+    end
+
+    it "should create batch request zip file" do
+      expect(Transaction.count).to eq 17
+      expect(subject.success?).to be_truthy
+      expect(subject.success).to eq "#{Rails.root}/pvc_outbound_files_test"
+      expect(Dir[Rails.root.join("pvc_outbound_files_test/SBE00ME.DSH.PVC1.D*.IN")].count).to eq 5
+    end
+  end
+
+  describe 'when cms_eft_serverless feature is enabled' do
+    before do
+      allow(FdshGatewayRegistry).to receive(:feature_enabled?).with(:cms_eft_serverless).and_return(true)
+    end
+
+    it "should create batch request zip file" do
+      expect(Transaction.count).to eq 17
+      expect(subject.success?).to be_truthy
+      expect(subject.success).to eq "#{Rails.root}/pvc_outbound_files_test"
+      expect(Dir[Rails.root.join("pvc_outbound_files_test/SBE00ME.DSH.PVC1.D*.P")].count).to eq 5
+    end
   end
 end

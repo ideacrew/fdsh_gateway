@@ -13,10 +13,12 @@ module Fdsh
           include Dry::Monads[:result, :do, :try]
           include EventSource::Command
 
+          BASE_FOLDER_NAME_FORMAT = "/SBE00ME.DSH.PVC1.D"
+
           def call(params)
             values = yield validate(params)
             manifest_file = yield create_manifest_file(values)
-            generate_batch_zip(values, manifest_file)
+            create_batch_zip(values, manifest_file)
 
             Success(values[:outbound_folder])
           end
@@ -35,11 +37,26 @@ module Fdsh
             Fdsh::Pvc::Medicare::Request::CreateManifestFile.new.call(values)
           end
 
-          def generate_batch_zip(values, manifest_file)
-            input_files = [File.basename(values[:transaction_file]), File.basename(manifest_file)]
-            @zip_name = values[:outbound_folder] + "/SBE00ME.DSH.PVC1.D#{Time.now.strftime('%y%m%d.T%H%M%S%L.P')}.IN"
+          # Generates the name for the zip folder based on the current timestamp and the feature flag `:cms_eft_serverless`.
+          #
+          # If the feature `:cms_eft_serverless` is enabled in `FdshGatewayRegistry`, the folder name is formatted as:
+          # /SBE00ME.DSH.PVC1.DYYMMDD.THHMMSSMMM.P
+          # Otherwise, the folder name is formatted as:
+          # /SBE00ME.DSH.PVC1.DYYMMDD.THHMMSSMMM.P.IN
+          #
+          # @param outbound_folder [String] The base folder where the zip file will be created.
+          # @return [String] The full path of the zip file.
+          def generate_zip_folder_name(outbound_folder)
+            timestamp = Time.now.strftime('%y%m%d.T%H%M%S%L.P')
+            extension = FdshGatewayRegistry.feature_enabled?(:cms_eft_serverless) ? "" : ".IN"
+            "#{outbound_folder}#{BASE_FOLDER_NAME_FORMAT}#{timestamp}#{extension}"
+          end
 
-            Zip::File.open(@zip_name, create: true) do |zipfile|
+          def create_batch_zip(values, manifest_file)
+            input_files = [File.basename(values[:transaction_file]), File.basename(manifest_file)]
+            zip_name = generate_zip_folder_name(values[:outbound_folder])
+
+            Zip::File.open(zip_name, create: true) do |zipfile|
               input_files.each do |filename|
                 zipfile.add(filename, File.join(values[:outbound_folder], filename))
               end
